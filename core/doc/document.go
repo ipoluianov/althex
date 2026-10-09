@@ -63,6 +63,8 @@ type Document struct {
 	groupKind string
 	groupNode *HistNode
 	groupDeep int
+	// groupChanged: the group made edits the subscribers were not told of
+	groupChanged bool
 
 	journal *journal
 
@@ -187,6 +189,16 @@ func (d *Document) Close() error {
 	}
 	d.add.close()
 	return err
+}
+
+// JournalDir is the directory of the journal of the document; "" - none
+func (d *Document) JournalDir() string {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	if d.journal == nil {
+		return ""
+	}
+	return d.journal.dir
 }
 
 // Path is the file of the document; "" - not saved yet

@@ -1,7 +1,7 @@
 // Package hexview is the widget that shows and edits a document: the
-// offsets, the bytes in hex and the bytes as text. It draws only the rows
-// on the screen and never waits for a disk: bytes not read yet are shown as
-// placeholders and drawn when they arrive.
+// offsets, the bytes as numbers and the bytes as text. It draws only the
+// rows on the screen and never waits for a disk: bytes not read yet are
+// shown as placeholders and drawn when they arrive.
 package hexview
 
 import (
@@ -16,9 +16,87 @@ import (
 
 // The columns the caret can be in
 const (
-	colHex  = 0
+	colNum  = 0 // the bytes as numbers
 	colText = 1
 )
+
+// Mode is how the bytes are written in the number column (VIEW-5)
+type Mode int
+
+const (
+	ModeHex Mode = iota
+	ModeBin
+	ModeOct
+	ModeDec
+)
+
+// digits is how many digits a byte takes in the mode, base their base
+func (m Mode) digits() int {
+	switch m {
+	case ModeBin:
+		return 8
+	case ModeOct, ModeDec:
+		return 3
+	}
+	return 2
+}
+
+func (m Mode) base() int {
+	switch m {
+	case ModeBin:
+		return 2
+	case ModeOct:
+		return 8
+	case ModeDec:
+		return 10
+	}
+	return 16
+}
+
+// TextEncoding decodes and encodes the text column (core/codec.Encoding is one)
+type TextEncoding interface {
+	Unit() int
+	Decode(data []byte, i int) (r rune, size int, ok bool)
+	Encode(s string) ([]byte, error)
+}
+
+// ColorRule paints the bytes from From to To (VIEW-6)
+type ColorRule struct {
+	From, To byte
+	Color    color.RGBA
+}
+
+// Highlight marks a range of the document: a bookmark, a search hit, a difference
+type Highlight struct {
+	Off, Len int64
+	Color    color.RGBA
+	// Frame draws an outline instead of filling the background
+	Frame bool
+}
+
+// Options are how the view shows the bytes
+type Options struct {
+	// BytesPerRow is 8..64; 0 - as many as fit the width (VIEW-1)
+	BytesPerRow int
+	// Group is 1, 2, 4, 8 or 16 bytes written together (VIEW-3)
+	Group int
+	// LittleEndian writes a group as a little-endian number: its bytes in reverse
+	LittleEndian bool
+	Mode         Mode
+	// OffsetBase is 16, 10 or 8 (VIEW-2)
+	OffsetBase int
+	// Relative shows the offsets from RelativeTo (VIEW-2: from a mark)
+	Relative   bool
+	RelativeTo int64
+	// Encoding of the text column; nil - ASCII
+	Encoding   TextEncoding
+	ColorRules []ColorRule
+}
+
+// DefaultOptions are 16 bytes a row in hex, ASCII text
+func DefaultOptions() Options {
+	return Options{BytesPerRow: 16, Group: 1, OffsetBase: 16}
+}
 
 // DefaultFontSize is the size of the text in logical pixels
 const DefaultFontSize = 14
@@ -29,6 +107,7 @@ type View struct {
 
 	doc         *doc.Document
 	unsubscribe func()
+	opts        Options
 
 	// The font in pixels of the screen, made for fontSize at the scale
 	font     *Font
@@ -37,11 +116,12 @@ type View struct {
 
 	// Layout in pixels of the screen, see layout
 	bpr       int // bytes per row
-	offDigits int
+	offChars  int
 	padX      int
 	xOff      int
-	xHex      int
+	xNum      int
 	xText     int
+	cellW     int
 	headerH   int
 	sbW       int
 	pxW, pxH  int
@@ -53,7 +133,7 @@ type View struct {
 	// [min(anchor, caret), max(anchor, caret))
 	caret  int64
 	anchor int64
-	nibble int // 1: the low half of the byte at the caret is typed next
+	digit  int // the digit of the byte at the caret typed next (the hex half)
 	col    int
 	insert bool
 	busy   bool // saving: no edits
@@ -78,17 +158,28 @@ type View struct {
 	// Buffers of a paint, kept to not allocate each time
 	rowBuf  []byte
 	rowMark []bool
+	textBuf []byte
+	hlBuf   []Highlight
 
+	// Highlights returns the marks of the range [from, to) to draw
+	Highlights func(from, to int64) []Highlight
 	// OnStateChanged is called when the caret, the selection, the mode or
 	// the document change: for the status bar
 	OnStateChanged func()
+	// OnScrolled is called when the first row shown changes (for a view
+	// scrolled together with this one)
+	OnScrolled func(topRow int64)
 	// OnError reports an edit that failed
 	OnError func(err error)
+	// OnFocused is called when the view gets the focus
+	OnFocused func()
 }
 
 // NewView makes a view of the document
-func NewView(d *doc.Document) *View {
-	v := &View{doc: d, fontSize: DefaultFontSize, bpr: 16, caretOn: true}
+func NewView(d *doc.Document, opts Options) *View {
+	v := &View{doc: d, fontSize: DefaultFontSize, caretOn: true}
+	v.opts = normalize(opts)
+	v.bpr = max(v.opts.BytesPerRow, 8)
 	v.InitWidget()
 	v.SetTypeName("HexView")
 	v.SetCanBeFocused(true)
@@ -105,6 +196,9 @@ func NewView(d *doc.Document) *View {
 	v.SetOnFocused(func() {
 		v.focused = true
 		v.resetBlink()
+		if v.OnFocused != nil {
+			v.OnFocused()
+		}
 	})
 	v.SetOnFocusLost(func() {
 		v.focused = false
@@ -113,6 +207,26 @@ func NewView(d *doc.Document) *View {
 	v.AddTimer(100, v.timer)
 	v.unsubscribe = d.Subscribe(v.docChanged)
 	return v
+}
+
+func normalize(o Options) Options {
+	if o.BytesPerRow != 0 {
+		o.BytesPerRow = max(1, min(o.BytesPerRow, 64))
+	}
+	switch o.Group {
+	case 1, 2, 4, 8, 16:
+	default:
+		o.Group = 1
+	}
+	switch o.OffsetBase {
+	case 8, 10, 16:
+	default:
+		o.OffsetBase = 16
+	}
+	if o.Mode < ModeHex || o.Mode > ModeDec {
+		o.Mode = ModeHex
+	}
+	return o
 }
 
 // Close stops following the document
@@ -125,6 +239,20 @@ func (v *View) Close() {
 
 // Document returns the document shown
 func (v *View) Document() *doc.Document { return v.doc }
+
+// Options returns how the view shows the bytes
+func (v *View) Options() Options { return v.opts }
+
+// SetOptions changes how the view shows the bytes, keeping the caret on the screen
+func (v *View) SetOptions(o Options) {
+	v.opts = normalize(o)
+	v.digit = 0
+	if v.font != nil && v.pxW > 0 {
+		v.layout(v.pxW, v.pxH)
+		v.ensureCaretVisible()
+	}
+	v.changed()
+}
 
 func (v *View) update() {
 	if f := v.Form(); f != nil {
@@ -189,34 +317,89 @@ func (v *View) ensureFont(scale float64) {
 	v.font = NewFont(v.fontSize * scale)
 }
 
+// offsetChars is how many characters the offsets of the document take
+func (v *View) offsetChars() int {
+	size := v.doc.Size()
+	n := 1
+	for limit := uint64(v.opts.OffsetBase); uint64(size) >= limit && n < 22; limit *= uint64(v.opts.OffsetBase) {
+		n++
+	}
+	if v.opts.OffsetBase == 16 {
+		n = max(n, 8)
+	}
+	if v.opts.Relative {
+		n++ // the sign
+	}
+	return n
+}
+
 // layout places the columns for the size in pixels of the screen
 func (v *View) layout(w, h int) {
 	f := v.font
 	cw := f.CharWidth
 	v.pxW, v.pxH = w, h
-	v.offDigits = 8
-	for size := v.doc.Size(); size>>(4*v.offDigits) > 0 && v.offDigits < 16; {
-		v.offDigits++
-	}
+	v.offChars = v.offsetChars()
 	v.padX = cw / 2
 	v.sbW = int(math.Round(12 * v.scale))
 	v.xOff = v.padX
-	v.xHex = v.xOff + (v.offDigits+2)*cw
-	v.xText = v.xHex + v.hexWidth() + 2*cw
+	v.xNum = v.xOff + (v.offChars+2)*cw
+	v.cellW = v.opts.Mode.digits() * cw
+	v.bpr = v.opts.BytesPerRow
+	if v.bpr == 0 {
+		v.bpr = v.fitBytes(w)
+	}
+	v.xText = v.xNum + v.numWidth() + 2*cw
 	v.headerH = f.LineHeight + int(math.Round(4*v.scale))
 	v.rowsShown = max(1, (h-v.headerH)/f.LineHeight)
 }
 
-// cellX returns the x of the hex cell of the i-th byte of a row; every
-// 8 bytes are set off by a space
-func (v *View) cellX(i int) int {
-	cw := v.font.CharWidth
-	return v.xHex + i*3*cw + (i/8)*cw
+// fitBytes returns how many bytes a row can take in the width: whole
+// groups, at least 8 or one group
+func (v *View) fitBytes(w int) int {
+	g := v.opts.Group
+	best := max(g, 8)
+	for n := best; n <= 64; n += g {
+		v.bpr = n
+		if v.xNum+v.numWidth()+3*v.font.CharWidth+n*v.font.CharWidth+v.sbW > w {
+			break
+		}
+		best = n
+	}
+	return best
 }
 
-func (v *View) hexWidth() int {
-	return v.cellX(v.bpr-1) + 2*v.font.CharWidth - v.xHex
+// sep8 tells whether every 8 bytes are set off by a space: when the groups are smaller
+func (v *View) sep8() bool { return v.opts.Group < 8 && v.bpr > 8 }
+
+// cellX returns the x of the cell at the i-th place of a row: a space after
+// each group, one more after every 8 bytes
+func (v *View) cellX(i int) int {
+	cw := v.font.CharWidth
+	x := v.xNum + i*v.cellW + (i/v.opts.Group)*cw
+	if v.sep8() {
+		x += (i / 8) * cw
+	}
+	return x
 }
+
+func (v *View) numWidth() int {
+	return v.cellX(v.bpr-1) + v.cellW - v.xNum
+}
+
+// byteOfCell returns which byte of a row the i-th cell shows: in a
+// little-endian group the bytes go in reverse
+func (v *View) byteOfCell(i int) int {
+	if !v.opts.LittleEndian || v.opts.Group == 1 {
+		return i
+	}
+	g := v.opts.Group
+	start := i - i%g
+	last := min(start+g, v.bpr) - 1
+	return start + (last - i)
+}
+
+// cellOfByte is the opposite of byteOfCell (reversing is its own inverse)
+func (v *View) cellOfByte(j int) int { return v.byteOfCell(j) }
 
 // totalRows counts the rows, with the one where a byte can be added at the end
 func (v *View) totalRows() int64 {
@@ -228,18 +411,44 @@ func (v *View) maxTop() int64 {
 }
 
 func (v *View) clampTop() {
+	old := v.topRow
 	v.topRow = max(0, min(v.topRow, v.maxTop()))
+	if v.topRow != old && v.OnScrolled != nil {
+		v.OnScrolled(v.topRow)
+	}
+}
+
+// setTop scrolls to the row and tells OnScrolled
+func (v *View) setTop(row int64) {
+	old := v.topRow
+	v.topRow = row
+	v.clampTop()
+	if v.topRow != old && v.OnScrolled != nil {
+		v.OnScrolled(v.topRow)
+	}
+	v.update()
+}
+
+// TopOffset returns the offset of the first row shown
+func (v *View) TopOffset() int64 { return v.topRow * int64(v.bpr) }
+
+// ScrollToOffset shows the row of the offset first, without telling OnScrolled
+func (v *View) ScrollToOffset(off int64) {
+	v.topRow = off / int64(v.bpr)
+	v.topRow = max(0, min(v.topRow, v.maxTop()))
+	v.update()
 }
 
 // ensureCaretVisible scrolls so the row of the caret is on the screen
 func (v *View) ensureCaretVisible() {
 	row := v.caret / int64(v.bpr)
-	if row < v.topRow {
-		v.topRow = row
-	} else if row >= v.topRow+int64(v.rowsShown) {
-		v.topRow = row - int64(v.rowsShown) + 1
+	top := v.topRow
+	if row < top {
+		top = row
+	} else if row >= top+int64(v.rowsShown) {
+		top = row - int64(v.rowsShown) + 1
 	}
-	v.clampTop()
+	v.setTop(top)
 }
 
 // toPx converts logical pixels to pixels of the screen
@@ -266,7 +475,7 @@ func (v *View) InsertMode() bool { return v.insert }
 
 func (v *View) SetInsertMode(on bool) {
 	v.insert = on
-	v.nibble = 0
+	v.digit = 0
 	v.changed()
 }
 
@@ -282,7 +491,7 @@ func (v *View) SetBusy(busy bool) {
 // GoTo puts the caret at the offset and shows it
 func (v *View) GoTo(off int64) {
 	off = max(0, min(off, v.doc.Size()))
-	v.caret, v.anchor, v.nibble = off, off, 0
+	v.caret, v.anchor, v.digit = off, off, 0
 	v.ensureCaretVisible()
 	v.resetBlink()
 	v.changed()
@@ -294,7 +503,7 @@ func (v *View) Select(off, n int64) {
 	off = max(0, min(off, size))
 	v.anchor = off
 	v.caret = min(off+n, size)
-	v.nibble = 0
+	v.digit = 0
 	v.ensureCaretVisible()
 	v.changed()
 }
@@ -307,6 +516,9 @@ func (v *View) SetFontSize(size float64) {
 }
 
 func (v *View) FontSize() float64 { return v.fontSize }
+
+// BytesPerRow is the number of bytes a row shows now
+func (v *View) BytesPerRow() int { return v.bpr }
 
 // palette is the colors of the view in the current theme
 type palette struct {

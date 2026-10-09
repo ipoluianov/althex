@@ -1,0 +1,56 @@
+//! name: BMP image
+//! extensions: bmp, dib
+//! magic: 0 "42 4D"
+
+// Windows bitmap: BITMAPFILEHEADER, BITMAPINFOHEADER (or a later version),
+// the palette and the pixels
+
+LittleEndian();
+
+enum <uint32> BI_COMPRESSION {
+    BI_RGB, BI_RLE8, BI_RLE4, BI_BITFIELDS, BI_JPEG, BI_PNG, BI_ALPHABITFIELDS
+};
+
+struct BITMAPFILEHEADER {
+    char   type[2];
+    uint32 size <comment="the size of the file">;
+    uint16 reserved1;
+    uint16 reserved2;
+    uint32 offBits <format=hex, comment="where the pixels start">;
+};
+
+struct BITMAPINFOHEADER {
+    uint32 size <comment="40, 108 (V4) or 124 (V5)">;
+    int32  width;
+    int32  height <comment="negative - the rows go from the top">;
+    uint16 planes;
+    uint16 bitCount;
+    BI_COMPRESSION compression;
+    uint32 sizeImage;
+    int32  xPelsPerMeter;
+    int32  yPelsPerMeter;
+    uint32 clrUsed;
+    uint32 clrImportant;
+    if (size > 40)
+        uchar extra[size - 40] <comment="the fields of BITMAPV4HEADER / V5">;
+};
+
+struct RGBQUAD {
+    uchar blue, green, red, reserved;
+};
+
+BITMAPFILEHEADER file <open=true>;
+BITMAPINFOHEADER info <open=true>;
+
+local uint32 colors = info.clrUsed;
+if (colors == 0 && info.bitCount <= 8)
+    colors = 1 << info.bitCount;
+if (info.compression == BI_BITFIELDS && info.size == 40)
+    uint32 masks[3] <format=hex>;
+if (colors > 0 && FTell() + colors * 4 <= file.offBits)
+    RGBQUAD palette[colors];
+
+if (file.offBits < FileSize()) {
+    FSeek(file.offBits);
+    uchar pixels[FileSize() - FTell()];
+}

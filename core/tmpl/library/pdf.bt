@@ -1,0 +1,510 @@
+//! name: PDF document
+//! extensions: pdf, ai
+//! magic: 0 "25 50 44 46 2D"
+
+// Portable Document Format (ISO 32000): text with binary streams. The
+// header line "%PDF-1.x", then the body - indirect objects "N G obj ...
+// endobj", whose streams ("stream" ... "endstream") are bytes - the
+// cross-reference table ("xref" and its subsections of 20-byte entries),
+// the trailer dictionary, "startxref" with the offset of the table, and
+// "%%EOF". An updated file repeats body, xref and trailer.
+//
+// The template finds the keywords by searching the text. To stay fast on
+// big files it scans only the first 4 MB (SCAN_HEAD) and the last 64 KB
+// (SCAN_TAIL), where the trailer and the last xref are; what is between is
+// shown as bytes. Objects whose stream has a direct /Length are skipped by
+// it; others are searched for "endstream".
+
+local int64 SCAN_HEAD = 4 * 1024 * 1024;
+local int64 SCAN_TAIL = 64 * 1024;
+// A text field longer than this is cut (the rest is in the next field)
+local int64 MAX_TEXT = 1024 * 1024;
+// xref entries shown one by one; the rest of a subsection is one field
+local int64 MAX_ENTRIES = 4096;
+
+// ---- Text search ----
+
+// The cache of FindText: the text from g_cOff up to a zero byte (g_cZero)
+// or up to the length ReadString gives
+local int64 g_cOff = -1;
+local string g_cText = "";
+local int g_cZero = 0;
+
+// FindText returns where pat (with no zero bytes) first is in [from, end), -1 - nowhere.
+// It reads the data as zero-terminated texts and searches them with Strstr,
+// which is much faster than looking at each byte.
+int64 FindText(int64 from, int64 end, string pat) {
+    local int64 p = Max(from, 0);
+    local int64 plen = Strlen(pat);
+    local int64 i;
+    local int64 stop;
+    end = Min(end, FileSize());
+    while (p + plen <= end) {
+        if (g_cOff < 0 || p < g_cOff || p > g_cOff + Strlen(g_cText)) {
+            g_cText = ReadString(p);
+            g_cOff = p;
+            stop = p + Strlen(g_cText);
+            g_cZero = stop >= FileSize() || ReadUByte(stop) == 0;
+        }
+        // only the text before end is searched
+        i = Strstr(SubStr(g_cText, p - g_cOff, end - p), pat);
+        if (i >= 0)
+            return p + i;
+        stop = g_cOff + Strlen(g_cText);
+        if (stop >= end)
+            return -1;
+        if (g_cZero) {
+            p = stop + 1;
+        } else {
+            // A long text without a zero: go on from its end
+            p = Max(stop - plen + 1, p + 1);
+            g_cOff = -1;
+        }
+    }
+    return -1;
+}
+
+int IsWS(int c) {
+    return c == 0x20 || c == 0x0A || c == 0x0D || c == 0x09 || c == 0x0C || c == 0x00;
+}
+
+int IsDigit(int c) {
+    return c >= 0x30 && c <= 0x39;
+}
+
+// A delimiter or white space: what may stand next to a keyword
+int IsDelim(int c) {
+    return IsWS(c) || c == 0x28 || c == 0x29 || c == 0x3C || c == 0x3E || c == 0x5B ||
+        c == 0x5D || c == 0x7B || c == 0x7D || c == 0x2F || c == 0x25;
+}
+
+// The byte at p, or a space out of the file
+int ByteAt(int64 p) {
+    if (p < 0 || p >= FileSize()) return 0x20;
+    return ReadUByte(p);
+}
+
+int64 SkipWS(int64 p, int64 end) {
+    while (p < end && IsWS(ReadUByte(p))) p++;
+    return p;
+}
+
+int64 SkipDigits(int64 p, int64 end) {
+    while (p < end && IsDigit(ReadUByte(p))) p++;
+    return p;
+}
+
+// The end of the line at p (where \r or \n is)
+int64 LineEnd(int64 p, int64 end) {
+    local int64 a = FindText(p, end, "\n");
+    local int64 b = FindText(p, end, "\r");
+    if (a < 0) a = end;
+    if (b >= 0 && b < a) a = b;
+    return a;
+}
+
+// The number written at p
+int64 NumberAt(int64 p) {
+    local int64 v = 0;
+    local int k = 0;
+    while (p < FileSize() && IsDigit(ReadUByte(p)) && k < 18) {
+        v = v * 10 + ReadUByte(p) - 0x30;
+        p++;
+        k++;
+    }
+    return v;
+}
+
+// IsKeyword tells whether the keyword of length n at k stands alone
+int IsKeyword(int64 k, int64 n) {
+    return IsDelim(ByteAt(k - 1)) && IsDelim(ByteAt(k + n));
+}
+
+// NextObject returns where the next "N G obj" in [p, end) starts, -1 - none
+int64 NextObject(int64 p, int64 end) {
+    local int64 k;
+    local int64 q;
+    local int64 r;
+    while (p < end) {
+        k = FindText(p, end + 3, "obj");
+        if (k < 0) return -1;
+        p = k + 3;
+        if (!IsDelim(ByteAt(k + 3)) || !IsWS(ByteAt(k - 1)))
+            continue; // endobj, /ObjStm and the like
+        // back over: white space, the generation, white space, the number
+        q = k - 1;
+        while (q >= 0 && IsWS(ReadUByte(q))) q--;
+        r = q;
+        while (q >= 0 && IsDigit(ReadUByte(q))) q--;
+        if (q == r || q < 0 || !IsWS(ReadUByte(q))) continue;
+        while (q >= 0 && IsWS(ReadUByte(q))) q--;
+        r = q;
+        while (q >= 0 && IsDigit(ReadUByte(q))) q--;
+        if (q == r) continue;
+        if (q >= 0 && !IsDelim(ReadUByte(q))) continue;
+        if (q + 1 < end)
+            return q + 1;
+        return -1;
+    }
+    return -1;
+}
+
+// NextXref returns where the next "xref" keyword (at the start of a line) is
+int64 NextXref(int64 p, int64 end) {
+    local int64 k;
+    while (p < end) {
+        k = FindText(p, end, "xref");
+        if (k < 0) return -1;
+        if ((k == 0 || ByteAt(k - 1) == 0x0A || ByteAt(k - 1) == 0x0D) && IsWS(ByteAt(k + 4)))
+            return k;
+        p = k + 4;
+    }
+    return -1;
+}
+
+// NextKeyword returns where the keyword next stands alone in [p, end)
+int64 NextKeyword(int64 p, int64 end, string word) {
+    local int64 k;
+    local int64 n = Strlen(word);
+    while (p < end) {
+        k = FindText(p, end, word);
+        if (k < 0) return -1;
+        if (IsKeyword(k, n))
+            return k;
+        p = k + n;
+    }
+    return -1;
+}
+
+// FindObject returns where "num gen obj" starts in [from, end), -1 - nowhere
+int64 FindObject(int64 num, int64 gen, int64 from, int64 end) {
+    local string pat = Str("%d %d obj", num, gen);
+    local int64 k;
+    while (from < end) {
+        k = FindText(from, end, pat);
+        if (k < 0) return -1;
+        if (IsDelim(ByteAt(k - 1)) && IsDelim(ByteAt(k + Strlen(pat))))
+            return k;
+        from = k + 1;
+    }
+    return -1;
+}
+
+// ResolveNumber returns the number that the object num gen is, -1 - not
+// found. It is looked for after p (where a stream's length object usually
+// is), then in the scanned start of the file.
+int64 ResolveNumber(int64 num, int64 gen, int64 p) {
+    local int64 k = FindObject(num, gen, p, Min(FileSize(), p + SCAN_HEAD + SCAN_TAIL));
+    if (k < 0)
+        k = FindObject(num, gen, 0, Min(p, SCAN_HEAD));
+    if (k < 0) return -1;
+    k = SkipWS(FindText(k, FileSize(), "obj") + 3, FileSize());
+    if (!IsDigit(ByteAt(k))) return -1;
+    return NumberAt(k);
+}
+
+// The value of /Length in [p, end) (an indirect one is looked up), -1 - none
+int64 StreamLength(int64 p, int64 end) {
+    local int64 k;
+    local int64 q;
+    local int64 v;
+    while (p < end) {
+        k = FindText(p, end, "/Length");
+        if (k < 0) return -1;
+        p = k + 7;
+        if (!IsDelim(ByteAt(k + 7))) continue; // /Length1 and the like
+        q = SkipWS(k + 7, end);
+        if (!IsDigit(ByteAt(q))) return -1;
+        v = NumberAt(q);
+        q = SkipDigits(q, end);
+        // "N G R" is a reference to an object with the length
+        local int64 r = SkipWS(q, end);
+        if (IsDigit(ByteAt(r))) {
+            local int64 gen = NumberAt(r);
+            r = SkipWS(SkipDigits(r, end), end);
+            if (ByteAt(r) == 0x52 && IsDelim(ByteAt(r + 1)))
+                return ResolveNumber(v, gen, q);
+        }
+        return v;
+    }
+    return -1;
+}
+
+// ---- Structures ----
+
+// An indirect object: "N G obj", the body, an optional stream, "endobj"
+struct PDF_OBJECT {
+    local int64 start = FTell();
+    local int64 q = SkipDigits(start, FileSize());
+    char number[q - start] <comment="the object number">;
+    FSeek(SkipWS(FTell(), FileSize()));
+    q = SkipDigits(FTell(), FileSize());
+    char generation[q - FTell()] <comment="the generation number">;
+    FSeek(SkipWS(FTell(), FileSize()));
+    char keyword[3] <comment="obj">;
+
+    local int64 bodyStart = FTell();
+    local int64 e = NextKeyword(bodyStart, FileSize(), "endobj");
+    local int64 bodyLimit = e;
+    if (e < 0) {
+        // No endobj: up to the next object or the end
+        bodyLimit = NextObject(bodyStart, FileSize());
+        if (bodyLimit < 0) bodyLimit = FileSize();
+    }
+    local int64 s = NextKeyword(bodyStart, bodyLimit, "stream");
+    // The body: the text before "stream" or "endobj"
+    local int64 bodyEnd = s >= 0 ? s : bodyLimit;
+    local int64 b = SkipWS(bodyStart, bodyEnd);
+    local int64 be = bodyEnd;
+    while (be > b && IsWS(ReadUByte(be - 1))) be--;
+    if (be > b) {
+        FSeek(b);
+        char body[Min(be - b, MAX_TEXT)];
+    }
+    if (s >= 0) {
+        FSeek(s);
+        // "stream" and its end of line: CR LF or LF
+        local int64 d = s + 6;
+        if (ByteAt(d) == 0x0D) d++;
+        if (ByteAt(d) == 0x0A) d++;
+        char streamKeyword[d - s];
+        local int64 len = StreamLength(bodyStart, s);
+        local int64 es = -1;
+        if (len >= 0 && d + len <= FileSize())
+            es = FindText(d + len, Min(d + len + 32, FileSize()), "endstream");
+        if (es < 0) {
+            es = FindText(d, FileSize(), "endstream");
+            if (es >= 0) {
+                // The data ends before the end of line before "endstream"
+                len = es - d;
+                if (len > 0 && ReadUByte(d + len - 1) == 0x0A) len--;
+                if (len > 0 && ReadUByte(d + len - 1) == 0x0D) len--;
+            } else {
+                len = FileSize() - d;
+            }
+        }
+        if (len > 0)
+            uchar streamData[len] <comment="the stream data, as /Filter says">;
+        if (es >= 0) {
+            FSeek(es);
+            char endstreamKeyword[9];
+            e = NextKeyword(FTell(), FileSize(), "endobj");
+            if (e >= 0) {
+                // only white space between endstream and endobj
+                local int64 w = SkipWS(FTell(), e);
+                if (w < e) e = -1;
+            }
+        } else {
+            e = -1;
+        }
+    }
+    if (e >= 0) {
+        FSeek(e);
+        char endobjKeyword[6];
+    }
+} <read=ObjectRead>;
+
+// Preview returns the start of a text field on one line. A char array
+// turns into a string as quoted text, its line ends are "\n" and "\r":
+// they become spaces.
+string Preview(string text, int max) {
+    local string t = SubStr(text, 0, max + 16);
+    local int k;
+    local int guard;
+    for (guard = 0; guard < 64; guard++) {
+        k = Strstr(t, "\\n");
+        if (k < 0) k = Strstr(t, "\\r");
+        if (k < 0) break;
+        t = SubStr(t, 0, k) + " " + SubStr(t, k + 2);
+    }
+    for (guard = 0; guard < 64; guard++) {
+        k = Strstr(t, "  ");
+        if (k < 0) break;
+        t = SubStr(t, 0, k) + SubStr(t, k + 1);
+    }
+    if (Strlen(t) > max)
+        t = SubStr(t, 0, max) + "...";
+    return t;
+}
+
+string ObjectRead(PDF_OBJECT &o) {
+    local string s = Str("%s %s obj", SubStr(o.number, 0), SubStr(o.generation, 0));
+    if (exists(o.body))
+        s += " " + Preview(o.body, 48);
+    if (exists(o.streamData))
+        s += Str(" stream %d bytes", sizeof(o.streamData));
+    return s;
+}
+
+// An entry of the cross-reference table: 20 bytes "oooooooooo ggggg n\r\n"
+struct XREF_ENTRY {
+    char offset[10] <comment="the byte offset (n) or the next free object (f)">;
+    char space1 <hidden=true>;
+    char generation[5];
+    char space2 <hidden=true>;
+    char type <comment="n - in use, f - free">;
+    char eol[2] <hidden=true>;
+} <read=XrefEntryRead>;
+
+string XrefEntryRead(XREF_ENTRY &x) {
+    return Str("%s %s %c", SubStr(x.offset, 0), SubStr(x.generation, 0), x.type);
+}
+
+// A subsection: "first count" and count entries
+struct XREF_SUBSECTION {
+    local int64 p = FTell();
+    local int64 le = LineEnd(p, FileSize());
+    char header[le - p] <comment="the first object number and the count">;
+    local int64 first = NumberAt(p);
+    local int64 count = NumberAt(SkipWS(SkipDigits(p, le), le));
+    FSeek(SkipWS(FTell(), FileSize()));
+    // Only whole, well-formed entries
+    local int64 n = Min(count, (FileSize() - FTell()) / 20);
+    local int64 k;
+    for (k = 0; k < n; k++) {
+        local int64 at = FTell() + k * 20;
+        local int c = ReadUByte(at + 17);
+        if (ReadUByte(at + 10) != 0x20 || (c != 0x6E && c != 0x66))
+            break;
+    }
+    n = k;
+    if (n > MAX_ENTRIES) {
+        XREF_ENTRY entry[MAX_ENTRIES];
+        char moreEntries[(n - MAX_ENTRIES) * 20] <comment="the other entries">;
+    } else if (n > 0) {
+        XREF_ENTRY entry[n];
+    }
+} <read=SubsectionRead>;
+
+string SubsectionRead(XREF_SUBSECTION &s) {
+    return SubStr(s.header, 0);
+}
+
+struct XREF_TABLE {
+    char keyword[4] <comment="xref">;
+    local int64 p = SkipWS(FTell(), FileSize());
+    local int guard = 0;
+    while (p < FileSize() && IsDigit(ReadUByte(p)) && guard < 100000) {
+        FSeek(p);
+        XREF_SUBSECTION subsection;
+        p = SkipWS(FTell(), FileSize());
+        guard++;
+    }
+};
+
+// The end of the dictionary "<< ... >>" at p, -1 - none (in 64 KB)
+int64 DictEnd(int64 p) {
+    local int depth = 0;
+    local int64 end = Min(p + 65536, FileSize() - 1);
+    local int c;
+    for (; p < end; p++) {
+        c = ReadUByte(p);
+        if (c == 0x3C && ReadUByte(p + 1) == 0x3C) {
+            depth++;
+            p++;
+        } else if (c == 0x3E && ReadUByte(p + 1) == 0x3E) {
+            depth--;
+            p++;
+            if (depth <= 0) return p + 1;
+        } else if (c == 0x28) {
+            // a string: skip to its ")" (no nesting, enough to skip ">>" in it)
+            while (p < end && ReadUByte(p) != 0x29) {
+                if (ReadUByte(p) == 0x5C) p++;
+                p++;
+            }
+        }
+    }
+    return -1;
+}
+
+struct TRAILER {
+    char keyword[7] <comment="trailer">;
+    local int64 p = SkipWS(FTell(), FileSize());
+    if (p + 2 <= FileSize() && ReadUByte(p) == 0x3C && ReadUByte(p + 1) == 0x3C) {
+        local int64 e = DictEnd(p);
+        if (e > p) {
+            FSeek(p);
+            char dictionary[e - p];
+        }
+    }
+};
+
+struct STARTXREF {
+    char keyword[9] <comment="startxref">;
+    local int64 p = SkipWS(FTell(), FileSize());
+    local int64 q = SkipDigits(p, FileSize());
+    if (q > p) {
+        FSeek(p);
+        char offset[q - p] <comment="the offset of the last cross-reference section">;
+    }
+} <read=StartxrefRead>;
+
+string StartxrefRead(STARTXREF &s) {
+    if (!exists(s.offset)) return "startxref";
+    return "startxref " + SubStr(s.offset, 0);
+}
+
+// Scan reads the objects and the other parts up to limit
+void Scan(int64 limit) {
+    local int64 nObj = -2;
+    local int64 nXref = -2;
+    local int64 nTrailer = -2;
+    local int64 nStart = -2;
+    local int64 nEof = -2;
+    local int64 p;
+    local int64 m;
+    local int guard = 0;
+    while (FTell() < limit && guard < 10000000) {
+        guard++;
+        p = FTell();
+        // the next place of each (-1 - none up to limit)
+        if (nObj != -1 && nObj < p) nObj = NextObject(p, limit);
+        if (nXref != -1 && nXref < p) nXref = NextXref(p, limit);
+        if (nTrailer != -1 && nTrailer < p) nTrailer = NextKeyword(p, limit, "trailer");
+        if (nStart != -1 && nStart < p) nStart = NextKeyword(p, limit, "startxref");
+        if (nEof != -1 && nEof < p) nEof = FindText(p, limit, "%%EOF");
+        m = -1;
+        if (nObj >= 0) m = nObj;
+        if (nXref >= 0 && (m < 0 || nXref < m)) m = nXref;
+        if (nTrailer >= 0 && (m < 0 || nTrailer < m)) m = nTrailer;
+        if (nStart >= 0 && (m < 0 || nStart < m)) m = nStart;
+        if (nEof >= 0 && (m < 0 || nEof < m)) m = nEof;
+        if (m < 0) {
+            FSeek(limit);
+            break;
+        }
+        FSeek(m);
+        if (m == nObj)
+            PDF_OBJECT obj;
+        else if (m == nXref)
+            XREF_TABLE xref;
+        else if (m == nTrailer)
+            TRAILER trailer;
+        else if (m == nStart)
+            STARTXREF startxref;
+        else
+            char eofMarker[5] <comment="%%EOF">;
+        if (FTell() <= m)
+            FSeek(m + 1); // never stand still
+    }
+}
+
+// ---- The file ----
+
+local int64 hl = LineEnd(0, Min(FileSize(), 1024));
+char header[hl] <comment="%PDF-major.minor">;
+local int64 p2 = SkipWS(FTell(), FileSize());
+// A comment line of bytes over 127 tells that the file is binary
+if (p2 + 2 <= FileSize() && ReadUByte(p2) == 0x25 && ReadUByte(p2 + 1) >= 0x80) {
+    FSeek(p2);
+    char binaryComment[LineEnd(p2, Min(FileSize(), p2 + 256)) - p2];
+}
+
+local int64 headEnd = Min(FileSize(), SCAN_HEAD);
+Scan(headEnd);
+if (FTell() < FileSize()) {
+    local int64 tailStart = Max(FTell(), FileSize() - SCAN_TAIL);
+    if (tailStart > FTell())
+        uchar notScanned[tailStart - FTell()] <comment="not scanned: only the first 4 MB and the last 64 KB are">;
+    Scan(FileSize());
+}

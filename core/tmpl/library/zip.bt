@@ -1,0 +1,699 @@
+//! name: ZIP archive
+//! extensions: zip, jar, apk, aar, war, ear, docx, xlsx, pptx, odt, ods, odp, epub, xpi, ipa, nupkg, whl, kmz, cbz
+//! priority: 1
+//! magic: 0 "50 4B 03 04"
+//! magic: 0 "50 4B 05 06"
+//! magic: 0 "50 4B 30 30 50 4B 03 04"
+//! magic: -22 "50 4B 05 06"
+
+// ZIP archive (PKWARE APPNOTE.TXT 6.3): local file headers, each followed by
+// the file data (and a data descriptor when bit 3 of the flags is set), the
+// central directory, ZIP64 end of central directory record and locator, and
+// the end of central directory record (EOCD).
+//
+// A file that starts with a ZIP signature is walked record by record. A file
+// with leading data (a self-extracting archive) is found by its EOCD at the
+// end: the central directory is read at its offset and the local headers at
+// the offsets the central directory gives.
+
+LittleEndian();
+
+local uint32 SIG_LOCAL        = 0x04034B50;
+local uint32 SIG_CENTRAL      = 0x02014B50;
+local uint32 SIG_EOCD         = 0x06054B50;
+local uint32 SIG_ZIP64_EOCD   = 0x06064B50;
+local uint32 SIG_ZIP64_LOC    = 0x07064B50;
+local uint32 SIG_DESCRIPTOR   = 0x08074B50;
+local uint32 SIG_DIGITAL_SIG  = 0x05054B50;
+local uint32 SIG_ARCHIVE_EXTRA = 0x08064B50;
+local uint32 SIG_SPANNED      = 0x30304B50; // "PK00": a spanned archive that fit on one disk
+
+// Records shown field by field (a field limit of the language is 1 000 000);
+// the rest of the files and of the central directory are bytes
+local int64 MAX_RECORDS = 6000;
+
+// How far the end of streamed data (flag bit 3, no sizes) is searched for
+local int64 SEARCH_LIMIT = 64 * 1024 * 1024;
+
+enum <uint16> COMPRESSION {
+    STORED          = 0,
+    SHRUNK          = 1,
+    REDUCED_1       = 2,
+    REDUCED_2       = 3,
+    REDUCED_3       = 4,
+    REDUCED_4       = 5,
+    IMPLODED        = 6,
+    TOKENIZED       = 7,
+    DEFLATE         = 8,
+    DEFLATE64       = 9,
+    PKWARE_IMPLODE  = 10,
+    BZIP2           = 12,
+    LZMA            = 14,
+    IBM_CMPSC       = 16,
+    IBM_TERSE       = 18,
+    IBM_LZ77        = 19,
+    ZSTD_OLD        = 20,
+    ZSTD            = 93,
+    MP3             = 94,
+    XZ              = 95,
+    JPEG            = 96,
+    WAVPACK         = 97,
+    PPMD            = 98,
+    AES_ENCRYPTED   = 99
+};
+
+enum <uchar> HOST_OS {
+    MS_DOS = 0, AMIGA = 1, OPENVMS = 2, UNIX = 3, VM_CMS = 4, ATARI_ST = 5,
+    OS2_HPFS = 6, MACINTOSH = 7, Z_SYSTEM = 8, CPM = 9, WINDOWS_NTFS = 10,
+    MVS = 11, VSE = 12, ACORN_RISC = 13, VFAT = 14, ALTERNATE_MVS = 15,
+    BEOS = 16, TANDEM = 17, OS400 = 18, OSX = 19
+};
+
+enum <uint16> EXTRA_ID {
+    ZIP64_EXTENDED_INFO    = 0x0001,
+    AV_INFO                = 0x0007,
+    OS2_ATTRIBUTES         = 0x0009,
+    NTFS                   = 0x000A,
+    OPENVMS                = 0x000C,
+    UNIX                   = 0x000D,
+    PATCH_DESCRIPTOR       = 0x000F,
+    PKCS7_STORE            = 0x0014,
+    X509_FILE              = 0x0015,
+    X509_CENTRAL           = 0x0016,
+    STRONG_ENCRYPTION      = 0x0017,
+    RECORD_MANAGEMENT      = 0x0018,
+    PKCS7_RECIPIENTS       = 0x0019,
+    POLICY_DECRYPTION_KEY  = 0x0021,
+    SMARTCRYPT_KEY         = 0x0022,
+    SMARTCRYPT_DATA        = 0x0023,
+    MVS                    = 0x0065,
+    MAC_INFOZIP            = 0x2605,
+    EXTENDED_TIMESTAMP     = 0x5455,
+    INFOZIP_UNIX_OLD       = 0x5855,
+    INFOZIP_UNICODE_COMMENT = 0x6375,
+    INFOZIP_UNICODE_PATH   = 0x7075,
+    INFOZIP_UNIX_NEW       = 0x7875,
+    WINZIP_AES             = 0x9901,
+    JAVA_JAR               = 0xCAFE,
+    ANDROID_ALIGNMENT      = 0xD935
+};
+
+// ---- Helpers ----
+
+// The bytes left from the current position
+int64 Rest() {
+    return FileSize() - FTell();
+}
+
+// The cache of FindText: the text from g_cOff up to a zero byte (g_cZero)
+// or up to the length ReadString gives
+local int64 g_cOff = -1;
+local string g_cText = "";
+local int g_cZero = 0;
+
+// FindText returns where pat (with no zero bytes) first is in [from, end), -1 - nowhere.
+// It reads the data as zero-terminated texts and searches them with Strstr,
+// which is much faster than looking at each byte.
+int64 FindText(int64 from, int64 end, string pat) {
+    local int64 p = Max(from, 0);
+    local int64 plen = Strlen(pat);
+    local int64 i;
+    local int64 stop;
+    end = Min(end, FileSize());
+    while (p + plen <= end) {
+        if (g_cOff < 0 || p < g_cOff || p > g_cOff + Strlen(g_cText)) {
+            g_cText = ReadString(p);
+            g_cOff = p;
+            stop = p + Strlen(g_cText);
+            g_cZero = stop >= FileSize() || ReadUByte(stop) == 0;
+        }
+        // only the text before end is searched
+        i = Strstr(SubStr(g_cText, p - g_cOff, end - p), pat);
+        if (i >= 0)
+            return p + i;
+        stop = g_cOff + Strlen(g_cText);
+        if (stop >= end)
+            return -1;
+        if (g_cZero) {
+            p = stop + 1;
+        } else {
+            // A long text without a zero: go on from its end
+            p = Max(stop - plen + 1, p + 1);
+            g_cOff = -1;
+        }
+    }
+    return -1;
+}
+
+// FindEOCD returns the offset of the end of central directory record,
+// searched backwards over the last 65557 bytes (22 + the longest comment)
+int64 FindEOCD() {
+    local int64 p = FileSize() - 22;
+    local int64 low = Max(FileSize() - 65557, 0);
+    for (; p >= low; p--) {
+        if (ReadUByte(p) == 0x50 && ReadUInt(p) == SIG_EOCD &&
+            p + 22 + ReadUShort(p + 20) <= FileSize())
+            return p;
+    }
+    return -1;
+}
+
+// FindExtra returns the offset of the data of the extra field id in the
+// extra fields at [start, start+len), -1 - none
+int64 FindExtra(int64 start, int64 len, uint32 id) {
+    local int64 p = start;
+    local int64 end = Min(start + len, FileSize());
+    while (p + 4 <= end) {
+        if (ReadUShort(p) == id)
+            return p + 4;
+        p += 4 + ReadUShort(p + 2);
+    }
+    return -1;
+}
+
+// The central directory as the EOCD (or ZIP64 EOCD) tells
+local int64 g_eocd = FindEOCD();
+local int64 g_cdStart = -1;
+local int64 g_cdSize = 0;
+local int64 g_cdCount = 0;
+local int64 g_delta = 0; // added to the offsets: the size of leading data
+local int64 g_cdPos = -1; // FindCentral's cursor
+
+if (g_eocd >= 0) {
+    local int64 cdEnd = g_eocd;
+    g_cdSize = ReadUInt(g_eocd + 12);
+    g_cdStart = ReadUInt(g_eocd + 16);
+    g_cdCount = ReadUShort(g_eocd + 10);
+    if (g_eocd >= 20 && ReadUInt(g_eocd - 20) == SIG_ZIP64_LOC) {
+        local int64 z = ReadUInt64(g_eocd - 20 + 8);
+        local int64 zAt = g_eocd - 20 - 56; // where the ZIP64 EOCD is when there is no leading data
+        if (zAt >= 0 && ReadUInt(zAt) == SIG_ZIP64_EOCD)
+            z = zAt;
+        else if (z < 0 || z + 56 > FileSize() || ReadUInt(z) != SIG_ZIP64_EOCD)
+            z = -1;
+        if (z >= 0) {
+            cdEnd = z;
+            g_cdCount = ReadUInt64(z + 32);
+            g_cdSize = ReadUInt64(z + 40);
+            g_cdStart = ReadUInt64(z + 48);
+        }
+    }
+    // Leading data shifts everything: the directory ends where the EOCD starts
+    if (cdEnd - g_cdSize >= 0 && cdEnd - g_cdSize != g_cdStart &&
+        cdEnd - g_cdSize + 4 <= FileSize() && ReadUInt(cdEnd - g_cdSize) == SIG_CENTRAL)
+        g_delta = cdEnd - g_cdSize - g_cdStart;
+    g_cdStart += g_delta;
+    if (g_cdStart < 0 || g_cdStart > FileSize())
+        g_cdStart = -1;
+    g_cdPos = g_cdStart;
+}
+
+// The ZIP64 values of a central header at p: which - 0 the original size,
+// 1 the compressed size, 2 the local header offset; -1 - none
+int64 CentralZip64(int64 p, int which) {
+    local int64 z = FindExtra(p + 46 + ReadUShort(p + 28), ReadUShort(p + 30), 1);
+    local int64 at = z;
+    if (z < 0) return -1;
+    if (ReadUInt(p + 24) == 0xFFFFFFFF) {
+        if (which == 0) return ReadUInt64(at);
+        at += 8;
+    }
+    if (ReadUInt(p + 20) == 0xFFFFFFFF) {
+        if (which == 1) return ReadUInt64(at);
+        at += 8;
+    }
+    if (ReadUInt(p + 42) == 0xFFFFFFFF) {
+        if (which == 2) return ReadUInt64(at);
+    }
+    return -1;
+}
+
+int64 CentralCompressedSize(int64 p) {
+    local int64 v = ReadUInt(p + 20);
+    if (v == 0xFFFFFFFF && CentralZip64(p, 1) >= 0)
+        v = CentralZip64(p, 1);
+    return v;
+}
+
+int64 CentralOriginalSize(int64 p) {
+    local int64 v = ReadUInt(p + 24);
+    if (v == 0xFFFFFFFF && CentralZip64(p, 0) >= 0)
+        v = CentralZip64(p, 0);
+    return v;
+}
+
+int64 CentralLocalOffset(int64 p) {
+    local int64 v = ReadUInt(p + 42);
+    if (v == 0xFFFFFFFF && CentralZip64(p, 2) >= 0)
+        v = CentralZip64(p, 2);
+    return v + g_delta;
+}
+
+// The central header after the one at p, -1 - none
+int64 NextCentral(int64 p) {
+    if (p < 0 || p + 46 > FileSize() || ReadUInt(p) != SIG_CENTRAL)
+        return -1;
+    p += 46 + ReadUShort(p + 28) + ReadUShort(p + 30) + ReadUShort(p + 32);
+    if (p + 46 > FileSize() || ReadUInt(p) != SIG_CENTRAL)
+        return -1;
+    return p;
+}
+
+// FindCentral returns the central header of the local header at off, -1 -
+// none. The entries are usually in the order of the files, so the search
+// goes on from where the last one was found and starts over once.
+int64 FindCentral(int64 off) {
+    local int64 p = g_cdPos;
+    local int pass;
+    local int64 k;
+    if (g_cdStart < 0) return -1;
+    for (pass = 0; pass < 2; pass++) {
+        for (k = 0; p >= 0 && k <= g_cdCount; k++) {
+            if (CentralLocalOffset(p) == off) {
+                g_cdPos = NextCentral(p);
+                if (g_cdPos < 0) g_cdPos = g_cdStart;
+                return p;
+            }
+            p = NextCentral(p);
+        }
+        p = g_cdStart;
+    }
+    return -1;
+}
+
+// StreamedSize finds the end of the data of a local header written with a
+// data descriptor and no sizes: a descriptor (with the signature) whose
+// compressed size is the distance to it, or the next header with a
+// descriptor of 12 bytes before it. -1 - not found.
+int64 StreamedSize(int64 dataStart) {
+    local int64 end = Min(dataStart + SEARCH_LIMIT, FileSize());
+    local int64 c = dataStart;
+    local int tries = 0;
+    for (tries = 0; tries < 10000; tries++) {
+        c = FindText(c, end, "PK\x07\x08");
+        if (c < 0) break;
+        if (c + 16 <= FileSize() && ReadUInt(c + 8) == c - dataStart)
+            return c - dataStart;
+        if (c + 24 <= FileSize() && ReadUInt64(c + 8) == c - dataStart)
+            return c - dataStart;
+        c++;
+    }
+    // No signature: the descriptor is the 12 bytes before the next header
+    c = FindText(dataStart, end, "PK\x01\x02");
+    local int64 c2 = FindText(dataStart, end, "PK\x03\x04");
+    if (c2 >= 0 && (c < 0 || c2 < c)) c = c2;
+    if (c >= 0 && c - 12 >= dataStart && ReadUInt(c - 8) == c - 12 - dataStart)
+        return c - 12 - dataStart;
+    return -1;
+}
+
+// ---- Structures ----
+
+struct VERSION {
+    uchar   version <comment="major * 10 + minor">;
+    HOST_OS hostOS <comment="the host system (meaningful in versionMadeBy)">;
+} <read=VersionRead>;
+
+string VersionRead(VERSION &v) {
+    local string os = EnumToString(v.hostOS);
+    if (os == "") os = Str("%d", v.hostOS);
+    return Str("%d.%d %s", v.version / 10, v.version % 10, os);
+}
+
+// The general purpose bit flag
+struct GP_FLAGS {
+    uint16 encrypted : 1;
+    uint16 compressionOption1 : 1;
+    uint16 compressionOption2 : 1;
+    uint16 dataDescriptor : 1;
+    uint16 enhancedDeflation : 1;
+    uint16 compressedPatchedData : 1;
+    uint16 strongEncryption : 1;
+    uint16 unused : 4;
+    uint16 languageEncoding : 1;
+    uint16 reserved : 1;
+    uint16 maskHeaderValues : 1;
+    uint16 reserved2 : 2;
+} <read=FlagsRead>;
+
+string FlagsRead(GP_FLAGS &f) {
+    local uint32 v = ReadUShort(startof(f));
+    local string s = Str("0x%04X", v);
+    if (v & 0x0001) s += " encrypted";
+    if (v & 0x0008) s += " data-descriptor";
+    if (v & 0x0800) s += " utf-8";
+    return s;
+}
+
+// MS-DOS time: seconds / 2, minutes, hours
+struct DOSTIME {
+    uint16 second2 : 5;
+    uint16 minute : 6;
+    uint16 hour : 5;
+} <read=DosTimeRead>;
+
+string DosTimeRead(DOSTIME &t) {
+    return Str("%02d:%02d:%02d", t.hour, t.minute, t.second2 * 2);
+}
+
+// MS-DOS date: day, month, years since 1980
+struct DOSDATE {
+    uint16 day : 5;
+    uint16 month : 4;
+    uint16 year1980 : 7;
+} <read=DosDateRead>;
+
+string DosDateRead(DOSDATE &d) {
+    return Str("%04d-%02d-%02d", d.year1980 + 1980, d.month, d.day);
+}
+
+// An extra field. end - the end of the extra fields; for the ZIP64 field:
+// which values it has (u - the original size, c - the compressed size,
+// o - the local header offset, d - the disk number).
+struct EXTRA_FIELD(int64 end, int u, int c, int o, int d) {
+    EXTRA_ID headerID <format=hex>;
+    uint16   dataSize;
+    local int64 dataEnd = Min(FTell() + dataSize, end);
+    if (headerID == ZIP64_EXTENDED_INFO) {
+        if (u && FTell() + 8 <= dataEnd) uint64 originalSize;
+        if (c && FTell() + 8 <= dataEnd) uint64 compressedSize;
+        if (o && FTell() + 8 <= dataEnd) uint64 relativeHeaderOffset <format=hex>;
+        if (d && FTell() + 4 <= dataEnd) uint32 diskStartNumber;
+    } else if (headerID == EXTENDED_TIMESTAMP && dataEnd - FTell() >= 1) {
+        uchar flags <comment="1 - modification, 2 - access, 4 - creation time present">;
+        if (dataEnd - FTell() >= 4)
+            int32 unixTime[(dataEnd - FTell()) / 4] <comment="seconds since 1970: mtime, atime, ctime">;
+    } else if (headerID == INFOZIP_UNIX_NEW && dataEnd - FTell() >= 2) {
+        uchar version;
+        uchar uidSize;
+        if (uidSize > 0 && FTell() + uidSize <= dataEnd) uchar uid[uidSize];
+        if (FTell() + 1 <= dataEnd) {
+            uchar gidSize;
+            if (gidSize > 0 && FTell() + gidSize <= dataEnd) uchar gid[gidSize];
+        }
+    } else if ((headerID == INFOZIP_UNICODE_PATH || headerID == INFOZIP_UNICODE_COMMENT) && dataEnd - FTell() >= 5) {
+        uchar  version;
+        uint32 crc32 <format=hex, comment="of the name / comment in the header">;
+        if (FTell() < dataEnd)
+            char unicodeText[dataEnd - FTell()];
+    } else if (headerID == NTFS && dataEnd - FTell() >= 4) {
+        uint32 reserved;
+        if (dataEnd - FTell() >= 28 && ReadUShort(FTell()) == 1) {
+            uint16 tag;
+            uint16 size;
+            uint64 mtime <comment="FILETIME">;
+            uint64 atime <comment="FILETIME">;
+            uint64 ctime <comment="FILETIME">;
+        }
+    } else if (headerID == WINZIP_AES && dataEnd - FTell() >= 7) {
+        uint16 vendorVersion;
+        char   vendorID[2];
+        uchar  strength <comment="1 - AES-128, 2 - AES-192, 3 - AES-256">;
+        COMPRESSION actualCompression;
+    }
+    if (FTell() < dataEnd)
+        uchar data[dataEnd - FTell()];
+} <read=ExtraRead>;
+
+string ExtraRead(EXTRA_FIELD &e) {
+    local string s = EnumToString(e.headerID);
+    if (s == "") s = Str("0x%04X", e.headerID);
+    return Str("%s, %d bytes", s, e.dataSize);
+}
+
+struct EXTRA_FIELDS(int64 end, int u, int c, int o, int d) {
+    while (FTell() + 4 <= end)
+        EXTRA_FIELD field(end, u, c, o, d);
+    if (FTell() < end)
+        uchar padding[end - FTell()];
+};
+
+struct DATA_DESCRIPTOR(int zip64) {
+    if (Rest() >= 4 && ReadUInt(FTell()) == SIG_DESCRIPTOR)
+        uint32 signature <format=hex, comment="optional">;
+    if (Rest() >= 4)
+        uint32 crc32 <format=hex>;
+    if (zip64 && Rest() >= 16) {
+        uint64 compressedSize;
+        uint64 uncompressedSize;
+    } else if (Rest() >= 8) {
+        uint32 compressedSize;
+        uint32 uncompressedSize;
+    }
+};
+
+// A local file header and the data of the file. known - the compressed
+// size from the central directory, -1 - not known.
+struct LOCAL_FILE_HEADER(int64 known) {
+    local int64 start = FTell();
+    if (Rest() < 30) {
+        uchar truncated[Rest()] <comment="a cut local file header">;
+    } else {
+        uint32      signature <format=hex>;
+        VERSION     versionNeededToExtract;
+        GP_FLAGS    flags;
+        COMPRESSION compressionMethod;
+        DOSTIME     lastModFileTime;
+        DOSDATE     lastModFileDate;
+        uint32      crc32 <format=hex>;
+        uint32      compressedSize;
+        uint32      uncompressedSize;
+        uint16      fileNameLength;
+        uint16      extraFieldLength;
+        if (fileNameLength > 0)
+            char fileName[Min(fileNameLength, Rest())];
+        local int64 extraStart = FTell();
+        if (extraFieldLength > 0)
+            EXTRA_FIELDS extraField(FTell() + Min(extraFieldLength, Rest()), 1, 1, 0, 0);
+
+        local int64 dataStart = FTell();
+        local int64 size = compressedSize;
+        local int64 z = FindExtra(extraStart, extraFieldLength, 1);
+        if (compressedSize == 0xFFFFFFFF && z >= 0 && z + 16 <= FileSize())
+            size = ReadUInt64(z + 8);
+        local int descriptor = (ReadUShort(start + 6) & 8) != 0;
+        if (descriptor && size == 0) {
+            // The sizes are in the data descriptor after the data
+            size = known;
+            if (size < 0) {
+                local int64 cd = FindCentral(start);
+                if (cd >= 0)
+                    size = CentralCompressedSize(cd);
+            }
+            if (size < 0)
+                size = StreamedSize(dataStart);
+            if (size < 0) {
+                Warning("%s: the end of the data is not found", fileName);
+                size = Rest();
+            }
+        }
+        if (size > Rest())
+            size = Rest(); // a cut file
+        if (size > 0)
+            uchar fileData[size] <comment="compressed (and maybe encrypted) data">;
+        if (descriptor && Rest() >= 12)
+            DATA_DESCRIPTOR dataDescriptor(z >= 0);
+    }
+} <read=LocalRead>;
+
+string Summary(string name, int64 original, int64 compressed, COMPRESSION &method) {
+    local string m = ToLower(EnumToString(method));
+    if (m == "") m = Str("method %d", method);
+    return Str("%s (%d → %d bytes, %s)", name, original, compressed, m);
+}
+
+string LocalRead(LOCAL_FILE_HEADER &h) {
+    if (!exists(h.compressionMethod))
+        return "cut";
+    local string name = "";
+    if (exists(h.fileName)) name = SubStr(h.fileName, 0);
+    local int64 c = h.compressedSize;
+    local int64 u = h.uncompressedSize;
+    if (exists(h.dataDescriptor.compressedSize)) {
+        c = h.dataDescriptor.compressedSize;
+        u = h.dataDescriptor.uncompressedSize;
+    } else if (exists(h.extraField.field.compressedSize)) {
+        c = h.extraField.field.compressedSize;
+        u = h.extraField.field.originalSize;
+    }
+    return Summary(name, u, c, h.compressionMethod);
+}
+
+struct CENTRAL_DIRECTORY_HEADER {
+    local int64 start = FTell();
+    if (Rest() < 46) {
+        uchar truncated[Rest()] <comment="a cut central directory header">;
+    } else {
+        uint32      signature <format=hex>;
+        VERSION     versionMadeBy;
+        VERSION     versionNeededToExtract;
+        GP_FLAGS    flags;
+        COMPRESSION compressionMethod;
+        DOSTIME     lastModFileTime;
+        DOSDATE     lastModFileDate;
+        uint32      crc32 <format=hex>;
+        uint32      compressedSize;
+        uint32      uncompressedSize;
+        uint16      fileNameLength;
+        uint16      extraFieldLength;
+        uint16      fileCommentLength;
+        uint16      diskNumberStart;
+        uint16      internalFileAttributes <format=hex, comment="bit 0 - text">;
+        uint32      externalFileAttributes <format=hex, comment="MS-DOS attributes; Unix mode in the high 16 bits">;
+        uint32      relativeOffsetOfLocalHeader <format=hex>;
+        if (fileNameLength > 0)
+            char fileName[Min(fileNameLength, Rest())];
+        if (extraFieldLength > 0)
+            EXTRA_FIELDS extraField(FTell() + Min(extraFieldLength, Rest()),
+                uncompressedSize == 0xFFFFFFFF, compressedSize == 0xFFFFFFFF,
+                relativeOffsetOfLocalHeader == 0xFFFFFFFF, diskNumberStart == 0xFFFF);
+        if (fileCommentLength > 0)
+            char fileComment[Min(fileCommentLength, Rest())];
+    }
+} <read=CentralRead>;
+
+string CentralRead(CENTRAL_DIRECTORY_HEADER &h) {
+    if (!exists(h.fileNameLength) || startof(h) + 46 > FileSize())
+        return "cut";
+    local string name = "";
+    if (exists(h.fileName)) name = SubStr(h.fileName, 0);
+    return Summary(name, CentralOriginalSize(startof(h)), CentralCompressedSize(startof(h)), h.compressionMethod);
+}
+
+struct END_OF_CENTRAL_DIRECTORY {
+    if (Rest() < 22) {
+        uchar truncated[Rest()];
+    } else {
+        uint32 signature <format=hex>;
+        uint16 numberOfThisDisk;
+        uint16 diskWhereCentralDirectoryStarts;
+        uint16 numberOfCentralDirectoryRecordsOnThisDisk;
+        uint16 totalNumberOfCentralDirectoryRecords;
+        uint32 sizeOfCentralDirectory;
+        uint32 offsetOfStartOfCentralDirectory <format=hex>;
+        uint16 commentLength;
+        if (commentLength > 0)
+            char comment[Min(commentLength, Rest())];
+    }
+};
+
+struct ZIP64_END_OF_CENTRAL_DIRECTORY {
+    if (Rest() < 56) {
+        uchar truncated[Rest()];
+    } else {
+        uint32  signature <format=hex>;
+        uint64  sizeOfRecord <comment="the size of the rest of the record">;
+        VERSION versionMadeBy;
+        VERSION versionNeededToExtract;
+        uint32  numberOfThisDisk;
+        uint32  diskWhereCentralDirectoryStarts;
+        uint64  numberOfCentralDirectoryRecordsOnThisDisk;
+        uint64  totalNumberOfCentralDirectoryRecords;
+        uint64  sizeOfCentralDirectory;
+        uint64  offsetOfStartOfCentralDirectory <format=hex>;
+        if (sizeOfRecord > 44 && Rest() > 0)
+            uchar extensibleData[Min(sizeOfRecord - 44, Rest())];
+    }
+};
+
+struct ZIP64_END_OF_CENTRAL_DIRECTORY_LOCATOR {
+    if (Rest() < 20) {
+        uchar truncated[Rest()];
+    } else {
+        uint32 signature <format=hex>;
+        uint32 diskWithZip64EndOfCentralDirectory;
+        uint64 offsetOfZip64EndOfCentralDirectory <format=hex>;
+        uint32 totalNumberOfDisks;
+    }
+};
+
+struct DIGITAL_SIGNATURE {
+    uint32 signature <format=hex>;
+    if (Rest() >= 2) {
+        uint16 sizeOfData;
+        if (sizeOfData > 0)
+            uchar signatureData[Min(sizeOfData, Rest())];
+    }
+};
+
+struct ARCHIVE_EXTRA_DATA {
+    uint32 signature <format=hex>;
+    if (Rest() >= 4) {
+        uint32 extraFieldLength;
+        if (extraFieldLength > 0)
+            uchar extraFieldData[Min(extraFieldLength, Rest())];
+    }
+};
+
+// Walk reads the records from the current position by their signatures
+void Walk() {
+    local uint32 sig;
+    local int64 nLocal = 0;
+    local int64 nCentral = 0;
+    local int64 p;
+    while (Rest() >= 4) {
+        sig = ReadUInt(FTell());
+        if (sig == SIG_LOCAL && nLocal >= MAX_RECORDS && g_cdStart > FTell()) {
+            uchar moreLocalFiles[g_cdStart - FTell()] <comment="more files, not shown one by one">;
+        } else if (sig == SIG_LOCAL) {
+            LOCAL_FILE_HEADER localFile(-1);
+            nLocal++;
+        } else if (sig == SIG_CENTRAL && nCentral >= MAX_RECORDS) {
+            p = FTell();
+            while (NextCentral(p) > 0) p = NextCentral(p);
+            p += 46 + ReadUShort(p + 28) + ReadUShort(p + 30) + ReadUShort(p + 32);
+            uchar moreCentralEntries[Min(p, FileSize()) - FTell()] <comment="more entries, not shown one by one">;
+        } else if (sig == SIG_CENTRAL) {
+            CENTRAL_DIRECTORY_HEADER centralDir;
+            nCentral++;
+        } else if (sig == SIG_EOCD) {
+            END_OF_CENTRAL_DIRECTORY endOfCentralDir;
+        } else if (sig == SIG_ZIP64_EOCD) {
+            ZIP64_END_OF_CENTRAL_DIRECTORY zip64EndOfCentralDir;
+        } else if (sig == SIG_ZIP64_LOC) {
+            ZIP64_END_OF_CENTRAL_DIRECTORY_LOCATOR zip64Locator;
+        } else if (sig == SIG_DESCRIPTOR) {
+            DATA_DESCRIPTOR dataDescriptor(0);
+        } else if (sig == SIG_DIGITAL_SIG) {
+            DIGITAL_SIGNATURE digitalSignature;
+        } else if (sig == SIG_ARCHIVE_EXTRA) {
+            ARCHIVE_EXTRA_DATA archiveExtraData;
+        } else if (sig == SIG_SPANNED && FTell() == 0) {
+            uint32 spannedMarker <format=hex>;
+        } else if (g_cdStart > FTell()) {
+            // Something unknown: go on at the central directory
+            uchar unknownData[g_cdStart - FTell()];
+        } else {
+            uchar unknownData[Rest()];
+        }
+    }
+    if (Rest() > 0)
+        uchar unknownData[Rest()];
+}
+
+local uint32 first = FileSize() >= 4 ? ReadUInt(0) : 0;
+if (FileSize() == 0) {
+    // empty
+} else if (first == SIG_LOCAL || first == SIG_EOCD || first == SIG_SPANNED || first == SIG_CENTRAL || g_eocd < 0 || g_cdStart < 0) {
+    Walk();
+} else {
+    // Leading data: the local headers at the offsets of the central directory
+    local int64 p = g_cdStart;
+    local int64 firstLocal = g_cdStart;
+    local int64 off;
+    local int64 k;
+    if (p + 46 <= FileSize() && ReadUInt(p) == SIG_CENTRAL) {
+        off = CentralLocalOffset(p);
+        if (off >= 0 && off < firstLocal) firstLocal = off;
+    }
+    if (firstLocal > 0)
+        uchar leadingData[firstLocal] <comment="data before the archive, e.g. a self-extractor">;
+    for (k = 0; p >= 0 && k < g_cdCount && k < MAX_RECORDS; k++) {
+        off = CentralLocalOffset(p);
+        if (off >= 0 && off + 30 <= FileSize() && ReadUInt(off) == SIG_LOCAL)
+            LOCAL_FILE_HEADER localFile(CentralCompressedSize(p)) @ off;
+        p = NextCentral(p);
+    }
+    FSeek(g_cdStart);
+    Walk();
+}

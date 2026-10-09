@@ -1,0 +1,234 @@
+//! name: GIF image
+//! extensions: gif
+//! magic: 0 "47 49 46 38 37 61"
+//! magic: 0 "47 49 46 38 39 61"
+
+// Graphics Interchange Format (GIF87a / GIF89a): a header, the logical
+// screen descriptor with an optional global color table, then blocks:
+// extensions (21), images (2C) with LZW data in sub-blocks, and the
+// trailer (3B). Numbers are little-endian.
+
+LittleEndian();
+
+enum <uchar> GIF_BLOCK_TYPE {
+    EXTENSION_INTRODUCER = 0x21,
+    IMAGE_SEPARATOR      = 0x2C,
+    TRAILER              = 0x3B
+};
+
+enum <uchar> GIF_EXTENSION_LABEL {
+    PLAIN_TEXT_EXTENSION      = 0x01,
+    GRAPHIC_CONTROL_EXTENSION = 0xF9,
+    COMMENT_EXTENSION         = 0xFE,
+    APPLICATION_EXTENSION     = 0xFF
+};
+
+// The packed fields: in little-endian the bit fields are taken from the
+// lowest bit, so they are declared from the last one of the specification
+
+struct GIF_HEADER {
+    char signature[3] <comment="GIF">;
+    char version[3] <comment="87a or 89a">;
+};
+
+struct LOGICAL_SCREEN_DESCRIPTOR {
+    uint16 logicalScreenWidth;
+    uint16 logicalScreenHeight;
+    uchar  sizeOfGlobalColorTable : 3;   // 2^(n+1) entries
+    uchar  sortFlag : 1;
+    uchar  colorResolution : 3;          // bits per primary color - 1
+    uchar  globalColorTableFlag : 1;
+    uchar  backgroundColorIndex;
+    uchar  pixelAspectRatio <comment="0 - none, else (n + 15) / 64">;
+};
+
+struct GIF_RGB {
+    uchar red, green, blue;
+} <read=GifRGBRead>;
+
+string GifRGBRead(GIF_RGB &c) {
+    return Str("#%02X%02X%02X", c.red, c.green, c.blue);
+}
+
+// The most sub-blocks of one block shown one by one; the rest are one array
+local int MAX_SUBBLOCKS = 4096;
+
+// A data sub-block: a size and that many bytes; size 0 ends a sequence
+struct DATA_SUBBLOCK(int text) {
+    uchar size;
+    if (size > 0) {
+        if (text)
+            char data[size];
+        else
+            uchar data[size];
+    }
+} <read=SubBlockRead>;
+
+string SubBlockRead(DATA_SUBBLOCK &b) {
+    if (b.size == 0)
+        return "terminator";
+    return Str("%u bytes", b.size);
+}
+
+// Sub-blocks up to the block terminator (size 0); a truncated file ends them
+struct DATA_SUBBLOCKS(int text) {
+    local int n = 0;
+    local int64 p;
+    while (!FEof()) {
+        if (ReadUByte(FTell()) == 0) {
+            uchar blockTerminator;
+            break;
+        }
+        if (1 + ReadUByte(FTell()) > FileSize() - FTell()) {
+            uchar truncated[FileSize() - FTell()];
+            break;
+        }
+        if (n >= MAX_SUBBLOCKS) {
+            // Many sub-blocks: the rest of them up to the terminator in one array
+            p = FTell();
+            while (p < FileSize() && ReadUByte(p) != 0)
+                p += 1 + ReadUByte(p);
+            if (p > FileSize())
+                p = FileSize();
+            uchar moreSubBlocks[p - FTell()] <comment="sub-blocks, sizes included">;
+            if (p < FileSize())
+                uchar blockTerminator;
+            break;
+        }
+        DATA_SUBBLOCK subBlock(text);
+        n++;
+    }
+};
+
+string SubBlocksRead(DATA_SUBBLOCKS &s) {
+    return Str("%d bytes", sizeof(s));
+}
+
+struct GIF_BLOCK {
+    GIF_BLOCK_TYPE blockType <format=hex>;
+    local int t = blockType;
+    local int64 p;
+    lastBlockType = t;
+    if (t == 0x21 && !FEof()) {
+        GIF_EXTENSION_LABEL label <format=hex>;
+        local int l = label;
+        if (l == 0xF9 && FileSize() - FTell() >= 6 && ReadUByte(FTell()) == 4) {
+            uchar  blockSize <comment="4">;
+            uchar  transparentColorFlag : 1;
+            uchar  userInputFlag : 1;
+            uchar  disposalMethod : 3;   // 0 - none, 1 - keep, 2 - background, 3 - previous
+            uchar  reserved : 3;
+            uint16 delayTime <comment="1/100 s">;
+            uchar  transparentColorIndex;
+            DATA_SUBBLOCKS terminator(0) <read=SubBlocksRead>;
+        } else if (l == 0xFF && FileSize() - FTell() >= 12 && ReadUByte(FTell()) == 11) {
+            uchar blockSize <comment="11">;
+            char  applicationIdentifier[8];
+            char  applicationAuthenticationCode[3];
+            p = FTell();
+            // NETSCAPE2.0 (or ANIMEXTS1.0): the loop count in sub-block 1
+            if (FileSize() - p >= 4 && ReadUByte(p) == 3 && ReadUByte(p + 1) == 1
+                    && (ReadUInt(startof(applicationIdentifier)) == 0x5354454E
+                        || ReadUInt(startof(applicationIdentifier)) == 0x4D494E41)) {
+                uchar  subBlockSize <comment="3">;
+                uchar  subBlockId <comment="1 - loop count">;
+                uint16 loopCount <comment="0 - loop forever">;
+            }
+            DATA_SUBBLOCKS applicationData(0) <read=SubBlocksRead>;
+        } else if (l == 0xFE) {
+            DATA_SUBBLOCKS commentData(1) <read=SubBlocksRead>;
+        } else if (l == 0x01 && FileSize() - FTell() >= 13 && ReadUByte(FTell()) == 12) {
+            uchar  blockSize <comment="12">;
+            uint16 textGridLeftPosition;
+            uint16 textGridTopPosition;
+            uint16 textGridWidth;
+            uint16 textGridHeight;
+            uchar  characterCellWidth;
+            uchar  characterCellHeight;
+            uchar  textForegroundColorIndex;
+            uchar  textBackgroundColorIndex;
+            DATA_SUBBLOCKS plainTextData(1) <read=SubBlocksRead>;
+        } else {
+            DATA_SUBBLOCKS data(0) <read=SubBlocksRead>;
+        }
+    } else if (t == 0x2C && FileSize() - FTell() >= 9) {
+        uint16 imageLeftPosition;
+        uint16 imageTopPosition;
+        uint16 imageWidth;
+        uint16 imageHeight;
+        uchar  sizeOfLocalColorTable : 3;   // 2^(n+1) entries
+        uchar  reserved : 2;
+        uchar  sortFlag : 1;
+        uchar  interlaceFlag : 1;
+        uchar  localColorTableFlag : 1;
+        if (localColorTableFlag) {
+            local int colors = 1 << (sizeOfLocalColorTable + 1);
+            if (colors * 3 <= FileSize() - FTell())
+                GIF_RGB localColorTable[colors];
+        }
+        if (!FEof()) {
+            uchar lzwMinimumCodeSize;
+            DATA_SUBBLOCKS imageData(0) <read=SubBlocksRead>;
+        }
+    } else if (t != 0x3B && t != 0x21 && t != 0x2C) {
+        // Not a block: damaged; the rest of the file
+        if (!FEof())
+            uchar unknownData[FileSize() - FTell()];
+    } else if (!FEof() && t != 0x3B) {
+        uchar truncatedData[FileSize() - FTell()];
+    }
+};
+
+string BlockRead(GIF_BLOCK &b) {
+    local int t = b.blockType;
+    if (t == 0x3B)
+        return "Trailer";
+    if (t == 0x2C) {
+        if (exists(b.imageHeight))
+            return Str("Image %ux%u at %u,%u", b.imageWidth, b.imageHeight,
+                b.imageLeftPosition, b.imageTopPosition);
+        return "Image";
+    }
+    if (t == 0x21 && exists(b.label)) {
+        if (exists(b.delayTime))
+            return Str("Graphic control, delay %u", b.delayTime);
+        if (exists(b.applicationIdentifier)) {
+            if (exists(b.loopCount))
+                return Str("Application %c%c%c%c%c%c%c%c%c%c%c, loop count %u",
+                    b.applicationIdentifier[0], b.applicationIdentifier[1], b.applicationIdentifier[2],
+                    b.applicationIdentifier[3], b.applicationIdentifier[4], b.applicationIdentifier[5],
+                    b.applicationIdentifier[6], b.applicationIdentifier[7],
+                    b.applicationAuthenticationCode[0], b.applicationAuthenticationCode[1],
+                    b.applicationAuthenticationCode[2], b.loopCount);
+            return "Application " + Str("%s", b.applicationIdentifier);
+        }
+        if (exists(b.commentData))
+            return "Comment";
+        if (exists(b.textGridWidth))
+            return "Plain text";
+        return Str("Extension %02X", b.label);
+    }
+    return Str("Unknown block %02X", t);
+}
+
+local int lastBlockType = 0;
+
+if (FileSize() >= 6)
+    GIF_HEADER header;
+if (FileSize() - FTell() >= 7) {
+    LOGICAL_SCREEN_DESCRIPTOR screen <open=true>;
+    if (screen.globalColorTableFlag) {
+        local int colors = 1 << (screen.sizeOfGlobalColorTable + 1);
+        if (colors * 3 <= FileSize() - FTell())
+            GIF_RGB globalColorTable[colors];
+    }
+    local int blocks = 0;
+    while (!FEof() && blocks < 1000000) {
+        GIF_BLOCK block <read=BlockRead>;
+        blocks++;
+        if (lastBlockType == 0x3B)
+            break;
+    }
+}
+if (!FEof())
+    uchar trailingData[FileSize() - FTell()] <comment="after the trailer">;

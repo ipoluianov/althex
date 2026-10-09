@@ -1,0 +1,500 @@
+//! name: ELF executable
+//! extensions: elf, so, o, ko, axf, prx, mod, out
+//! magic: 0 "7F 45 4C 46"
+
+// Executable and Linkable Format (System V ABI): the executables, shared
+// libraries, object files and core dumps of Linux, the BSDs and others.
+// The ELF header, the program headers, the section headers with their names
+// from .shstrtab, and the entries of .symtab / .dynsym with their names.
+// 32 and 64 bits, both byte orders (EI_CLASS, EI_DATA of e_ident).
+
+LittleEndian();
+
+// ---- e_ident ----
+
+enum <uchar> EI_CLASS_T { ELFCLASSNONE, ELFCLASS32, ELFCLASS64 };
+enum <uchar> EI_DATA_T { ELFDATANONE, ELFDATA2LSB, ELFDATA2MSB };
+enum <uchar> EI_OSABI_T {
+    ELFOSABI_SYSV = 0, ELFOSABI_HPUX = 1, ELFOSABI_NETBSD = 2, ELFOSABI_LINUX = 3,
+    ELFOSABI_HURD = 4, ELFOSABI_SOLARIS = 6, ELFOSABI_AIX = 7, ELFOSABI_IRIX = 8,
+    ELFOSABI_FREEBSD = 9, ELFOSABI_TRU64 = 10, ELFOSABI_MODESTO = 11,
+    ELFOSABI_OPENBSD = 12, ELFOSABI_OPENVMS = 13, ELFOSABI_NSK = 14,
+    ELFOSABI_AROS = 15, ELFOSABI_FENIXOS = 16, ELFOSABI_CLOUDABI = 17,
+    ELFOSABI_ARM_AEABI = 64, ELFOSABI_ARM = 97, ELFOSABI_STANDALONE = 255
+};
+
+struct E_IDENT {
+    char       ei_mag[4] <comment="\\x7F E L F">;
+    EI_CLASS_T ei_class;
+    EI_DATA_T  ei_data;
+    uchar      ei_version;
+    EI_OSABI_T ei_osabi;
+    uchar      ei_abiversion;
+    uchar      ei_pad[7];
+};
+
+// ---- ELF header ----
+
+enum <uint16> E_TYPE {
+    ET_NONE = 0, ET_REL = 1, ET_EXEC = 2, ET_DYN = 3, ET_CORE = 4,
+    ET_LOOS = 0xFE00, ET_HIOS = 0xFEFF, ET_LOPROC = 0xFF00, ET_HIPROC = 0xFFFF
+};
+
+enum <uint16> E_MACHINE {
+    EM_NONE = 0, EM_M32 = 1, EM_SPARC = 2, EM_386 = 3, EM_68K = 4, EM_88K = 5,
+    EM_IAMCU = 6, EM_860 = 7, EM_MIPS = 8, EM_S370 = 9, EM_MIPS_RS3_LE = 10,
+    EM_PARISC = 15, EM_VPP500 = 17, EM_SPARC32PLUS = 18, EM_960 = 19,
+    EM_PPC = 20, EM_PPC64 = 21, EM_S390 = 22, EM_SPU = 23, EM_V800 = 36,
+    EM_FR20 = 37, EM_RH32 = 38, EM_RCE = 39, EM_ARM = 40, EM_ALPHA = 41,
+    EM_SH = 42, EM_SPARCV9 = 43, EM_TRICORE = 44, EM_ARC = 45, EM_H8_300 = 46,
+    EM_H8_300H = 47, EM_H8S = 48, EM_H8_500 = 49, EM_IA_64 = 50, EM_MIPS_X = 51,
+    EM_COLDFIRE = 52, EM_68HC12 = 53, EM_MMA = 54, EM_PCP = 55, EM_NCPU = 56,
+    EM_NDR1 = 57, EM_STARCORE = 58, EM_ME16 = 59, EM_ST100 = 60, EM_TINYJ = 61,
+    EM_X86_64 = 62, EM_PDSP = 63, EM_FX66 = 66, EM_ST9PLUS = 67, EM_ST7 = 68,
+    EM_68HC16 = 69, EM_68HC11 = 70, EM_68HC08 = 71, EM_68HC05 = 72, EM_SVX = 73,
+    EM_ST19 = 74, EM_VAX = 75, EM_CRIS = 76, EM_JAVELIN = 77, EM_FIREPATH = 78,
+    EM_ZSP = 79, EM_MMIX = 80, EM_HUANY = 81, EM_PRISM = 82, EM_AVR = 83,
+    EM_FR30 = 84, EM_D10V = 85, EM_D30V = 86, EM_V850 = 87, EM_M32R = 88,
+    EM_MN10300 = 89, EM_MN10200 = 90, EM_PJ = 91, EM_OPENRISC = 92,
+    EM_ARC_COMPACT = 93, EM_XTENSA = 94, EM_VIDEOCORE = 95, EM_TMM_GPP = 96,
+    EM_NS32K = 97, EM_TPC = 98, EM_SNP1K = 99, EM_ST200 = 100, EM_IP2K = 101,
+    EM_MAX = 102, EM_CR = 103, EM_F2MC16 = 104, EM_MSP430 = 105,
+    EM_BLACKFIN = 106, EM_SE_C33 = 107, EM_SEP = 108, EM_ARCA = 109,
+    EM_UNICORE = 110, EM_ALTERA_NIOS2 = 113, EM_C6000 = 140, EM_HEXAGON = 164,
+    EM_NDS32 = 167, EM_METAG = 174, EM_MCST_ELBRUS = 175, EM_CUDA = 190,
+    EM_AARCH64 = 183, EM_TILEPRO = 188, EM_MICROBLAZE = 189, EM_TILEGX = 191,
+    EM_Z80 = 220, EM_AMDGPU = 224, EM_RISCV = 243, EM_BPF = 247,
+    EM_CSKY = 252, EM_LOONGARCH = 258
+};
+
+enum <uint32> E_VERSION { EV_NONE = 0, EV_CURRENT = 1 };
+
+struct Elf32_Ehdr {
+    E_IDENT   e_ident <open=true>;
+    if (e_ident.ei_data == ELFDATA2MSB)
+        BigEndian();
+    else
+        LittleEndian();
+    E_TYPE    e_type;
+    E_MACHINE e_machine;
+    E_VERSION e_version;
+    uint32    e_entry <format=hex, comment="the virtual address of the entry point">;
+    uint32    e_phoff <format=hex, comment="the file offset of the program headers">;
+    uint32    e_shoff <format=hex, comment="the file offset of the section headers">;
+    uint32    e_flags <format=hex, comment="processor-specific flags">;
+    uint16    e_ehsize;
+    uint16    e_phentsize;
+    uint16    e_phnum <comment="0xFFFF (PN_XNUM) - the number is in sh_info of section 0">;
+    uint16    e_shentsize;
+    uint16    e_shnum <comment="0 - the number is in sh_size of section 0">;
+    uint16    e_shstrndx <comment="the section of the section names; 0xFFFF (SHN_XINDEX) - in sh_link of section 0">;
+};
+
+struct Elf64_Ehdr {
+    E_IDENT   e_ident <open=true>;
+    if (e_ident.ei_data == ELFDATA2MSB)
+        BigEndian();
+    else
+        LittleEndian();
+    E_TYPE    e_type;
+    E_MACHINE e_machine;
+    E_VERSION e_version;
+    uint64    e_entry <format=hex, comment="the virtual address of the entry point">;
+    uint64    e_phoff <format=hex, comment="the file offset of the program headers">;
+    uint64    e_shoff <format=hex, comment="the file offset of the section headers">;
+    uint32    e_flags <format=hex, comment="processor-specific flags">;
+    uint16    e_ehsize;
+    uint16    e_phentsize;
+    uint16    e_phnum <comment="0xFFFF (PN_XNUM) - the number is in sh_info of section 0">;
+    uint16    e_shentsize;
+    uint16    e_shnum <comment="0 - the number is in sh_size of section 0">;
+    uint16    e_shstrndx <comment="the section of the section names; 0xFFFF (SHN_XINDEX) - in sh_link of section 0">;
+};
+
+// ---- Program headers ----
+
+enum <uint32> P_TYPE {
+    PT_NULL = 0, PT_LOAD = 1, PT_DYNAMIC = 2, PT_INTERP = 3, PT_NOTE = 4,
+    PT_SHLIB = 5, PT_PHDR = 6, PT_TLS = 7,
+    PT_LOOS = 0x60000000, PT_SUNW_UNWIND = 0x6464E550,
+    PT_GNU_EH_FRAME = 0x6474E550, PT_GNU_STACK = 0x6474E551,
+    PT_GNU_RELRO = 0x6474E552, PT_GNU_PROPERTY = 0x6474E553,
+    PT_GNU_SFRAME = 0x6474E554,
+    PT_OPENBSD_RANDOMIZE = 0x65A3DBE6, PT_OPENBSD_WXNEEDED = 0x65A3DBE7,
+    PT_OPENBSD_BOOTDATA = 0x65A41BE6,
+    PT_SUNWBSS = 0x6FFFFFFA, PT_SUNWSTACK = 0x6FFFFFFB, PT_HIOS = 0x6FFFFFFF,
+    PT_LOPROC = 0x70000000, PT_ARM_EXIDX = 0x70000001,
+    PT_MIPS_ABIFLAGS = 0x70000003, PT_RISCV_ATTRIBUTES = 0x70000003,
+    PT_AARCH64_MEMTAG_MTE = 0x70000002, PT_HIPROC = 0x7FFFFFFF
+};
+
+// p_flags: PF_X 1, PF_W 2, PF_R 4
+string PFlags(uint32 f) {
+    return Str("%c%c%c", (f & 4) ? 'R' : '-', (f & 2) ? 'W' : '-', (f & 1) ? 'X' : '-');
+}
+
+string PFlagsComment(uint32 &f) {
+    return PFlags(f) + " (PF_R 4, PF_W 2, PF_X 1)";
+}
+
+struct Elf32_Phdr {
+    P_TYPE p_type;
+    uint32 p_offset <format=hex>;
+    uint32 p_vaddr <format=hex>;
+    uint32 p_paddr <format=hex>;
+    uint32 p_filesz <format=hex>;
+    uint32 p_memsz <format=hex>;
+    uint32 p_flags <format=hex, comment=PFlagsComment>;
+    uint32 p_align <format=hex>;
+} <read=PhdrRead>;
+
+struct Elf64_Phdr {
+    P_TYPE p_type;
+    uint32 p_flags <format=hex, comment=PFlagsComment>;
+    uint64 p_offset <format=hex>;
+    uint64 p_vaddr <format=hex>;
+    uint64 p_paddr <format=hex>;
+    uint64 p_filesz <format=hex>;
+    uint64 p_memsz <format=hex>;
+    uint64 p_align <format=hex>;
+} <read=PhdrRead>;
+
+// "PT_LOAD R-X 0x1000 bytes at 0x0"; p is an Elf32_Phdr or an Elf64_Phdr
+string PhdrRead(Elf64_Phdr &p) {
+    local string t = EnumToString(p.p_type);
+    if (t == "")
+        t = Str("0x%X", p.p_type);
+    return Str("%s %s 0x%X bytes at 0x%X", t, PFlags(p.p_flags), p.p_filesz, p.p_offset);
+}
+
+// ---- Section headers ----
+
+enum <uint32> SH_TYPE {
+    SHT_NULL = 0, SHT_PROGBITS = 1, SHT_SYMTAB = 2, SHT_STRTAB = 3, SHT_RELA = 4,
+    SHT_HASH = 5, SHT_DYNAMIC = 6, SHT_NOTE = 7, SHT_NOBITS = 8, SHT_REL = 9,
+    SHT_SHLIB = 10, SHT_DYNSYM = 11, SHT_INIT_ARRAY = 14, SHT_FINI_ARRAY = 15,
+    SHT_PREINIT_ARRAY = 16, SHT_GROUP = 17, SHT_SYMTAB_SHNDX = 18, SHT_RELR = 19,
+    SHT_LOOS = 0x60000000, SHT_ANDROID_REL = 0x60000001, SHT_ANDROID_RELA = 0x60000002,
+    SHT_LLVM_ODRTAB = 0x6FFF4C00, SHT_LLVM_LINKER_OPTIONS = 0x6FFF4C01,
+    SHT_LLVM_ADDRSIG = 0x6FFF4C03, SHT_LLVM_DEPENDENT_LIBRARIES = 0x6FFF4C04,
+    SHT_LLVM_SYMPART = 0x6FFF4C05, SHT_LLVM_BB_ADDR_MAP = 0x6FFF4C0A,
+    SHT_GNU_ATTRIBUTES = 0x6FFFFFF5, SHT_GNU_HASH = 0x6FFFFFF6,
+    SHT_GNU_LIBLIST = 0x6FFFFFF7, SHT_CHECKSUM = 0x6FFFFFF8,
+    SHT_SUNW_move = 0x6FFFFFFA, SHT_SUNW_COMDAT = 0x6FFFFFFB,
+    SHT_SUNW_syminfo = 0x6FFFFFFC, SHT_GNU_verdef = 0x6FFFFFFD,
+    SHT_GNU_verneed = 0x6FFFFFFE, SHT_GNU_versym = 0x6FFFFFFF,
+    SHT_LOPROC = 0x70000000, SHT_ARM_EXIDX = 0x70000001,
+    SHT_ARM_PREEMPTMAP = 0x70000002, SHT_ARM_ATTRIBUTES = 0x70000003,
+    SHT_X86_64_UNWIND = 0x70000001, SHT_MIPS_REGINFO = 0x70000006,
+    SHT_RISCV_ATTRIBUTES = 0x70000003, SHT_HIPROC = 0x7FFFFFFF,
+    SHT_LOUSER = 0x80000000, SHT_HIUSER = 0xFFFFFFFF
+};
+
+// sh_flags
+string ShFlagsComment(uint64 &f) {
+    local string s = "";
+    if (f & 0x1)   s += "W";   // SHF_WRITE
+    if (f & 0x2)   s += "A";   // SHF_ALLOC
+    if (f & 0x4)   s += "X";   // SHF_EXECINSTR
+    if (f & 0x10)  s += "M";   // SHF_MERGE
+    if (f & 0x20)  s += "S";   // SHF_STRINGS
+    if (f & 0x40)  s += "I";   // SHF_INFO_LINK
+    if (f & 0x80)  s += "L";   // SHF_LINK_ORDER
+    if (f & 0x100) s += "O";   // SHF_OS_NONCONFORMING
+    if (f & 0x200) s += "G";   // SHF_GROUP
+    if (f & 0x400) s += "T";   // SHF_TLS
+    if (f & 0x800) s += "C";   // SHF_COMPRESSED
+    if (f & 0x80000000) s += "E"; // SHF_EXCLUDE
+    return s + " (W write, A alloc, X exec, M merge, S strings, I info link, L link order, G group, T TLS, C compressed, E exclude)";
+}
+
+struct Elf32_Shdr {
+    uint32  sh_name <format=hex, comment="the offset of the name in the section names (e_shstrndx)">;
+    SH_TYPE sh_type;
+    uint32  sh_flags <format=hex, comment=ShFlagsComment>;
+    uint32  sh_addr <format=hex>;
+    uint32  sh_offset <format=hex>;
+    uint32  sh_size <format=hex>;
+    uint32  sh_link;
+    uint32  sh_info;
+    uint32  sh_addralign;
+    uint32  sh_entsize;
+} <read=ShdrRead>;
+
+struct Elf64_Shdr {
+    uint32  sh_name <format=hex, comment="the offset of the name in the section names (e_shstrndx)">;
+    SH_TYPE sh_type;
+    uint64  sh_flags <format=hex, comment=ShFlagsComment>;
+    uint64  sh_addr <format=hex>;
+    uint64  sh_offset <format=hex>;
+    uint64  sh_size <format=hex>;
+    uint32  sh_link;
+    uint32  sh_info;
+    uint64  sh_addralign;
+    uint64  sh_entsize;
+} <read=ShdrRead>;
+
+// ---- Symbols ----
+
+enum <uchar> ST_TYPE {
+    STT_NOTYPE = 0, STT_OBJECT = 1, STT_FUNC = 2, STT_SECTION = 3, STT_FILE = 4,
+    STT_COMMON = 5, STT_TLS = 6, STT_GNU_IFUNC = 10, STT_HIOS = 12,
+    STT_LOPROC = 13, STT_HIPROC = 15
+};
+enum <uchar> ST_BIND {
+    STB_LOCAL = 0, STB_GLOBAL = 1, STB_WEAK = 2, STB_GNU_UNIQUE = 10,
+    STB_HIOS = 12, STB_LOPROC = 13, STB_HIPROC = 15
+};
+
+string ShndxComment(uint16 &x) {
+    switch (x) {
+    case 0:      return "SHN_UNDEF";
+    case 0xFFF1: return "SHN_ABS";
+    case 0xFFF2: return "SHN_COMMON";
+    case 0xFFFF: return "SHN_XINDEX";
+    }
+    return "";
+}
+
+string OtherComment(uchar &x) {
+    switch (x & 3) {
+    case 0: return "STV_DEFAULT";
+    case 1: return "STV_INTERNAL";
+    case 2: return "STV_HIDDEN";
+    }
+    return "STV_PROTECTED";
+}
+
+// st_info: the type in the low 4 bits, the binding in the high 4. Bit
+// fields follow the byte order, so they are read little-endian here
+struct ST_INFO {
+    local int wasBig = IsBigEndian();
+    LittleEndian();
+    ST_TYPE st_type : 4;
+    ST_BIND st_bind : 4;
+    if (wasBig)
+        BigEndian();
+} <read=StInfoRead>;
+
+string StInfoRead(ST_INFO &i) {
+    return EnumToString(i.st_bind) + " " + EnumToString(i.st_type);
+}
+
+// The name of a symbol is placed in its string table (sh_link)
+struct Elf32_Sym(int64 strOff, int64 strEnd) {
+    uint32  st_name <format=hex>;
+    uint32  st_value <format=hex>;
+    uint32  st_size;
+    ST_INFO st_info;
+    uchar   st_other <comment=OtherComment>;
+    uint16  st_shndx <comment=ShndxComment>;
+    if (st_name > 0 && strOff >= 0 && strOff + st_name < strEnd)
+        string name @ (strOff + st_name);
+} <read=SymRead>;
+
+struct Elf64_Sym(int64 strOff, int64 strEnd) {
+    uint32  st_name <format=hex>;
+    ST_INFO st_info;
+    uchar   st_other <comment=OtherComment>;
+    uint16  st_shndx <comment=ShndxComment>;
+    uint64  st_value <format=hex>;
+    uint64  st_size;
+    if (st_name > 0 && strOff >= 0 && strOff + st_name < strEnd)
+        string name @ (strOff + st_name);
+} <read=SymRead>;
+
+string SymRead(Elf64_Sym &s) {
+    local string n = "";
+    if (exists(s.name))
+        n = s.name;
+    return Str("%s 0x%X", n, s.st_value);
+}
+
+// ---- The file ----
+
+local int64 fsize = FileSize();
+local int is64 = 0;
+
+// Reads a field of the section header i (sh_flags, sh_addr, sh_offset,
+// sh_size, sh_addralign, sh_entsize) before the section headers are
+// declared: off64 / off32 - its offset in Elf64_Shdr / Elf32_Shdr
+local int64 shoff = 0, shnum = 0, shent = 0;
+uint64 ShField(int64 i, int off64, int off32) {
+    if (is64)
+        return ReadUInt64(shoff + i * shent + off64);
+    return ReadUInt(shoff + i * shent + off32);
+}
+
+// The same for the fields of 32 bits in both (sh_name, sh_type, sh_link, sh_info)
+uint32 ShWord(int64 i, int off64, int off32) {
+    return ReadUInt(shoff + i * shent + (is64 ? off64 : off32));
+}
+
+// The section names (.shstrtab)
+local int64 shstrOff = -1, shstrEnd = -1;
+
+string SecName(uint32 nameOff) {
+    if (shstrOff < 0 || shstrOff + nameOff >= shstrEnd)
+        return "";
+    return ReadString(shstrOff + nameOff, 256);
+}
+
+// "name 0x1000 bytes at 0x400"; s is an Elf32_Shdr or an Elf64_Shdr
+string ShdrRead(Elf64_Shdr &s) {
+    local string n = SecName(s.sh_name);
+    if (n == "")
+        n = EnumToString(s.sh_type);
+    return Str("%s 0x%X bytes at 0x%X", n, s.sh_size, s.sh_offset);
+}
+
+// The program headers: n entries of ent bytes
+struct PROGRAM_HEADERS(int64 n, int64 ent) {
+    local int64 base = FTell();
+    local int64 i;
+    for (i = 0; i < n; i++) {
+        FSeek(base + i * ent);
+        if (is64)
+            Elf64_Phdr phdr;
+        else
+            Elf32_Phdr phdr;
+    }
+};
+
+struct SECTION_HEADERS(int64 n, int64 ent) {
+    local int64 base = FTell();
+    local int64 i;
+    for (i = 0; i < n; i++) {
+        FSeek(base + i * ent);
+        if (is64)
+            Elf64_Shdr shdr;
+        else
+            Elf32_Shdr shdr;
+    }
+};
+
+struct SYMBOL_TABLE(int64 n, int64 ent, int64 strOff, int64 strEnd) {
+    local int64 base = FTell();
+    local int64 i;
+    for (i = 0; i < n; i++) {
+        FSeek(base + i * ent);
+        if (is64)
+            Elf64_Sym sym(strOff, strEnd);
+        else
+            Elf32_Sym sym(strOff, strEnd);
+    }
+};
+
+local int cls = fsize > 4 ? ReadUByte(4) : 0;
+if (fsize < 16 || (cls != 1 && cls != 2)) {
+    // Not a header we know: e_ident only
+    if (fsize >= 16)
+        E_IDENT e_ident;
+    Warning("unknown ELF class");
+    Exit(0);
+}
+is64 = cls == 2;
+
+if (fsize < (is64 ? 64 : 52)) {
+    E_IDENT e_ident;
+    Warning("the ELF header is cut");
+    Exit(0);
+}
+
+if (is64)
+    Elf64_Ehdr ehdr <open=true>;
+else
+    Elf32_Ehdr ehdr <open=true>;
+
+local int64 minPh = is64 ? 56 : 32;
+local int64 minSh = is64 ? 64 : 40;
+local int64 phoff = ehdr.e_phoff, phnum = ehdr.e_phnum, phent = ehdr.e_phentsize;
+local int64 shstrndx = ehdr.e_shstrndx;
+shoff = ehdr.e_shoff;
+shnum = ehdr.e_shnum;
+shent = ehdr.e_shentsize;
+
+// Section 0 holds the numbers that do not fit in the header
+if (shoff > 0 && shoff < fsize && shent >= minSh && shent <= fsize - shoff) {
+    if (shnum == 0)
+        shnum = ShField(0, 32, 20);     // sh_size
+    if (shstrndx == 0xFFFF)
+        shstrndx = ShWord(0, 40, 24);   // sh_link
+    if (phnum == 0xFFFF)
+        phnum = ShWord(0, 44, 28);      // sh_info
+}
+
+// Program headers
+if (phnum > 0 && phoff > 0 && phoff < fsize && phent >= minPh) {
+    if (phnum > 4096) {
+        Warning("%d program headers, only 4096 shown", phnum);
+        phnum = 4096;
+    }
+    if (phnum > (fsize - phoff) / phent) {
+        Warning("the program headers go past the end of the file");
+        phnum = (fsize - phoff) / phent;
+    }
+    if (phnum > 0)
+        PROGRAM_HEADERS program_headers(phnum, phent) @ phoff;
+}
+
+// Section headers
+if (shnum > 0 && shoff > 0 && shoff < fsize && shent >= minSh) {
+    if (shnum > 4096) {
+        Warning("%d sections, only 4096 shown", shnum);
+        shnum = 4096;
+    }
+    if (shnum > (fsize - shoff) / shent) {
+        Warning("the section headers go past the end of the file");
+        shnum = (fsize - shoff) / shent;
+    }
+} else {
+    shnum = 0;
+}
+
+if (shnum > 0) {
+    if (shstrndx > 0 && shstrndx < shnum) {
+        local uint64 so = ShField(shstrndx, 24, 16), ss = ShField(shstrndx, 32, 20);
+        if (so < fsize) {
+            shstrOff = so;
+            shstrEnd = ss <= fsize - so ? so + ss : fsize;
+        }
+    }
+    SECTION_HEADERS section_headers(shnum, shent) @ shoff;
+
+    // .symtab and .dynsym, at most 65536 symbols in all
+    local int64 symLeft = 65536;
+    local int64 k, type, off, size, ent, link, cnt, strOff, strEnd;
+    for (k = 0; k < shnum && symLeft > 0; k++) {
+        type = ShWord(k, 4, 4);
+        if (type != SHT_SYMTAB && type != SHT_DYNSYM)
+            continue;
+        off = ShField(k, 24, 16);
+        size = ShField(k, 32, 20);
+        ent = ShField(k, 56, 36);
+        link = ShWord(k, 40, 24);
+        if (ent < (is64 ? 24 : 16) || off <= 0 || off >= fsize || size < 0)
+            continue;
+        cnt = Min(size, fsize - off) / ent;
+        if (cnt > symLeft) {
+            Warning("%d symbols, only %d shown", cnt, symLeft);
+            cnt = symLeft;
+        }
+        symLeft -= cnt;
+        strOff = -1;
+        strEnd = -1;
+        if (link > 0 && link < shnum) {
+            strOff = ShField(link, 24, 16);
+            strEnd = strOff + ShField(link, 32, 20);
+            if (strOff < 0 || strOff >= fsize)
+                strOff = strEnd = -1;
+            else if (strEnd > fsize || strEnd < strOff)
+                strEnd = fsize;
+        }
+        if (cnt <= 0)
+            continue;
+        if (type == SHT_SYMTAB)
+            SYMBOL_TABLE symtab(cnt, ent, strOff, strEnd) @ off;
+        else
+            SYMBOL_TABLE dynsym(cnt, ent, strOff, strEnd) @ off;
+    }
+}

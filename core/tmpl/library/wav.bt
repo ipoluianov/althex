@@ -1,0 +1,245 @@
+//! name: WAV audio
+//! extensions: wav, wave, bwf, rf64
+//! magic: 0 "52 49 46 46 ?? ?? ?? ?? 57 41 56 45"
+//! magic: 0 "52 49 46 58 ?? ?? ?? ?? 57 41 56 45"
+//! magic: 0 "52 46 36 34 ?? ?? ?? ?? 57 41 56 45"
+
+// Waveform audio (Microsoft/IBM RIFF WAVE): a RIFF header ("RIFF", size,
+// "WAVE") and chunks: "fmt " (WAVEFORMATEX / WAVEFORMATEXTENSIBLE),
+// "data" (the samples), "fact", "LIST" (with "INFO" text subchunks), RF64's
+// "ds64" and any other chunk as bytes. Chunks are padded to an even size.
+// Any RIFF file (AVI, WebP, ...) is walked the same way, though only WAVE
+// is detected. RIFX is the big-endian variant.
+
+LittleEndian();
+
+enum <uint16> WAVE_FORMAT {
+    WAVE_FORMAT_UNKNOWN          = 0x0000,
+    WAVE_FORMAT_PCM              = 0x0001,
+    WAVE_FORMAT_ADPCM            = 0x0002,
+    WAVE_FORMAT_IEEE_FLOAT       = 0x0003,
+    WAVE_FORMAT_VSELP            = 0x0004,
+    WAVE_FORMAT_IBM_CVSD         = 0x0005,
+    WAVE_FORMAT_ALAW             = 0x0006,
+    WAVE_FORMAT_MULAW            = 0x0007,
+    WAVE_FORMAT_DTS              = 0x0008,
+    WAVE_FORMAT_DRM              = 0x0009,
+    WAVE_FORMAT_WMAVOICE9        = 0x000A,
+    WAVE_FORMAT_WMAVOICE10       = 0x000B,
+    WAVE_FORMAT_OKI_ADPCM        = 0x0010,
+    WAVE_FORMAT_IMA_ADPCM        = 0x0011,
+    WAVE_FORMAT_MEDIASPACE_ADPCM = 0x0012,
+    WAVE_FORMAT_SIERRA_ADPCM     = 0x0013,
+    WAVE_FORMAT_G723_ADPCM       = 0x0014,
+    WAVE_FORMAT_DIGISTD          = 0x0015,
+    WAVE_FORMAT_DIGIFIX          = 0x0016,
+    WAVE_FORMAT_DIALOGIC_OKI_ADPCM = 0x0017,
+    WAVE_FORMAT_YAMAHA_ADPCM     = 0x0020,
+    WAVE_FORMAT_SONARC           = 0x0021,
+    WAVE_FORMAT_DSPGROUP_TRUESPEECH = 0x0022,
+    WAVE_FORMAT_ECHOSC1          = 0x0023,
+    WAVE_FORMAT_AUDIOFILE_AF36   = 0x0024,
+    WAVE_FORMAT_APTX             = 0x0025,
+    WAVE_FORMAT_AUDIOFILE_AF10   = 0x0026,
+    WAVE_FORMAT_DOLBY_AC2        = 0x0030,
+    WAVE_FORMAT_GSM610           = 0x0031,
+    WAVE_FORMAT_MSNAUDIO         = 0x0032,
+    WAVE_FORMAT_ANTEX_ADPCME     = 0x0033,
+    WAVE_FORMAT_CONTROL_RES_VQLPC = 0x0034,
+    WAVE_FORMAT_DIGIREAL         = 0x0035,
+    WAVE_FORMAT_DIGIADPCM        = 0x0036,
+    WAVE_FORMAT_CONTROL_RES_CR10 = 0x0037,
+    WAVE_FORMAT_G721_ADPCM       = 0x0040,
+    WAVE_FORMAT_G728_CELP        = 0x0041,
+    WAVE_FORMAT_MSG723           = 0x0042,
+    WAVE_FORMAT_MPEG             = 0x0050,
+    WAVE_FORMAT_MPEGLAYER3       = 0x0055,
+    WAVE_FORMAT_G726_ADPCM       = 0x0064,
+    WAVE_FORMAT_G722_ADPCM       = 0x0065,
+    WAVE_FORMAT_DOLBY_AC3_SPDIF  = 0x0092,
+    WAVE_FORMAT_RAW_AAC1         = 0x00FF,
+    WAVE_FORMAT_WMAUDIO2         = 0x0161,
+    WAVE_FORMAT_WMAUDIO3         = 0x0162,
+    WAVE_FORMAT_WMAUDIO_LOSSLESS = 0x0163,
+    WAVE_FORMAT_WMASPDIF         = 0x0164,
+    WAVE_FORMAT_MPEG_ADTS_AAC    = 0x1600,
+    WAVE_FORMAT_MPEG_RAW_AAC     = 0x1601,
+    WAVE_FORMAT_MPEG_LOAS        = 0x1602,
+    WAVE_FORMAT_MPEG_HEAAC       = 0x1610,
+    WAVE_FORMAT_DOLBY_AC3        = 0x2000,
+    WAVE_FORMAT_DTS2             = 0x2001,
+    WAVE_FORMAT_OGG_VORBIS_MODE_1 = 0x674F,
+    WAVE_FORMAT_OGG_VORBIS_MODE_2 = 0x6750,
+    WAVE_FORMAT_OGG_VORBIS_MODE_3 = 0x6751,
+    WAVE_FORMAT_FLAC             = 0xF1AC,
+    WAVE_FORMAT_EXTENSIBLE       = 0xFFFE,
+    WAVE_FORMAT_DEVELOPMENT      = 0xFFFF
+};
+
+// RF64: the 64-bit size of the "data" chunk, from "ds64" (-1 - none)
+local int64 g_ds64Data = -1;
+
+// FourCC returns the four characters at pos
+string FourCC(int64 pos) {
+    if (pos + 4 > FileSize()) return "";
+    return Str("%c%c%c%c", ReadUByte(pos), ReadUByte(pos + 1), ReadUByte(pos + 2), ReadUByte(pos + 3));
+}
+
+// The speaker positions of WAVEFORMATEXTENSIBLE.dwChannelMask
+struct CHANNEL_MASK {
+    uint32 SPEAKER_FRONT_LEFT : 1;
+    uint32 SPEAKER_FRONT_RIGHT : 1;
+    uint32 SPEAKER_FRONT_CENTER : 1;
+    uint32 SPEAKER_LOW_FREQUENCY : 1;
+    uint32 SPEAKER_BACK_LEFT : 1;
+    uint32 SPEAKER_BACK_RIGHT : 1;
+    uint32 SPEAKER_FRONT_LEFT_OF_CENTER : 1;
+    uint32 SPEAKER_FRONT_RIGHT_OF_CENTER : 1;
+    uint32 SPEAKER_BACK_CENTER : 1;
+    uint32 SPEAKER_SIDE_LEFT : 1;
+    uint32 SPEAKER_SIDE_RIGHT : 1;
+    uint32 SPEAKER_TOP_CENTER : 1;
+    uint32 SPEAKER_TOP_FRONT_LEFT : 1;
+    uint32 SPEAKER_TOP_FRONT_CENTER : 1;
+    uint32 SPEAKER_TOP_FRONT_RIGHT : 1;
+    uint32 SPEAKER_TOP_BACK_LEFT : 1;
+    uint32 SPEAKER_TOP_BACK_CENTER : 1;
+    uint32 SPEAKER_TOP_BACK_RIGHT : 1;
+    uint32 reserved : 13;
+    uint32 SPEAKER_ALL : 1;
+} <read=ChannelMaskRead>;
+
+string ChannelMaskRead(CHANNEL_MASK &m) {
+    return Str("0x%08X", ReadUInt(startof(m)));
+}
+
+// A GUID as stored by Windows: three little-endian numbers and 8 bytes
+struct GUID {
+    uint32 data1 <format=hex>;
+    uint16 data2 <format=hex>;
+    uint16 data3 <format=hex>;
+    uchar  data4[8] <format=hex>;
+} <read=GuidRead>;
+
+string GuidRead(GUID &g) {
+    local int64 p = startof(g) + 8;
+    return Str("{%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}", g.data1, g.data2, g.data3,
+        ReadUByte(p), ReadUByte(p + 1), ReadUByte(p + 2), ReadUByte(p + 3),
+        ReadUByte(p + 4), ReadUByte(p + 5), ReadUByte(p + 6), ReadUByte(p + 7));
+}
+
+// A chunk: ckID, ckSize, the data and a pad byte when the size is odd.
+// limit is the end of the enclosing chunk; info - a subchunk of LIST INFO.
+struct CHUNK(int64 limit, int depth, int info) {
+    local string id = FourCC(FTell());
+    char   ckID[4];
+    uint32 ckSize;
+    local int64 dataStart = FTell();
+    local int64 size = ckSize;
+    if (id == "data" && ckSize == 0xFFFFFFFF && g_ds64Data >= 0)
+        size = g_ds64Data; // RF64
+    local int64 end = dataStart + size;
+    local int truncated = 0;
+    if (end > limit) {
+        end = limit; // a damaged or cut file: up to the end of the parent
+        truncated = 1;
+    }
+    local int64 n = end - dataStart;
+
+    if (id == "fmt " && n >= 14) {
+        // WAVEFORMATEX
+        WAVE_FORMAT wFormatTag;
+        uint16 nChannels;
+        uint32 nSamplesPerSec <comment="sample rate, Hz">;
+        uint32 nAvgBytesPerSec;
+        uint16 nBlockAlign;
+        if (FTell() + 2 <= end)
+            uint16 wBitsPerSample;
+        if (FTell() + 2 <= end) {
+            uint16 cbSize <comment="the size of the extra format information">;
+            if (wFormatTag == WAVE_FORMAT_EXTENSIBLE && cbSize >= 22 && FTell() + 22 <= end) {
+                // WAVEFORMATEXTENSIBLE
+                uint16 wValidBitsPerSample <comment="or wSamplesPerBlock">;
+                CHANNEL_MASK dwChannelMask;
+                GUID SubFormat <comment="the first two bytes are the format tag">;
+            }
+        }
+    } else if (id == "data") {
+        uchar samples[n];
+    } else if ((id == "LIST" || id == "RIFF") && n >= 4) {
+        char listType[4];
+        local string lt = FourCC(dataStart);
+        if (lt == "movi" || depth >= 16) {
+            uchar listData[end - FTell()] <comment="not walked">;
+        } else {
+            while (FTell() + 8 <= end)
+                CHUNK subchunk(end, depth + 1, lt == "INFO");
+        }
+    } else if (id == "fact" && n >= 4) {
+        uint32 dwSampleLength <comment="the number of samples per channel">;
+    } else if (id == "ds64" && n >= 28) {
+        uint64 riffSize;
+        uint64 dataSize;
+        uint64 sampleCount;
+        uint32 tableLength;
+        g_ds64Data = dataSize;
+    } else if (info) {
+        char text[n] <comment="zero-terminated text">;
+    }
+    if (FTell() < end)
+        uchar chunkData[end - FTell()];
+    if (!truncated && (size & 1) && end < limit)
+        uchar pad <comment="the chunk is padded to an even size">;
+} <read=ChunkRead>;
+
+string FormatName(CHUNK &c) {
+    local string s = EnumToString(c.wFormatTag);
+    if (SubStr(s, 0, 12) == "WAVE_FORMAT_")
+        s = SubStr(s, 12);
+    if (s == "")
+        s = Str("0x%04X", c.wFormatTag);
+    if (exists(c.SubFormat)) {
+        if (c.SubFormat.data1 == 1) s += " PCM";
+        else if (c.SubFormat.data1 == 3) s += " IEEE_FLOAT";
+        else s += Str(" 0x%04X", c.SubFormat.data1);
+    }
+    return s;
+}
+
+string ChunkRead(CHUNK &c) {
+    local string id = FourCC(startof(c));
+    if (exists(c.wFormatTag)) {
+        local string s = Str("fmt %s %dch %d Hz", FormatName(c), c.nChannels, c.nSamplesPerSec);
+        if (exists(c.wBitsPerSample))
+            s += Str(" %d bit", c.wBitsPerSample);
+        return s;
+    }
+    if (exists(c.listType))
+        return Str("%s %s %d bytes", id, FourCC(startof(c) + 8), c.ckSize);
+    if (exists(c.text))
+        return Str("%s \"%s\"", id, ReadString(startof(c) + 8, Min(c.ckSize, 200)));
+    return Str("%s %u bytes", id, c.ckSize);
+}
+
+struct RIFF_HEADER {
+    char   ckID[4] <comment="RIFF (little-endian), RIFX (big-endian) or RF64">;
+    uint32 ckSize <comment="the size of the file - 8">;
+    char   formType[4] <comment="WAVE, AVI , ...">;
+};
+
+local string magic = FourCC(0);
+if (magic == "RIFX")
+    BigEndian();
+if (FileSize() < 12) {
+    if (FileSize() > 0)
+        uchar data[FileSize()];
+} else {
+    RIFF_HEADER header <open=true>;
+    local int64 riffEnd = 8 + header.ckSize;
+    if (header.ckSize == 0xFFFFFFFF || riffEnd > FileSize())
+        riffEnd = FileSize();
+    while (FTell() + 8 <= riffEnd)
+        CHUNK chunk(riffEnd, 0, 0);
+    if (FTell() < FileSize())
+        uchar trailing[FileSize() - FTell()] <comment="after the RIFF chunk">;
+}

@@ -1,0 +1,425 @@
+//! name: MP4 / ISO base media
+//! extensions: mp4, m4a, m4v, m4b, m4s, mov, 3gp, 3g2, mj2, f4v, heic, heif, avif
+//! magic: 4 "66 74 79 70"
+//! magic: 4 "73 74 79 70"
+
+// ISO base media file format (ISO/IEC 14496-12): MP4, QuickTime, 3GP and
+// the like. The file is a sequence of boxes (atoms): a 32-bit big-endian
+// size (1 - a 64-bit largesize follows, 0 - the box goes to the end of the
+// file or its parent), a four-character type and the payload. Container
+// boxes hold boxes; the known leaf boxes are parsed, the others are bytes.
+
+BigEndian();
+
+// How deep boxes are walked; deeper ones are bytes
+local int MAX_DEPTH = 32;
+// Tables of structs show this many entries as structs, the rest as numbers
+// (a field each would make too many fields for a long movie)
+local int64 MAX_ENTRIES = 4096;
+
+// FourCC returns the four characters at pos
+string FourCC(int64 pos) {
+    if (pos + 4 > FileSize()) return "";
+    return Str("%c%c%c%c", ReadUByte(pos), ReadUByte(pos + 1), ReadUByte(pos + 2), ReadUByte(pos + 3));
+}
+
+// Boxes that hold only boxes
+int IsContainer(string t) {
+    return t == "moov" || t == "trak" || t == "mdia" || t == "minf" || t == "stbl" ||
+        t == "dinf" || t == "edts" || t == "udta" || t == "mvex" || t == "moof" ||
+        t == "traf" || t == "mfra" || t == "tref" || t == "sinf" || t == "schi" ||
+        t == "ilst" || t == "rinf" || t == "strk" || t == "strd" || t == "iprp" ||
+        t == "ipco" || t == "gmhd" || t == "tapt" || t == "wave";
+}
+
+// Sample entries of video tracks (VisualSampleEntry)
+int IsVisualEntry(string t) {
+    return t == "avc1" || t == "avc2" || t == "avc3" || t == "avc4" || t == "hvc1" ||
+        t == "hev1" || t == "mp4v" || t == "vp08" || t == "vp09" || t == "av01" ||
+        t == "encv" || t == "s263" || t == "jpeg" || t == "mjpg" || t == "dvh1" ||
+        t == "dvhe" || t == "vvc1" || t == "apcn" || t == "apch" || t == "apcs";
+}
+
+// Sample entries of audio tracks (AudioSampleEntry)
+int IsAudioEntry(string t) {
+    return t == "mp4a" || t == "ac-3" || t == "ec-3" || t == "ac-4" || t == "Opus" ||
+        t == "fLaC" || t == "alac" || t == "enca" || t == "samr" || t == "sawb" ||
+        t == "sowt" || t == "twos" || t == "lpcm" || t == "ipcm" || t == "fpcm" ||
+        t == "mp3 " || t == ".mp3" || t == "ulaw" || t == "alaw";
+}
+
+// A 16.16 fixed-point number
+string Fixed16(uint32 &v) {
+    return Str("%g", v / 65536.0);
+}
+
+// mdhd.language: three 5-bit letters, each + 0x60 (ISO 639-2/T)
+string Language(uint16 &v) {
+    local uint32 x = v;
+    return Str("%c%c%c", ((x >> 10) & 31) + 0x60, ((x >> 5) & 31) + 0x60, (x & 31) + 0x60);
+}
+
+// Times are seconds since 1904-01-01
+string Time1904(uint64 &v) {
+    return Str("%u s since 1904", v);
+}
+
+struct STTS_ENTRY {
+    uint32 sample_count;
+    uint32 sample_delta;
+};
+
+struct STSC_ENTRY {
+    uint32 first_chunk;
+    uint32 samples_per_chunk;
+    uint32 sample_description_index;
+};
+
+struct CTTS_ENTRY {
+    uint32 sample_count;
+    int32  sample_offset;
+};
+
+// The number of entries of size esize that fit before end, at most count
+int64 Fit(int64 count, int64 esize, int64 end) {
+    local int64 room = (end - FTell()) / esize;
+    if (room < 0) room = 0;
+    if (count > room) {
+        Warning("%d entries at 0x%X do not fit in the box, %d read", count, FTell(), room);
+        return room;
+    }
+    return count;
+}
+
+// A box. limit - the end of the parent; depth - how deep it is; parent -
+// the type of the parent box.
+struct BOX(int64 limit, int depth, string parent) {
+    local int64 start = FTell();
+    local string t = FourCC(start + 4);
+    uint32 size <comment="1 - largesize follows, 0 - to the end">;
+    char   type[4];
+    local int64 end;
+    if (size == 1 && FTell() + 8 <= limit) {
+        uint64 largesize;
+        end = start + largesize;
+    } else if (size == 0) {
+        end = limit;
+    } else {
+        end = start + size;
+    }
+    if (end > limit || end < FTell()) {
+        Warning("box %s at 0x%X: the size goes past its parent", t, start);
+        end = limit;
+    }
+    if (t == "uuid" && FTell() + 16 <= end)
+        uchar usertype[16] <format=hex>;
+
+    local int64 n;
+    local int64 i;
+    if (depth >= MAX_DEPTH) {
+        // too deep: bytes
+    } else if (IsContainer(t) || parent == "ilst") {
+        while (FTell() + 8 <= end)
+            BOX box(end, depth + 1, t);
+    } else if (t == "meta") {
+        // A full box in ISO files, a plain container in QuickTime ones
+        if (FTell() + 4 <= end && ReadUInt(FTell()) == 0) {
+            uint32 version : 8;
+            uint32 flags : 24 <format=hex>;
+        }
+        while (FTell() + 8 <= end)
+            BOX box(end, depth + 1, t);
+    } else if ((t == "ftyp" || t == "styp") && end - FTell() >= 8) {
+        char   major_brand[4];
+        uint32 minor_version <format=hex>;
+        while (FTell() + 4 <= end)
+            char compatible_brands[4];
+    } else if (t == "mvhd" && end - FTell() >= 100) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        if (version == 1 && end - FTell() >= 108) {
+            uint64 creation_time <read=Time1904>;
+            uint64 modification_time <read=Time1904>;
+            uint32 timescale <comment="units per second">;
+            uint64 duration;
+        } else {
+            uint32 creation_time <read=Time1904>;
+            uint32 modification_time <read=Time1904>;
+            uint32 timescale <comment="units per second">;
+            uint32 duration;
+        }
+        int32  rate <read=Fixed16, comment="16.16, 1.0 - normal">;
+        int16  volume <comment="8.8, 0x0100 - full">;
+        uint16 reserved;
+        uint32 reserved2[2];
+        int32  matrix[9] <format=hex>;
+        uint32 pre_defined[6];
+        uint32 next_track_ID;
+    } else if (t == "tkhd" && end - FTell() >= 84) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        if (version == 1 && end - FTell() >= 92) {
+            uint64 creation_time <read=Time1904>;
+            uint64 modification_time <read=Time1904>;
+            uint32 track_ID;
+            uint32 reserved;
+            uint64 duration;
+        } else {
+            uint32 creation_time <read=Time1904>;
+            uint32 modification_time <read=Time1904>;
+            uint32 track_ID;
+            uint32 reserved;
+            uint32 duration;
+        }
+        uint32 reserved2[2];
+        int16  layer;
+        int16  alternate_group;
+        int16  volume <comment="8.8">;
+        uint16 reserved3;
+        int32  matrix[9] <format=hex>;
+        uint32 width <read=Fixed16>;
+        uint32 height <read=Fixed16>;
+    } else if (t == "mdhd" && end - FTell() >= 24) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        if (version == 1 && end - FTell() >= 32) {
+            uint64 creation_time <read=Time1904>;
+            uint64 modification_time <read=Time1904>;
+            uint32 timescale;
+            uint64 duration;
+        } else {
+            uint32 creation_time <read=Time1904>;
+            uint32 modification_time <read=Time1904>;
+            uint32 timescale;
+            uint32 duration;
+        }
+        if (FTell() + 4 <= end) {
+            uint16 language <read=Language, comment="ISO 639-2/T, packed">;
+            uint16 pre_defined;
+        }
+    } else if (t == "hdlr" && end - FTell() >= 24) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        uint32 pre_defined <comment="QuickTime: the component type">;
+        char   handler_type[4] <comment="vide, soun, hint, meta, subt, text...">;
+        uint32 reserved[3];
+        if (FTell() < end)
+            char name[end - FTell()];
+    } else if ((t == "stsd" || t == "dref") && end - FTell() >= 8) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        uint32 entry_count;
+        n = entry_count;
+        for (i = 0; i < n && FTell() + 8 <= end; i++)
+            BOX entry(end, depth + 1, t);
+    } else if (parent == "stsd" && IsVisualEntry(t) && end - FTell() >= 78) {
+        // VisualSampleEntry
+        uchar  reserved[6];
+        uint16 data_reference_index;
+        uint16 pre_defined;
+        uint16 reserved2;
+        uint32 pre_defined2[3];
+        uint16 width;
+        uint16 height;
+        uint32 horizresolution <read=Fixed16>;
+        uint32 vertresolution <read=Fixed16>;
+        uint32 reserved3;
+        uint16 frame_count;
+        uchar  compressorname_length;
+        char   compressorname[31];
+        uint16 depth_;
+        int16  pre_defined3;
+        while (FTell() + 8 <= end)
+            BOX box(end, depth + 1, t);
+    } else if (parent == "stsd" && IsAudioEntry(t) && end - FTell() >= 28) {
+        // AudioSampleEntry (version 0; QuickTime versions 1 and 2 add fields)
+        uchar  reserved[6];
+        uint16 data_reference_index;
+        uint16 entry_version <comment="QuickTime: 0, 1 or 2">;
+        uint16 reserved2[3];
+        uint16 channelcount;
+        uint16 samplesize;
+        uint16 pre_defined;
+        uint16 reserved3;
+        uint32 samplerate <read=Fixed16>;
+        if (entry_version == 1 && FTell() + 16 <= end)
+            uint32 qt_v1[4];
+        else if (entry_version == 2 && FTell() + 36 <= end)
+            uchar qt_v2[36];
+        while (FTell() + 8 <= end)
+            BOX box(end, depth + 1, t);
+    } else if (t == "stts" && end - FTell() >= 8) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        uint32 entry_count;
+        n = Fit(entry_count, 8, end);
+        if (n > MAX_ENTRIES) {
+            STTS_ENTRY entries[MAX_ENTRIES];
+            uint32 more_entries[(n - MAX_ENTRIES) * 2] <comment="the other entries, as numbers">;
+        } else if (n > 0) {
+            STTS_ENTRY entries[n];
+        }
+    } else if (t == "ctts" && end - FTell() >= 8) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        uint32 entry_count;
+        n = Fit(entry_count, 8, end);
+        if (n > MAX_ENTRIES) {
+            CTTS_ENTRY entries[MAX_ENTRIES];
+            uint32 more_entries[(n - MAX_ENTRIES) * 2] <comment="the other entries, as numbers">;
+        } else if (n > 0) {
+            CTTS_ENTRY entries[n];
+        }
+    } else if (t == "stsc" && end - FTell() >= 8) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        uint32 entry_count;
+        n = Fit(entry_count, 12, end);
+        if (n > MAX_ENTRIES) {
+            STSC_ENTRY entries[MAX_ENTRIES];
+            uint32 more_entries[(n - MAX_ENTRIES) * 3] <comment="the other entries, as numbers">;
+        } else if (n > 0) {
+            STSC_ENTRY entries[n];
+        }
+    } else if (t == "stsz" && end - FTell() >= 12) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        uint32 sample_size <comment="0 - each sample has its size">;
+        uint32 sample_count;
+        if (sample_size == 0) {
+            n = Fit(sample_count, 4, end);
+            if (n > 0)
+                uint32 entry_size[n];
+        }
+    } else if ((t == "stco" || t == "stss" || t == "co64") && end - FTell() >= 8) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        uint32 entry_count;
+        if (t == "co64") {
+            n = Fit(entry_count, 8, end);
+            if (n > 0)
+                uint64 chunk_offset[n] <format=hex>;
+        } else if (t == "stco") {
+            n = Fit(entry_count, 4, end);
+            if (n > 0)
+                uint32 chunk_offset[n] <format=hex>;
+        } else {
+            n = Fit(entry_count, 4, end);
+            if (n > 0)
+                uint32 sample_number[n] <comment="the sync samples">;
+        }
+    } else if (t == "elst" && end - FTell() >= 8) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        uint32 entry_count;
+        n = entry_count;
+        for (i = 0; i < n && FTell() + (version == 1 ? 20 : 12) <= end; i++) {
+            if (version == 1) {
+                uint64 segment_duration;
+                int64  media_time;
+            } else {
+                uint32 segment_duration;
+                int32  media_time;
+            }
+            int16 media_rate_integer;
+            int16 media_rate_fraction;
+        }
+    } else if (t == "vmhd" && end - FTell() >= 12) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        uint16 graphicsmode;
+        uint16 opcolor[3];
+    } else if (t == "smhd" && end - FTell() >= 8) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        int16  balance <comment="8.8">;
+        uint16 reserved;
+    } else if ((t == "url " || t == "urn ") && end - FTell() >= 4) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        if (FTell() < end)
+            char location[end - FTell()];
+    } else if (t == "mfhd" && end - FTell() >= 8) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        uint32 sequence_number;
+    } else if (t == "tfhd" && end - FTell() >= 8) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        uint32 track_ID;
+        if ((flags & 0x01) && FTell() + 8 <= end) uint64 base_data_offset <format=hex>;
+        if ((flags & 0x02) && FTell() + 4 <= end) uint32 sample_description_index;
+        if ((flags & 0x08) && FTell() + 4 <= end) uint32 default_sample_duration;
+        if ((flags & 0x10) && FTell() + 4 <= end) uint32 default_sample_size;
+        if ((flags & 0x20) && FTell() + 4 <= end) uint32 default_sample_flags <format=hex>;
+    } else if (t == "tfdt" && end - FTell() >= 8) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        if (version == 1 && FTell() + 8 <= end)
+            uint64 baseMediaDecodeTime;
+        else
+            uint32 baseMediaDecodeTime;
+    } else if (t == "trun" && end - FTell() >= 8) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        uint32 sample_count;
+        if ((flags & 0x01) && FTell() + 4 <= end) int32 data_offset;
+        if ((flags & 0x04) && FTell() + 4 <= end) uint32 first_sample_flags <format=hex>;
+        local int64 esize = ((flags & 0x100) ? 4 : 0) + ((flags & 0x200) ? 4 : 0) +
+            ((flags & 0x400) ? 4 : 0) + ((flags & 0x800) ? 4 : 0);
+        if (esize > 0) {
+            n = Fit(sample_count, esize, end);
+            if (n > 0)
+                uint32 sample_fields[n * esize / 4] <comment="per sample: duration, size, flags, composition offset - those the flags tell">;
+        }
+    } else if (t == "trex" && end - FTell() >= 24) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        uint32 track_ID;
+        uint32 default_sample_description_index;
+        uint32 default_sample_duration;
+        uint32 default_sample_size;
+        uint32 default_sample_flags <format=hex>;
+    } else if (t == "mehd" && end - FTell() >= 8) {
+        uint32 version : 8;
+        uint32 flags : 24 <format=hex>;
+        if (version == 1 && FTell() + 8 <= end)
+            uint64 fragment_duration;
+        else
+            uint32 fragment_duration;
+    } else if (t == "data" && parent != "" && end - FTell() >= 8) {
+        // iTunes metadata value (in an item of ilst)
+        uint32 type_indicator <comment="1 - UTF-8 text, 13/14 - JPEG/PNG, 21 - integer">;
+        uint32 locale;
+        if (FTell() < end) {
+            if (type_indicator == 1)
+                char value[end - FTell()];
+            else
+                uchar value[end - FTell()];
+        }
+    } else if (t == "mdat") {
+        // The media data
+    }
+    if (FTell() < end) {
+        if (t == "mdat")
+            uchar data[end - FTell()] <comment="the media data">;
+        else
+            uchar data[end - FTell()];
+    }
+} <read=BoxRead>;
+
+string BoxRead(BOX &b) {
+    return Str("%s %d bytes", FourCC(startof(b) + 4), sizeof(b));
+}
+
+while (FTell() + 8 <= FileSize()) {
+    local int64 at = FTell();
+    local uint32 sz = ReadUInt(at);
+    if (sz != 0 && sz != 1 && sz < 8) {
+        Warning("a damaged box at 0x%X (size %d)", at, sz);
+        break;
+    }
+    BOX box(FileSize(), 0, "");
+}
+if (FTell() < FileSize())
+    uchar trailing[FileSize() - FTell()];

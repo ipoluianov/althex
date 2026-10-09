@@ -14,7 +14,7 @@ func newTestView(t *testing.T, data string) (*View, *doc.Document) {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { d.Close() })
-	v := NewView(d)
+	v := NewView(d, DefaultOptions())
 	v.ensureFont(1)
 	v.layout(800, 600)
 	return v, d
@@ -142,11 +142,100 @@ func TestHit(t *testing.T) {
 	cw, lh := v.font.CharWidth, v.font.LineHeight
 	y := v.headerH + lh + lh/2 // the second row
 	pos, col, nib, ok := v.hit(v.cellX(5)+cw+1, y)
-	if !ok || pos != 21 || col != colHex || nib != 1 {
+	if !ok || pos != 21 || col != colNum || nib != 1 {
 		t.Fatalf("hex hit: %d %d %d", pos, col, nib)
 	}
 	pos, col, _, _ = v.hit(v.xText+3*cw+1, y)
 	if pos != 19 || col != colText {
 		t.Fatalf("text hit: %d %d", pos, col)
+	}
+}
+
+func TestTypeBinaryAndDecimal(t *testing.T) {
+	v, d := newTestView(t, "\x00\x00")
+	o := v.Options()
+	o.Mode = ModeBin
+	v.SetOptions(o)
+	typeHex(v, "01001101")
+	if got := content(t, d); got != "M\x00" || v.Caret() != 1 {
+		t.Fatalf("binary: %q, caret %d", got, v.Caret())
+	}
+	o.Mode = ModeDec
+	v.SetOptions(o)
+	typeHex(v, "3") // 300 does not fit a byte
+	if got := content(t, d); got != "M\x00" {
+		t.Fatalf("decimal over 255 typed: %q", got)
+	}
+	typeHex(v, "090")
+	if got := content(t, d); got != "MZ" {
+		t.Fatalf("decimal: %q", got)
+	}
+}
+
+func TestLittleEndianGroups(t *testing.T) {
+	v, _ := newTestView(t, "\x01\x02\x03\x04\x05\x06\x07\x08")
+	o := v.Options()
+	o.Group, o.LittleEndian = 4, true
+	v.SetOptions(o)
+	v.layout(800, 600)
+	// The first cell of a group shows its last byte
+	if j := v.byteOfCell(0); j != 3 {
+		t.Fatalf("cell 0 shows byte %d", j)
+	}
+	if j := v.byteOfCell(5); j != 6 {
+		t.Fatalf("cell 5 shows byte %d", j)
+	}
+	cw, lh := v.font.CharWidth, v.font.LineHeight
+	pos, _, _, _ := v.hit(v.cellX(0)+cw/2, v.headerH+lh/2)
+	if pos != 3 {
+		t.Fatalf("a click on the first cell is at %d", pos)
+	}
+}
+
+func TestFitWidth(t *testing.T) {
+	v, _ := newTestView(t, string(make([]byte, 100)))
+	o := v.Options()
+	o.BytesPerRow = 0
+	v.SetOptions(o)
+	v.layout(600, 400)
+	narrow := v.BytesPerRow()
+	v.layout(1600, 400)
+	wide := v.BytesPerRow()
+	if narrow < 8 || wide <= narrow || wide > 64 {
+		t.Fatalf("bytes per row: %d at 600 px, %d at 1600 px", narrow, wide)
+	}
+}
+
+// utf16le is a tiny UTF-16 LE encoding for the tests
+type utf16le struct{}
+
+func (utf16le) Unit() int { return 2 }
+func (utf16le) Decode(data []byte, i int) (rune, int, bool) {
+	if i+1 >= len(data) {
+		return 0, 1, false
+	}
+	r := rune(data[i]) | rune(data[i+1])<<8
+	return r, 2, r >= 0x20
+}
+func (utf16le) Encode(s string) ([]byte, error) {
+	var out []byte
+	for _, r := range s {
+		out = append(out, byte(r), byte(r>>8))
+	}
+	return out, nil
+}
+
+func TestTextInEncoding(t *testing.T) {
+	v, d := newTestView(t, "")
+	o := v.Options()
+	o.Encoding = utf16le{}
+	v.SetOptions(o)
+	v.keyDown(ui.KeyTab, ui.KeyModifiers{})
+	v.charTyped('Ж', ui.KeyModifiers{})
+	if got := content(t, d); got != "\x16\x04" || v.Caret() != 2 {
+		t.Fatalf("got %q, caret %d", got, v.Caret())
+	}
+	if s := v.bytesToText([]byte{0x16, 0x04, 0x41, 0x00}); s != "ЖA" {
+		t.Fatalf("text %q", s)
 	}
 }

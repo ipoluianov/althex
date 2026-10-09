@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/ipoluianov/althex/app"
+	"github.com/ipoluianov/althex/cli"
 	"github.com/ipoluianov/althex/config"
 	"github.com/ipoluianov/althex/forms"
 	"github.com/ipoluianov/althex/install"
@@ -34,6 +35,11 @@ func main() {
 	if install.HasArg(install.UninstallArg) {
 		uninstall(install.HasArg(install.QuietArg))
 		return
+	}
+
+	// A command runs without a window: althex hash FILE, althex find ...
+	if cli.IsCommand(os.Args[1:]) {
+		os.Exit(cli.Run(os.Args[1:]))
 	}
 
 	files := fileArgs(os.Args[1:])

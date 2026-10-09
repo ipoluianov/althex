@@ -20,7 +20,13 @@ at once, uncomment the `replace` line at the end of `go.mod`.
 ## Code layout
 
 - `core/` - the model, with no GUI: `core/source` reads files through a
-  page cache, `core/doc` is the document (pieces, history, journal, saving)
+  page cache, `core/doc` is the document (pieces, history, journal, saving);
+  `codec` (encodings, Intel HEX, S-record, arrays), `hash` (checksums,
+  entropy), `search`, `interp` (the data interpreter), `expr` (offset
+  expressions), `diff`, `patch`, `ops` (fill, bitwise operations), `tmpl`
+  (the language of templates; `core/tmpl/library` - the built-in templates,
+  described in [docs/templates.md](docs/templates.md))
+- `cli/` - the commands without a window: `althex help`
 - `forms/` - the windows, dialogs and widgets; `forms/strings.go` holds
   all the texts, `forms/hexview` is the hex view
 - `config/` - settings and the window layout

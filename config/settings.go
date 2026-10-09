@@ -15,6 +15,17 @@ type Settings struct {
 	// FontSize of the bytes; 0 - the default
 	FontSize float64 `json:",omitempty"`
 
+	// View is how the documents are shown
+	View ViewSettings
+
+	// AutoTemplate applies the template of the format of a file opened (ANL-4)
+	AutoTemplate bool
+
+	// InspectorBigEndian reads the values of the data interpreter big-endian
+	InspectorBigEndian bool `json:",omitempty"`
+	// Hashes are the IDs of the algorithms ticked in the hashes panel
+	Hashes []string `json:",omitempty"`
+
 	AlwaysOnTop bool `json:",omitempty"`
 
 	// Language of the interface as a tag like "ru"; "" - the system's
@@ -27,8 +38,26 @@ type Settings struct {
 	RecentFiles []string `json:",omitempty"`
 }
 
+// ViewSettings are the options of the hex view (see hexview.Options)
+type ViewSettings struct {
+	BytesPerRow  int // 0 - as many as fit
+	Group        int
+	LittleEndian bool
+	Mode         int // hex, binary, octal, decimal
+	OffsetBase   int
+	Encoding     string // the ID of the encoding of the text column; "" - ASCII
+	SyncScroll   bool   // the views of a split scroll together
+	// ColorRules paint ranges of byte values: "00-1F=#ff8800; 80-FF=#4488ff"
+	ColorRules string `json:",omitempty"`
+}
+
 // MaxRecentFiles is how many files the recent list keeps
 const MaxRecentFiles = 10
+
+// TemplatesDirectory is where the user's own templates are
+func TemplatesDirectory() string {
+	return filepath.Join(ConfigDirectory(), "templates")
+}
 
 // JournalDirectory is where the journals of the open documents are kept,
 // to recover their edits after a crash
@@ -42,7 +71,10 @@ var (
 )
 
 func defaultSettings() Settings {
-	return Settings{}
+	return Settings{
+		AutoTemplate: true,
+		View:         ViewSettings{BytesPerRow: 16, Group: 1, OffsetBase: 16, SyncScroll: true},
+	}
 }
 
 func settingsPath() string {

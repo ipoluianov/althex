@@ -1,9 +1,13 @@
 package forms
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 
+	"github.com/ipoluianov/althex/core/expr"
+	"github.com/ipoluianov/althex/core/ops"
+	"github.com/ipoluianov/althex/forms/hexview"
 	"github.com/ipoluianov/nui/ui"
 )
 
@@ -55,20 +59,24 @@ func NewSaveChangesDialog(name string, onSave, onDiscard func()) *SaveChangesDia
 	return &c
 }
 
-// GoToDialog asks for an offset
-type GoToDialog struct {
+// ValueDialog asks for a value as text; onAccept returns an error to show
+// (the dialog stays) or nil (it closes). onAccept runs on the goroutine of
+// the window below.
+type ValueDialog struct {
 	ui.DialogContent
 
+	title     string
 	txt       *ui.TextBox
 	lblError  *ui.Label
 	btnOK     *ui.Button
 	btnCancel *ui.Button
-	onAccept  func(off int64)
+	onAccept  func(text string) error
 }
 
-func NewGoToDialog(current int64, onAccept func(off int64)) *GoToDialog {
-	var c GoToDialog
+func NewValueDialog(title, label, value string, onAccept func(text string) error) *ValueDialog {
+	var c ValueDialog
 	c.InitWidget()
+	c.title = title
 	c.onAccept = onAccept
 	content := ui.NewPanel()
 	c.AddWidget(0, 0, content)
@@ -76,13 +84,13 @@ func NewGoToDialog(current int64, onAccept func(off int64)) *GoToDialog {
 	buttons := ui.NewPanel()
 	c.AddWidget(2, 0, buttons)
 
-	content.AddWidget(0, 0, ui.NewLabel(T().GoToLabel))
+	content.AddWidget(0, 0, ui.NewLabel(label))
 	c.txt = ui.NewTextBox()
-	c.txt.SetText("0x" + strconv.FormatInt(current, 16))
+	c.txt.SetText(value)
 	c.txt.SetXExpandable(true)
 	content.AddWidget(0, 1, c.txt)
 	c.lblError = ui.NewLabel("")
-	c.lblError.SetForegroundColor(colorSecondaryText.get())
+	c.lblError.SetForegroundColor(colorModified.get())
 	content.AddWidget(1, 1, c.lblError)
 
 	c.btnOK = ui.NewButton(ui.UIText().OK)
@@ -94,8 +102,8 @@ func NewGoToDialog(current int64, onAccept func(off int64)) *GoToDialog {
 	buttons.AddWidget(0, 2, c.btnCancel)
 
 	c.OnDialogShow = func() {
-		c.Form().SetTitle(T().GoToTitle)
-		c.Form().SetSize(420, 160)
+		c.Form().SetTitle(c.title)
+		c.Form().SetSize(460, 160)
 		c.Form().MoveToCenterOfParent()
 		c.Form().SetAcceptButton(c.btnOK)
 		c.Form().SetCancelButton(c.btnCancel)
@@ -105,14 +113,46 @@ func NewGoToDialog(current int64, onAccept func(off int64)) *GoToDialog {
 	return &c
 }
 
-func (c *GoToDialog) accept() {
-	off, ok := ParseOffset(c.txt.Text())
-	if !ok {
-		c.lblError.SetText(T().GoToBad)
+func (c *ValueDialog) accept() {
+	text := c.txt.Text()
+	// The check runs on the window below, which owns the documents; the
+	// dialog waits for its answer
+	errc := make(chan error, 1)
+	c.RunInParent(func() { errc <- c.onAccept(text) })
+	if err := <-errc; err != nil {
+		c.lblError.SetText(err.Error())
 		return
 	}
-	c.RunInParent(func() { c.onAccept(off) })
 	c.Form().Close()
+}
+
+// NewGoToDialog asks for an offset to go to: a number or an expression,
+// "+n" and "-n" from the caret (NAV-1)
+func NewGoToDialog(v *hexview.View, jump func(off int64)) *ValueDialog {
+	caret := v.Caret()
+	return NewValueDialog(T().GoToTitle, T().GoToLabel, "0x"+strconv.FormatInt(caret, 16), func(s string) error {
+		off, err := evalOffset(s, caret, v.Document().Size())
+		if err != nil {
+			return err
+		}
+		jump(off)
+		return nil
+	})
+}
+
+// evalOffset reads an offset typed by the user: an expression like
+// "0x400 + 3*512", or with a leading sign from the caret ("+0x10"); the
+// names cursor, size and end can be used
+func evalOffset(s string, caret, size int64) (int64, error) {
+	vars := map[string]int64{"cursor": caret, "caret": caret, "size": size, "end": size}
+	off, err := expr.Offset(s, caret, vars)
+	if err != nil {
+		return 0, err
+	}
+	if off > size {
+		return 0, errors.New(T().GoToBad)
+	}
+	return off, nil
 }
 
 // ParseOffset reads an offset: "0x1A2B", "1A2Bh" or "$1A2B" in hex, "6699" in decimal
@@ -132,4 +172,114 @@ func ParseOffset(s string) (int64, bool) {
 		return 0, false
 	}
 	return v, true
+}
+
+// FillDialog asks how to fill the selection (EDIT-4)
+type FillDialog struct {
+	ui.DialogContent
+
+	cmbKind   *ui.ComboBox
+	txtValue  *ui.TextBox
+	txtStart  *ui.TextBox
+	txtStep   *ui.TextBox
+	cmbWidth  *ui.ComboBox
+	chkBE     *ui.Checkbox
+	chkInsert *ui.Checkbox
+	lblError  *ui.Label
+	btnOK     *ui.Button
+	btnCancel *ui.Button
+	onAccept  func(f ops.Fill)
+}
+
+func NewFillDialog(onAccept func(f ops.Fill)) *FillDialog {
+	var c FillDialog
+	c.InitWidget()
+	c.onAccept = onAccept
+	grid := ui.NewPanel()
+	c.AddWidget(0, 0, grid)
+	c.AddWidget(1, 0, ui.NewVSpacer())
+	buttons := ui.NewPanel()
+	c.AddWidget(2, 0, buttons)
+
+	row := 0
+	addRow := func(label string, w ui.Widgeter) {
+		grid.AddWidget(row, 0, ui.NewLabel(label))
+		grid.AddWidget(row, 1, w)
+		row++
+	}
+	c.cmbKind = ui.NewComboBox()
+	c.cmbKind.AddItem(T().FillPattern, ops.FillPattern)
+	c.cmbKind.AddItem(T().FillRandom, ops.FillRandom)
+	c.cmbKind.AddItem(T().FillIncrement, ops.FillIncrement)
+	c.cmbKind.SetSelectedIndex(0)
+	addRow(T().FillKind, c.cmbKind)
+	c.txtValue = ui.NewTextBox()
+	c.txtValue.SetText("00")
+	c.txtValue.SetXExpandable(true)
+	addRow(T().FillValue, c.txtValue)
+	c.txtStart = ui.NewTextBox()
+	c.txtStart.SetText("0")
+	addRow(T().FillStart, c.txtStart)
+	c.txtStep = ui.NewTextBox()
+	c.txtStep.SetText("1")
+	addRow(T().FillStep, c.txtStep)
+	c.cmbWidth = ui.NewComboBox()
+	for _, w := range []int{1, 2, 4, 8} {
+		c.cmbWidth.AddItem(strconv.Itoa(w), w)
+	}
+	c.cmbWidth.SetSelectedIndex(0)
+	addRow(T().FillWidth, c.cmbWidth)
+	c.chkBE = ui.NewCheckbox(T().BigEndian)
+	grid.AddWidget(row, 1, c.chkBE)
+	row++
+	c.chkInsert = ui.NewCheckbox(T().FillInsert)
+	grid.AddWidget(row, 1, c.chkInsert)
+	row++
+	c.lblError = ui.NewLabel("")
+	c.lblError.SetForegroundColor(colorModified.get())
+	grid.AddWidget(row, 1, c.lblError)
+
+	c.btnOK = ui.NewButton(ui.UIText().OK)
+	c.btnOK.SetOnClick(c.accept)
+	c.btnCancel = ui.NewButton(ui.UIText().Cancel)
+	c.btnCancel.SetOnClick(func() { c.Form().Close() })
+	buttons.AddWidget(0, 0, ui.NewHSpacer())
+	buttons.AddWidget(0, 1, c.btnOK)
+	buttons.AddWidget(0, 2, c.btnCancel)
+
+	c.OnDialogShow = func() {
+		c.Form().SetTitle(T().MenuFill)
+		c.Form().SetSize(460, 330)
+		c.Form().MoveToCenterOfParent()
+		c.Form().SetAcceptButton(c.btnOK)
+		c.Form().SetCancelButton(c.btnCancel)
+		c.txtValue.Focus()
+	}
+	return &c
+}
+
+func (c *FillDialog) accept() {
+	f := ops.Fill{Kind: c.cmbKind.SelectedItemData().(ops.FillKind), Insert: c.chkInsert.Checked()}
+	var err error
+	switch f.Kind {
+	case ops.FillPattern:
+		f.Pattern, err = parseBytes(c.txtValue.Text())
+	case ops.FillIncrement:
+		var start, step int64
+		var ok1, ok2 bool
+		start, ok1 = ParseOffset(c.txtStart.Text())
+		step, ok2 = ParseOffset(c.txtStep.Text())
+		if !ok1 || !ok2 {
+			err = errors.New(T().BytesBad)
+		}
+		f.Start, f.Step = uint64(start), uint64(step)
+		f.Width = c.cmbWidth.SelectedItemData().(int)
+		f.BigEndian = c.chkBE.Checked()
+	}
+	if err != nil {
+		c.lblError.SetText(err.Error())
+		return
+	}
+	c.RunInParent(func() { c.onAccept(f) })
+	c.Form().Close()
 }

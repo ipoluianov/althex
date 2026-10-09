@@ -1,0 +1,527 @@
+//! name: PE executable (EXE, DLL)
+//! extensions: exe, dll, sys, ocx, cpl, scr, drv, efi, mui, ax, acm
+//! magic: 0 "4D 5A"
+
+// Portable Executable: the executables, DLLs and drivers of Windows (and
+// UEFI). The MS-DOS header and stub, the NT headers (signature, file
+// header, optional header PE32 or PE32+ with its 16 data directories), the
+// section table, the import directory (the DLLs and the functions they
+// give) and the export directory.
+
+LittleEndian();
+
+typedef uint64 ULONGLONG;
+
+// ---- MS-DOS header ----
+
+struct IMAGE_DOS_HEADER {
+    char  e_magic[2] <comment="MZ">;
+    WORD  e_cblp <comment="bytes on the last page of the file">;
+    WORD  e_cp <comment="pages in the file">;
+    WORD  e_crlc <comment="relocations">;
+    WORD  e_cparhdr <comment="the size of the header in paragraphs">;
+    WORD  e_minalloc;
+    WORD  e_maxalloc;
+    WORD  e_ss <format=hex>;
+    WORD  e_sp <format=hex>;
+    WORD  e_csum <format=hex>;
+    WORD  e_ip <format=hex>;
+    WORD  e_cs <format=hex>;
+    WORD  e_lfarlc <format=hex, comment="the offset of the relocation table">;
+    WORD  e_ovno;
+    WORD  e_res[4];
+    WORD  e_oemid;
+    WORD  e_oeminfo;
+    WORD  e_res2[10];
+    LONG  e_lfanew <format=hex, comment="the offset of the NT headers">;
+};
+
+// ---- File header ----
+
+enum <WORD> IMAGE_FILE_MACHINE {
+    IMAGE_FILE_MACHINE_UNKNOWN = 0, IMAGE_FILE_MACHINE_TARGET_HOST = 0x0001,
+    IMAGE_FILE_MACHINE_I386 = 0x014C, IMAGE_FILE_MACHINE_R3000 = 0x0162,
+    IMAGE_FILE_MACHINE_R4000 = 0x0166, IMAGE_FILE_MACHINE_R10000 = 0x0168,
+    IMAGE_FILE_MACHINE_WCEMIPSV2 = 0x0169, IMAGE_FILE_MACHINE_ALPHA = 0x0184,
+    IMAGE_FILE_MACHINE_SH3 = 0x01A2, IMAGE_FILE_MACHINE_SH3DSP = 0x01A3,
+    IMAGE_FILE_MACHINE_SH3E = 0x01A4, IMAGE_FILE_MACHINE_SH4 = 0x01A6,
+    IMAGE_FILE_MACHINE_SH5 = 0x01A8, IMAGE_FILE_MACHINE_ARM = 0x01C0,
+    IMAGE_FILE_MACHINE_THUMB = 0x01C2, IMAGE_FILE_MACHINE_ARMNT = 0x01C4,
+    IMAGE_FILE_MACHINE_AM33 = 0x01D3, IMAGE_FILE_MACHINE_POWERPC = 0x01F0,
+    IMAGE_FILE_MACHINE_POWERPCFP = 0x01F1, IMAGE_FILE_MACHINE_IA64 = 0x0200,
+    IMAGE_FILE_MACHINE_MIPS16 = 0x0266, IMAGE_FILE_MACHINE_ALPHA64 = 0x0284,
+    IMAGE_FILE_MACHINE_MIPSFPU = 0x0366, IMAGE_FILE_MACHINE_MIPSFPU16 = 0x0466,
+    IMAGE_FILE_MACHINE_TRICORE = 0x0520, IMAGE_FILE_MACHINE_CEF = 0x0CEF,
+    IMAGE_FILE_MACHINE_EBC = 0x0EBC, IMAGE_FILE_MACHINE_CHPE_X86 = 0x3A64,
+    IMAGE_FILE_MACHINE_RISCV32 = 0x5032, IMAGE_FILE_MACHINE_RISCV64 = 0x5064,
+    IMAGE_FILE_MACHINE_RISCV128 = 0x5128, IMAGE_FILE_MACHINE_LOONGARCH32 = 0x6232,
+    IMAGE_FILE_MACHINE_LOONGARCH64 = 0x6264, IMAGE_FILE_MACHINE_AMD64 = 0x8664,
+    IMAGE_FILE_MACHINE_M32R = 0x9041, IMAGE_FILE_MACHINE_ARM64EC = 0xA641,
+    IMAGE_FILE_MACHINE_ARM64X = 0xA64E, IMAGE_FILE_MACHINE_ARM64 = 0xAA64,
+    IMAGE_FILE_MACHINE_CEE = 0xC0EE
+};
+
+// IMAGE_FILE_HEADER.Characteristics, bit by bit
+struct IMAGE_FILE_CHARACTERISTICS {
+    WORD IMAGE_FILE_RELOCS_STRIPPED : 1;
+    WORD IMAGE_FILE_EXECUTABLE_IMAGE : 1;
+    WORD IMAGE_FILE_LINE_NUMS_STRIPPED : 1;
+    WORD IMAGE_FILE_LOCAL_SYMS_STRIPPED : 1;
+    WORD IMAGE_FILE_AGGRESIVE_WS_TRIM : 1;
+    WORD IMAGE_FILE_LARGE_ADDRESS_AWARE : 1;
+    WORD reserved_0x40 : 1;
+    WORD IMAGE_FILE_BYTES_REVERSED_LO : 1;
+    WORD IMAGE_FILE_32BIT_MACHINE : 1;
+    WORD IMAGE_FILE_DEBUG_STRIPPED : 1;
+    WORD IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP : 1;
+    WORD IMAGE_FILE_NET_RUN_FROM_SWAP : 1;
+    WORD IMAGE_FILE_SYSTEM : 1;
+    WORD IMAGE_FILE_DLL : 1;
+    WORD IMAGE_FILE_UP_SYSTEM_ONLY : 1;
+    WORD IMAGE_FILE_BYTES_REVERSED_HI : 1;
+} <read=FileCharsRead>;
+
+string FileCharsRead(IMAGE_FILE_CHARACTERISTICS &c) {
+    local uint32 v = ReadUShort(startof(c));
+    local string s = Str("0x%04X", v);
+    if (v & 0x0002) s += " EXECUTABLE_IMAGE";
+    if (v & 0x2000) s += " DLL";
+    if (v & 0x1000) s += " SYSTEM";
+    if (v & 0x0020) s += " LARGE_ADDRESS_AWARE";
+    if (v & 0x0100) s += " 32BIT_MACHINE";
+    if (v & 0x0001) s += " RELOCS_STRIPPED";
+    if (v & 0x0200) s += " DEBUG_STRIPPED";
+    return s;
+}
+
+struct IMAGE_FILE_HEADER {
+    IMAGE_FILE_MACHINE Machine;
+    WORD  NumberOfSections;
+    DWORD TimeDateStamp <format=hex, comment="seconds since 1970 (or a hash in reproducible builds)">;
+    DWORD PointerToSymbolTable <format=hex, comment="COFF symbols; 0 in images">;
+    DWORD NumberOfSymbols;
+    WORD  SizeOfOptionalHeader;
+    IMAGE_FILE_CHARACTERISTICS Characteristics;
+};
+
+// ---- Optional header ----
+
+enum <WORD> IMAGE_OPTIONAL_MAGIC {
+    IMAGE_ROM_OPTIONAL_HDR_MAGIC = 0x107,
+    IMAGE_NT_OPTIONAL_HDR32_MAGIC = 0x10B,
+    IMAGE_NT_OPTIONAL_HDR64_MAGIC = 0x20B
+};
+
+enum <WORD> IMAGE_SUBSYSTEM {
+    IMAGE_SUBSYSTEM_UNKNOWN = 0, IMAGE_SUBSYSTEM_NATIVE = 1,
+    IMAGE_SUBSYSTEM_WINDOWS_GUI = 2, IMAGE_SUBSYSTEM_WINDOWS_CUI = 3,
+    IMAGE_SUBSYSTEM_OS2_CUI = 5, IMAGE_SUBSYSTEM_POSIX_CUI = 7,
+    IMAGE_SUBSYSTEM_NATIVE_WINDOWS = 8, IMAGE_SUBSYSTEM_WINDOWS_CE_GUI = 9,
+    IMAGE_SUBSYSTEM_EFI_APPLICATION = 10,
+    IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER = 11,
+    IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER = 12, IMAGE_SUBSYSTEM_EFI_ROM = 13,
+    IMAGE_SUBSYSTEM_XBOX = 14, IMAGE_SUBSYSTEM_WINDOWS_BOOT_APPLICATION = 16
+};
+
+// IMAGE_OPTIONAL_HEADER.DllCharacteristics, bit by bit
+struct IMAGE_DLL_CHARACTERISTICS {
+    WORD reserved : 5;
+    WORD IMAGE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA : 1;
+    WORD IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE : 1;
+    WORD IMAGE_DLLCHARACTERISTICS_FORCE_INTEGRITY : 1;
+    WORD IMAGE_DLLCHARACTERISTICS_NX_COMPAT : 1;
+    WORD IMAGE_DLLCHARACTERISTICS_NO_ISOLATION : 1;
+    WORD IMAGE_DLLCHARACTERISTICS_NO_SEH : 1;
+    WORD IMAGE_DLLCHARACTERISTICS_NO_BIND : 1;
+    WORD IMAGE_DLLCHARACTERISTICS_APPCONTAINER : 1;
+    WORD IMAGE_DLLCHARACTERISTICS_WDM_DRIVER : 1;
+    WORD IMAGE_DLLCHARACTERISTICS_GUARD_CF : 1;
+    WORD IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE : 1;
+} <read=DllCharsRead>;
+
+string DllCharsRead(IMAGE_DLL_CHARACTERISTICS &c) {
+    local uint32 v = ReadUShort(startof(c));
+    local string s = Str("0x%04X", v);
+    if (v & 0x0020) s += " HIGH_ENTROPY_VA";
+    if (v & 0x0040) s += " DYNAMIC_BASE";
+    if (v & 0x0100) s += " NX_COMPAT";
+    if (v & 0x4000) s += " GUARD_CF";
+    if (v & 0x8000) s += " TERMINAL_SERVER_AWARE";
+    return s;
+}
+
+struct IMAGE_DATA_DIRECTORY {
+    DWORD VirtualAddress <format=hex>;
+    DWORD Size <format=hex>;
+} <read=DataDirRead>;
+
+string DataDirRead(IMAGE_DATA_DIRECTORY &d) {
+    if (d.VirtualAddress == 0 && d.Size == 0)
+        return "none";
+    return Str("RVA 0x%X, 0x%X bytes", d.VirtualAddress, d.Size);
+}
+
+// The data directories by their index (IMAGE_DIRECTORY_ENTRY_...); n of them
+struct IMAGE_DATA_DIRECTORIES(int n) {
+    if (n > 0)  IMAGE_DATA_DIRECTORY EXPORT;
+    if (n > 1)  IMAGE_DATA_DIRECTORY IMPORT;
+    if (n > 2)  IMAGE_DATA_DIRECTORY RESOURCE;
+    if (n > 3)  IMAGE_DATA_DIRECTORY EXCEPTION;
+    if (n > 4)  IMAGE_DATA_DIRECTORY SECURITY <comment="a file offset, not an RVA: the certificates">;
+    if (n > 5)  IMAGE_DATA_DIRECTORY BASERELOC;
+    if (n > 6)  IMAGE_DATA_DIRECTORY DEBUG;
+    if (n > 7)  IMAGE_DATA_DIRECTORY ARCHITECTURE;
+    if (n > 8)  IMAGE_DATA_DIRECTORY GLOBALPTR;
+    if (n > 9)  IMAGE_DATA_DIRECTORY TLS;
+    if (n > 10) IMAGE_DATA_DIRECTORY LOAD_CONFIG;
+    if (n > 11) IMAGE_DATA_DIRECTORY BOUND_IMPORT;
+    if (n > 12) IMAGE_DATA_DIRECTORY IAT;
+    if (n > 13) IMAGE_DATA_DIRECTORY DELAY_IMPORT;
+    if (n > 14) IMAGE_DATA_DIRECTORY COM_DESCRIPTOR;
+    if (n > 15) IMAGE_DATA_DIRECTORY reserved;
+};
+
+// The data directories that fit in SizeOfOptionalHeader after the fixed part
+int DirCount(uint32 numberOfRvaAndSizes, int fixed) {
+    local int64 room = (optSize - fixed) / 8;
+    return Max(Min(Min(numberOfRvaAndSizes, 16), room), 0);
+}
+
+struct IMAGE_OPTIONAL_HEADER32 {
+    IMAGE_OPTIONAL_MAGIC Magic;
+    BYTE  MajorLinkerVersion;
+    BYTE  MinorLinkerVersion;
+    DWORD SizeOfCode <format=hex>;
+    DWORD SizeOfInitializedData <format=hex>;
+    DWORD SizeOfUninitializedData <format=hex>;
+    DWORD AddressOfEntryPoint <format=hex, comment="RVA">;
+    DWORD BaseOfCode <format=hex>;
+    DWORD BaseOfData <format=hex>;
+    DWORD ImageBase <format=hex>;
+    DWORD SectionAlignment <format=hex>;
+    DWORD FileAlignment <format=hex>;
+    WORD  MajorOperatingSystemVersion;
+    WORD  MinorOperatingSystemVersion;
+    WORD  MajorImageVersion;
+    WORD  MinorImageVersion;
+    WORD  MajorSubsystemVersion;
+    WORD  MinorSubsystemVersion;
+    DWORD Win32VersionValue;
+    DWORD SizeOfImage <format=hex>;
+    DWORD SizeOfHeaders <format=hex>;
+    DWORD CheckSum <format=hex>;
+    IMAGE_SUBSYSTEM Subsystem;
+    IMAGE_DLL_CHARACTERISTICS DllCharacteristics;
+    DWORD SizeOfStackReserve <format=hex>;
+    DWORD SizeOfStackCommit <format=hex>;
+    DWORD SizeOfHeapReserve <format=hex>;
+    DWORD SizeOfHeapCommit <format=hex>;
+    DWORD LoaderFlags <format=hex>;
+    DWORD NumberOfRvaAndSizes;
+    local int nDirs = DirCount(NumberOfRvaAndSizes, 96);
+    if (nDirs > 0)
+        IMAGE_DATA_DIRECTORIES DataDirectory(nDirs) <open=true>;
+};
+
+struct IMAGE_OPTIONAL_HEADER64 {
+    IMAGE_OPTIONAL_MAGIC Magic;
+    BYTE      MajorLinkerVersion;
+    BYTE      MinorLinkerVersion;
+    DWORD     SizeOfCode <format=hex>;
+    DWORD     SizeOfInitializedData <format=hex>;
+    DWORD     SizeOfUninitializedData <format=hex>;
+    DWORD     AddressOfEntryPoint <format=hex, comment="RVA">;
+    DWORD     BaseOfCode <format=hex>;
+    ULONGLONG ImageBase <format=hex>;
+    DWORD     SectionAlignment <format=hex>;
+    DWORD     FileAlignment <format=hex>;
+    WORD      MajorOperatingSystemVersion;
+    WORD      MinorOperatingSystemVersion;
+    WORD      MajorImageVersion;
+    WORD      MinorImageVersion;
+    WORD      MajorSubsystemVersion;
+    WORD      MinorSubsystemVersion;
+    DWORD     Win32VersionValue;
+    DWORD     SizeOfImage <format=hex>;
+    DWORD     SizeOfHeaders <format=hex>;
+    DWORD     CheckSum <format=hex>;
+    IMAGE_SUBSYSTEM Subsystem;
+    IMAGE_DLL_CHARACTERISTICS DllCharacteristics;
+    ULONGLONG SizeOfStackReserve <format=hex>;
+    ULONGLONG SizeOfStackCommit <format=hex>;
+    ULONGLONG SizeOfHeapReserve <format=hex>;
+    ULONGLONG SizeOfHeapCommit <format=hex>;
+    DWORD     LoaderFlags <format=hex>;
+    DWORD     NumberOfRvaAndSizes;
+    local int nDirs = DirCount(NumberOfRvaAndSizes, 112);
+    if (nDirs > 0)
+        IMAGE_DATA_DIRECTORIES DataDirectory(nDirs) <open=true>;
+};
+
+// ---- Section table ----
+
+string SectionCharsComment(DWORD &c) {
+    local uint32 v = c;
+    local string s = "";
+    if (v & 0x00000020) s += " CNT_CODE";
+    if (v & 0x00000040) s += " CNT_INITIALIZED_DATA";
+    if (v & 0x00000080) s += " CNT_UNINITIALIZED_DATA";
+    if (v & 0x00000200) s += " LNK_INFO";
+    if (v & 0x00000800) s += " LNK_REMOVE";
+    if (v & 0x00001000) s += " LNK_COMDAT";
+    if (v & 0x00008000) s += " GPREL";
+    if (v & 0x00F00000) s += Str(" ALIGN_%dBYTES", 1 << (((v >> 20) & 0xF) - 1));
+    if (v & 0x01000000) s += " LNK_NRELOC_OVFL";
+    if (v & 0x02000000) s += " MEM_DISCARDABLE";
+    if (v & 0x04000000) s += " MEM_NOT_CACHED";
+    if (v & 0x08000000) s += " MEM_NOT_PAGED";
+    if (v & 0x10000000) s += " MEM_SHARED";
+    if (v & 0x20000000) s += " MEM_EXECUTE";
+    if (v & 0x40000000) s += " MEM_READ";
+    if (v & 0x80000000) s += " MEM_WRITE";
+    return SubStr(s, 1);
+}
+
+struct IMAGE_SECTION_HEADER {
+    char  Name[8];
+    DWORD VirtualSize <format=hex, comment="Misc.VirtualSize">;
+    DWORD VirtualAddress <format=hex>;
+    DWORD SizeOfRawData <format=hex>;
+    DWORD PointerToRawData <format=hex>;
+    DWORD PointerToRelocations <format=hex>;
+    DWORD PointerToLinenumbers <format=hex>;
+    WORD  NumberOfRelocations;
+    WORD  NumberOfLinenumbers;
+    DWORD Characteristics <format=hex, comment=SectionCharsComment>;
+} <read=SectionRead>;
+
+// "name 0x1000 bytes at 0x400"
+string SectionRead(IMAGE_SECTION_HEADER &s) {
+    return Str("%s 0x%X bytes at 0x%X", ReadString(startof(s.Name), 8),
+        s.SizeOfRawData, s.PointerToRawData);
+}
+
+// ---- The file ----
+
+local int64 fsize = FileSize();
+local int isPE64 = 0;
+local int64 optSize = 0;
+local int64 secTab = 0, nSec = 0;
+local int64 sizeOfHeaders = 0;
+
+// Converts an RVA to a file offset through the section table; -1 - the
+// RVA is not in the file
+int64 RvaToOffset(uint32 rva) {
+    local int64 i, va, vs, raw, ptr, size, h;
+    for (i = 0; i < nSec; i++) {
+        h = secTab + i * 40;
+        vs = ReadUInt(h + 8);
+        va = ReadUInt(h + 12);
+        raw = ReadUInt(h + 16);
+        ptr = ReadUInt(h + 20);
+        size = vs != 0 ? vs : raw;
+        if (rva >= va && rva < va + size) {
+            if (rva - va >= raw || ptr + (rva - va) >= fsize)
+                return -1;  // in the memory of the section, not in the file
+            return ptr + (rva - va);
+        }
+    }
+    // The headers are mapped as they are
+    if (rva < sizeOfHeaders && rva < fsize)
+        return rva;
+    return -1;
+}
+
+// ---- Imports ----
+
+local int64 importLeft = 65536;    // the imported functions shown, in all
+
+struct IMAGE_IMPORT_BY_NAME {
+    WORD   Hint;
+    string Name;
+};
+
+struct IMAGE_THUNK_DATA32 {
+    DWORD AddressOfData <format=hex, comment="an RVA of IMAGE_IMPORT_BY_NAME, or 0x80000000 | the ordinal">;
+    if (!(AddressOfData & 0x80000000)) {
+        local int64 o = RvaToOffset(AddressOfData);
+        if (o >= 0 && o + 2 < fsize)
+            IMAGE_IMPORT_BY_NAME ImportByName @ o;
+    }
+} <read=ThunkRead>;
+
+struct IMAGE_THUNK_DATA64 {
+    ULONGLONG AddressOfData <format=hex, comment="an RVA of IMAGE_IMPORT_BY_NAME, or 1 << 63 | the ordinal">;
+    if (!((AddressOfData >> 63) & 1)) {
+        local int64 o = RvaToOffset(AddressOfData & 0xFFFFFFFF);
+        if (o >= 0 && o + 2 < fsize)
+            IMAGE_IMPORT_BY_NAME ImportByName @ o;
+    }
+} <read=ThunkRead>;
+
+string ThunkRead(IMAGE_THUNK_DATA64 &t) {
+    if (exists(t.ImportByName))
+        return t.ImportByName.Name;
+    return Str("Ordinal %d", t.AddressOfData & 0xFFFF);
+}
+
+// The import lookup table: thunks to a zero one
+struct IMPORT_THUNKS {
+    local int64 tsz = isPE64 ? 8 : 4;
+    while (importLeft > 0 && FTell() + tsz <= fsize) {
+        if (isPE64 ? ReadUInt64(FTell()) == 0 : ReadUInt(FTell()) == 0) {
+            if (isPE64)
+                ULONGLONG Terminator;
+            else
+                DWORD Terminator;
+            break;
+        }
+        if (isPE64)
+            IMAGE_THUNK_DATA64 Thunk;
+        else
+            IMAGE_THUNK_DATA32 Thunk;
+        importLeft--;
+    }
+};
+
+struct IMAGE_IMPORT_DESCRIPTOR {
+    DWORD OriginalFirstThunk <format=hex, comment="RVA of the import lookup table (Characteristics)">;
+    DWORD TimeDateStamp <format=hex>;
+    DWORD ForwarderChain;
+    DWORD Name <format=hex, comment="RVA of the name of the DLL">;
+    DWORD FirstThunk <format=hex, comment="RVA of the import address table">;
+    local int64 o = Name != 0 ? RvaToOffset(Name) : -1;
+    if (o >= 0)
+        string DllName @ o;
+    local uint32 lookup = OriginalFirstThunk != 0 ? OriginalFirstThunk : FirstThunk;
+    o = lookup != 0 ? RvaToOffset(lookup) : -1;
+    if (o >= 0 && importLeft > 0)
+        IMPORT_THUNKS Functions @ o;
+} <read=ImportRead>;
+
+string ImportRead(IMAGE_IMPORT_DESCRIPTOR &d) {
+    if (exists(d.DllName))
+        return d.DllName;
+    return "";
+}
+
+// The descriptors to a zero one, at most 4096
+struct IMPORT_DIRECTORY {
+    local int64 i;
+    for (i = 0; i < 4096 && FTell() + 20 <= fsize; i++) {
+        if (ReadUInt(FTell()) == 0 && ReadUInt(FTell() + 12) == 0 && ReadUInt(FTell() + 16) == 0) {
+            uchar Terminator[20];
+            break;
+        }
+        IMAGE_IMPORT_DESCRIPTOR Descriptor;
+    }
+};
+
+// ---- Exports ----
+
+struct IMAGE_EXPORT_DIRECTORY {
+    DWORD Characteristics;
+    DWORD TimeDateStamp <format=hex>;
+    WORD  MajorVersion;
+    WORD  MinorVersion;
+    DWORD Name <format=hex, comment="RVA of the name of the DLL">;
+    DWORD Base <comment="the first ordinal">;
+    DWORD NumberOfFunctions;
+    DWORD NumberOfNames;
+    DWORD AddressOfFunctions <format=hex>;
+    DWORD AddressOfNames <format=hex>;
+    DWORD AddressOfNameOrdinals <format=hex>;
+    local int64 o = Name != 0 ? RvaToOffset(Name) : -1;
+    if (o >= 0)
+        string DllName @ o;
+    // The names of the exported functions, at most 16384
+    local int64 names = RvaToOffset(AddressOfNames);
+    local int64 i, n = Min(NumberOfNames, 16384);
+    if (names >= 0 && n > (fsize - names) / 4)
+        n = (fsize - names) / 4;
+    for (i = 0; names >= 0 && i < n; i++) {
+        o = RvaToOffset(ReadUInt(names + i * 4));
+        if (o >= 0)
+            string FunctionName @ o;
+    }
+} <read=ExportRead>;
+
+string ExportRead(IMAGE_EXPORT_DIRECTORY &d) {
+    if (exists(d.DllName))
+        return d.DllName;
+    return "";
+}
+
+// ---- NT headers ----
+
+struct IMAGE_NT_HEADERS {
+    char Signature[4] <comment="PE\\0\\0">;
+    IMAGE_FILE_HEADER FileHeader <open=true>;
+    optSize = FileHeader.SizeOfOptionalHeader;
+    local int64 optStart = FTell();
+    if (optSize > fsize - optStart)
+        optSize = fsize - optStart;
+    if (optSize >= 2) {
+        local uint32 magic = ReadUShort(optStart);
+        if (magic == 0x20B && optSize >= 112) {
+            isPE64 = 1;
+            IMAGE_OPTIONAL_HEADER64 OptionalHeader <open=true>;
+            sizeOfHeaders = OptionalHeader.SizeOfHeaders;
+        } else if (magic == 0x10B && optSize >= 96) {
+            IMAGE_OPTIONAL_HEADER32 OptionalHeader <open=true>;
+            sizeOfHeaders = OptionalHeader.SizeOfHeaders;
+        } else {
+            uchar OptionalHeader[optSize] <comment="an optional header of an unknown kind">;
+        }
+        if (FTell() < optStart + optSize)
+            uchar OptionalHeaderRest[optStart + optSize - FTell()];
+    }
+};
+
+if (fsize < 64) {
+    uchar data[fsize];
+    Warning("too short for an MS-DOS header");
+    Exit(0);
+}
+
+IMAGE_DOS_HEADER dos_header <open=true>;
+
+local int64 lfanew = dos_header.e_lfanew;
+local int peOK = lfanew >= 64 && lfanew <= fsize - 24 && ReadUInt(lfanew) == 0x00004550;
+if (lfanew > 64 && lfanew <= fsize)
+    uchar dos_stub[lfanew - 64] <comment="the MS-DOS program: \"This program cannot be run in DOS mode\"">;
+if (!peOK) {
+    Warning("no PE signature at e_lfanew: an MS-DOS program");
+    Exit(0);
+}
+
+FSeek(lfanew);
+IMAGE_NT_HEADERS nt_headers <open=true>;
+
+// The section table follows the optional header
+secTab = lfanew + 24 + nt_headers.FileHeader.SizeOfOptionalHeader;
+nSec = nt_headers.FileHeader.NumberOfSections;
+if (nSec > 4096)
+    nSec = 4096;
+if (secTab >= fsize)
+    nSec = 0;
+else if (nSec > (fsize - secTab) / 40) {
+    Warning("the section table goes past the end of the file");
+    nSec = (fsize - secTab) / 40;
+}
+if (nSec > 0)
+    IMAGE_SECTION_HEADER section_headers[nSec] @ secTab <open=true>;
+if (sizeOfHeaders == 0)
+    sizeOfHeaders = secTab + nSec * 40;
+
+// The directories through the section table
+if (exists(nt_headers.OptionalHeader.DataDirectory.EXPORT)) {
+    local int64 exportOff = RvaToOffset(nt_headers.OptionalHeader.DataDirectory.EXPORT.VirtualAddress);
+    if (nt_headers.OptionalHeader.DataDirectory.EXPORT.VirtualAddress != 0 && exportOff >= 0 && exportOff + 40 <= fsize)
+        IMAGE_EXPORT_DIRECTORY export_directory @ exportOff;
+}
+if (exists(nt_headers.OptionalHeader.DataDirectory.IMPORT)) {
+    local int64 importOff = RvaToOffset(nt_headers.OptionalHeader.DataDirectory.IMPORT.VirtualAddress);
+    if (nt_headers.OptionalHeader.DataDirectory.IMPORT.VirtualAddress != 0 && importOff >= 0)
+        IMPORT_DIRECTORY import_directory @ importOff <open=true>;
+}

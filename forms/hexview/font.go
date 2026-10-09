@@ -7,6 +7,7 @@ import (
 	"math"
 	"sync"
 
+	"github.com/ipoluianov/nui/ui"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 	"golang.org/x/image/font/sfnt"
@@ -33,13 +34,15 @@ func parsedDefaultFont() *sfnt.Font {
 type Font struct {
 	size float64
 	face font.Face
+	buf  sfnt.Buffer
 
 	CharWidth  int
 	Ascent     int
 	Descent    int
 	LineHeight int
 
-	glyphs [256]*glyph // the characters the view shows are one byte each
+	ascii  [128]*glyph // the most of what is drawn: digits, letters
+	glyphs map[rune]*glyph
 }
 
 // glyph is the alpha mask of a character, placed relative to the pen at the baseline
@@ -53,7 +56,7 @@ type glyph struct {
 func NewFont(size float64) *Font {
 	size = math.Max(4, math.Min(size, 200))
 	face, _ := opentype.NewFace(parsedDefaultFont(), &opentype.FaceOptions{Size: size, DPI: 72, Hinting: font.HintingFull})
-	f := &Font{size: size, face: face}
+	f := &Font{size: size, face: face, glyphs: make(map[rune]*glyph)}
 	m := face.Metrics()
 	f.Ascent = m.Ascent.Ceil()
 	f.Descent = m.Descent.Ceil()
@@ -69,12 +72,32 @@ func NewFont(size float64) *Font {
 // Size returns the size of the font in pixels
 func (f *Font) Size() float64 { return f.size }
 
-func (f *Font) glyph(c byte) *glyph {
-	if g := f.glyphs[c]; g != nil {
+func (f *Font) glyph(r rune) *glyph {
+	if r >= 0 && r < 128 {
+		if g := f.ascii[r]; g != nil {
+			return g
+		}
+	} else if g, ok := f.glyphs[r]; ok {
 		return g
 	}
+	g := f.render(r)
+	if r >= 0 && r < 128 {
+		f.ascii[r] = g
+	} else {
+		if len(f.glyphs) > 20000 {
+			clear(f.glyphs)
+		}
+		f.glyphs[r] = g
+	}
+	return g
+}
+
+func (f *Font) render(r rune) *glyph {
+	if idx, err := parsedDefaultFont().GlyphIndex(&f.buf, r); err != nil || idx == 0 {
+		return f.renderFallback(r)
+	}
 	g := &glyph{}
-	dr, mask, mp, _, ok := f.face.Glyph(fixed.P(0, 0), rune(c))
+	dr, mask, mp, _, ok := f.face.Glyph(fixed.P(0, 0), r)
 	if ok && !dr.Empty() {
 		g = &glyph{w: dr.Dx(), h: dr.Dy(), dx: dr.Min.X, dy: dr.Min.Y}
 		g.mask = make([]byte, g.w*g.h)
@@ -85,13 +108,39 @@ func (f *Font) glyph(c byte) *glyph {
 			}
 		}
 	}
-	f.glyphs[c] = g
 	return g
 }
 
-// DrawChar draws the character (Latin-1) with the pen at x on the baseline
-// y, in the clip rectangle of dst
-func (f *Font) DrawChar(dst *image.RGBA, clip image.Rectangle, x, y int, c byte, col color.RGBA) {
+// renderFallback draws a character the font does not have (e.g. Chinese)
+// with the fonts of the interface, which fall back to the system ones
+func (f *Font) renderFallback(r rune) *glyph {
+	s := string(r)
+	w, h, err := ui.MeasureText(ui.FontFamilyMono, f.size, s)
+	if err != nil || w <= 0 || h <= 0 {
+		return &glyph{}
+	}
+	img := image.NewRGBA(image.Rect(0, 0, w, h))
+	ui.DrawText(img, s, color.White, ui.FontFamilyMono, f.size, 0, 0, 0, 0, w, h)
+	// The text is drawn with its top at 0: the baseline is at the ascent
+	_, lh, _ := ui.MeasureText(ui.FontFamilyMono, f.size, "Mg")
+	g := &glyph{w: w, h: h, dy: -(h - max(lh-f.Ascent, 0))}
+	g.mask = make([]byte, w*h)
+	empty := true
+	for i := range g.mask {
+		g.mask[i] = img.Pix[i*4+3]
+		if g.mask[i] != 0 {
+			empty = false
+		}
+	}
+	if empty {
+		return &glyph{}
+	}
+	return g
+}
+
+// DrawChar draws the character with the pen at x on the baseline y, in
+// the clip rectangle of dst
+func (f *Font) DrawChar(dst *image.RGBA, clip image.Rectangle, x, y int, c rune, col color.RGBA) {
 	g := f.glyph(c)
 	if g.w == 0 {
 		return
@@ -102,7 +151,7 @@ func (f *Font) DrawChar(dst *image.RGBA, clip image.Rectangle, x, y int, c byte,
 // DrawString draws ASCII text from x on the baseline y; returns the x after it
 func (f *Font) DrawString(dst *image.RGBA, clip image.Rectangle, x, y int, s string, col color.RGBA) int {
 	for i := 0; i < len(s); i++ {
-		f.DrawChar(dst, clip, x, y, s[i], col)
+		f.DrawChar(dst, clip, x, y, rune(s[i]), col)
 		x += f.CharWidth
 	}
 	return x

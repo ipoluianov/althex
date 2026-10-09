@@ -10,16 +10,28 @@ import (
 	"github.com/ipoluianov/nui/ui"
 )
 
-// MainForm is the content of the main window: the document and the status bar
+// MainForm is the content of the main window: the tabs of the documents,
+// the side panels and the status bar
 type MainForm struct {
 	ui.Widget
 
+	tabBar  *TabBar
+	area    *ui.Panel // the box of the current tab, or the hint
 	lblHint *ui.Label
-	view    *hexview.View // nil - no document
 	status  *StatusBar
 
-	saving   bool
-	fileSeen bool // a change of the file on the disk was asked about
+	side      *SidePanel
+	sideSplit *ui.Splitter
+	pages     struct{ inspector, structure, console, bookmarks, hashes, search int }
+	inspector *InspectorPage
+	search    *SearchPage
+	structure *StructurePage
+	console   *ConsolePage
+
+	tabs []*Tab
+	cur  int
+
+	saving bool
 
 	commands   map[string]*Command
 	shortcuts  map[Shortcut]*Command
@@ -42,44 +54,109 @@ func NewMainForm() *MainForm {
 	c.shortcuts = make(map[Shortcut]*Command)
 	c.registerCommands()
 
+	c.tabBar = NewTabBar()
+	c.tabBar.OnSelect = c.selectTab
+	c.tabBar.OnClose = func(i int) { c.closeTab(i, nil) }
+	c.tabBar.OnMove = c.moveTab
+	c.tabBar.SetVisible(false)
+	c.AddWidget(0, 0, c.tabBar)
+
+	c.area = ui.NewPanel()
+	c.area.SetPanelPadding(0)
+	c.area.SetXExpandable(true)
+	c.area.SetYExpandable(true)
+	c.side = NewSidePanel()
+	c.inspector = newInspectorPage(&c)
+	c.pages.inspector = c.side.add(func() string { return T().PageInspector }, c.inspector)
+	c.addPages()
+	c.side.SetVisible(false)
+	c.side.OnClose = func() {
+		c.side.SetVisible(false)
+		if f := c.Form(); f != nil {
+			f.UpdateLayout()
+		}
+	}
+	c.sideSplit = ui.NewHSplitter()
+	c.sideSplit.SetWidgets(c.area, c.side)
+	c.sideSplit.SetSecondSize(panelWidth)
+	c.AddWidget(1, 0, c.sideSplit)
+
 	c.lblHint = ui.NewLabel("")
 	c.lblHint.SetTextFunc(func() string { return T().DropHint })
 	c.lblHint.SetTextAlign(ui.HAlignCenter)
 	c.lblHint.SetForegroundColor(colorSecondaryText.get())
 	c.lblHint.SetXExpandable(true)
 	c.lblHint.SetYExpandable(true)
-	c.AddWidget(0, 0, c.lblHint)
+	c.area.AddWidget(0, 0, c.lblHint)
+
 	c.status = NewStatusBar()
-	c.AddWidget(1, 0, c.status)
-	c.AddTimer(2000, c.checkDocument)
+	c.AddWidget(2, 0, c.status)
+	c.AddTimer(2000, c.checkDocuments)
 	lastCreatedMainWidget = &c
 	return &c
 }
 
-// doc returns the open document; nil - none
-func (c *MainForm) doc() *doc.Document {
-	if c.view == nil {
+// tab returns the current tab; nil - none
+func (c *MainForm) tab() *Tab {
+	if c.cur < 0 || c.cur >= len(c.tabs) {
 		return nil
 	}
-	return c.view.Document()
+	return c.tabs[c.cur]
+}
+
+// view returns the view with the focus; nil - no document
+func (c *MainForm) view() *hexview.View {
+	if t := c.tab(); t != nil {
+		return t.view()
+	}
+	return nil
+}
+
+// doc returns the current document; nil - none
+func (c *MainForm) doc() *doc.Document {
+	if t := c.tab(); t != nil {
+		return t.doc
+	}
+	return nil
 }
 
 // withView returns a command that runs f on the view, if there is one
 func (c *MainForm) withView(f func(v *hexview.View)) func() {
 	return func() {
-		if c.view != nil {
-			f(c.view)
+		if v := c.view(); v != nil {
+			f(v)
 		}
+	}
+}
+
+// withTab returns a command that runs f on the current tab, if there is one
+func (c *MainForm) withTab(f func(t *Tab)) func() {
+	return func() {
+		if t := c.tab(); t != nil {
+			f(t)
+			c.updateStatus()
+			c.update()
+		}
+	}
+}
+
+func (c *MainForm) update() {
+	if f := c.Form(); f != nil {
+		f.Update()
 	}
 }
 
 // registerCommands makes the commands of the menus and the shortcuts
 func (c *MainForm) registerCommands() {
 	t := T
+	c.cmd("file.new", func() string { return t().MenuNew }, "Ctrl+N", c.newDocument)
+	c.cmd("file.newSize", func() string { return t().MenuNewSize }, "", c.newDocumentOfSize)
+	c.cmd("file.newClipboard", func() string { return t().MenuNewClipboard }, "", c.newDocumentFromClipboard)
 	c.cmd("file.open", func() string { return t().MenuOpen }, "Ctrl+O", c.openDialog)
-	c.cmd("file.save", func() string { return t().MenuSave }, "Ctrl+S", func() { c.save(false, nil) })
-	c.cmd("file.saveAs", func() string { return t().MenuSaveAs }, "Ctrl+Shift+S", func() { c.save(true, nil) })
-	c.cmd("file.close", func() string { return t().MenuClose }, "Ctrl+W", func() { c.closeDocument(nil) })
+	c.cmd("file.save", func() string { return t().MenuSave }, "Ctrl+S", func() { c.save(c.tab(), false, nil) })
+	c.cmd("file.saveAs", func() string { return t().MenuSaveAs }, "Ctrl+Shift+S", func() { c.save(c.tab(), true, nil) })
+	c.cmd("file.close", func() string { return t().MenuClose }, "Ctrl+W", func() { c.closeTab(c.cur, nil) })
+	c.cmd("file.closeAll", func() string { return t().MenuCloseAll }, "Ctrl+Shift+W", func() { c.closeAll(nil) })
 	c.cmd("file.exit", func() string { return t().MenuExit }, "Alt+X", c.exit)
 
 	c.cmd("edit.undo", func() string { return t().MenuUndo }, "Ctrl+Z", c.withView((*hexview.View).Undo))
@@ -91,7 +168,7 @@ func (c *MainForm) registerCommands() {
 	insert := c.cmd("edit.insertMode", func() string { return t().MenuInsertMode }, "", c.withView(func(v *hexview.View) {
 		v.SetInsertMode(!v.InsertMode())
 	}))
-	insert.Checked = func() bool { return c.view != nil && c.view.InsertMode() }
+	insert.Checked = func() bool { return c.view() != nil && c.view().InsertMode() }
 	readOnly := c.cmd("edit.readOnly", func() string { return t().MenuReadOnly }, "", func() {
 		if d := c.doc(); d != nil {
 			d.SetReadOnly(!d.ReadOnly())
@@ -99,13 +176,30 @@ func (c *MainForm) registerCommands() {
 	})
 	readOnly.Checked = func() bool { return c.doc() != nil && c.doc().ReadOnly() }
 
-	c.cmd("view.goto", func() string { return t().MenuGoTo }, "Ctrl+G", c.withView(func(v *hexview.View) {
-		c.ShowDialog(NewGoToDialog(v.Caret(), v.GoTo))
+	c.cmd("nav.goto", func() string { return t().MenuGoTo }, "Ctrl+G", c.withTab(func(tb *Tab) {
+		c.ShowDialog(NewGoToDialog(tb.view(), tb.jump))
 	}))
-	c.cmd("view.zoomIn", func() string { return t().MenuZoomIn }, "Ctrl+=", func() { c.zoom(1) })
-	c.cmd("view.zoomOut", func() string { return t().MenuZoomOut }, "Ctrl+-", func() { c.zoom(-1) })
-	c.cmd("view.zoomReset", func() string { return t().MenuZoomReset }, "Ctrl+0", func() { c.zoom(0) })
+	c.cmd("nav.back", func() string { return t().MenuBack }, "Alt+Left", c.withTab((*Tab).goBack))
+	c.cmd("nav.forward", func() string { return t().MenuForward }, "Alt+Right", c.withTab((*Tab).goForward))
+	c.cmd("nav.bookmark", func() string { return t().MenuToggleBookmark }, "Ctrl+B", c.withTab((*Tab).toggleBookmark))
+	c.cmd("nav.nextBookmark", func() string { return t().MenuNextBookmark }, "F2", c.withTab(func(tb *Tab) { tb.nextBookmark(false) }))
+	c.cmd("nav.prevBookmark", func() string { return t().MenuPrevBookmark }, "Shift+F2", c.withTab(func(tb *Tab) { tb.nextBookmark(true) }))
+	c.cmd("nav.exportBookmarks", func() string { return t().MenuExportBookmarks }, "", c.exportBookmarks)
+	c.cmd("nav.importBookmarks", func() string { return t().MenuImportBookmarks }, "", c.importBookmarks)
+	c.cmd("nav.nextTab", func() string { return t().MenuNextTab }, "Ctrl+Tab", func() { c.cycleTab(1) })
+	c.cmd("nav.prevTab", func() string { return t().MenuPrevTab }, "Ctrl+Shift+Tab", func() { c.cycleTab(-1) })
 
+	c.registerViewCommands()
+	c.registerEditOps()
+	c.registerCompareCommands()
+
+	c.cmd("panel.inspector", func() string { return t().PageInspector }, "F4", func() { c.togglePage(c.pages.inspector) }).
+		Checked = func() bool { return c.pageShown(c.pages.inspector) }
+	c.registerPageCommands()
+
+	c.cmd("help.palette", func() string { return t().MenuPalette }, "Ctrl+Shift+P", func() {
+		c.ShowDialog(NewPaletteDialog(c.commands, func(cmd *Command) { cmd.Run() }))
+	})
 	c.cmd("options.settings", func() string { return t().MenuSettings }, "", c.ShowSettings)
 	c.cmd("help.docs", func() string { return t().MenuDocs }, "F1", func() { openDocs(c, "help_f1") })
 	c.cmd("help.about", func() string { return t().MenuAbout }, "", func() { c.ShowDialog(NewAboutDialog()) })
@@ -124,22 +218,39 @@ func (c *MainForm) BuildMenuBar() *ui.MenuBar {
 	}
 
 	file := add(func() string { return t().MenuFile })
+	c.addItems(file, "file.new")
+	c.subMenu(file, func() string { return t().MenuNewMore }, "file.newSize", "file.newClipboard")
 	c.addItems(file, "file.open")
 	c.recentMenu(file)
-	c.addItems(file, "file.save", "file.saveAs", "file.close", "-", "file.exit")
+	c.addItems(file, "file.save", "file.saveAs", "-")
+	c.buildImportExportMenu(file)
+	c.addItems(file, "-", "file.close", "file.closeAll", "-", "file.exit")
 
 	edit := add(func() string { return t().MenuEdit })
-	c.addItems(edit, "edit.undo", "edit.redo", "-", "edit.cut", "edit.copy", "edit.paste", "edit.selectAll", "-",
-		"edit.insertMode", "edit.readOnly")
+	c.addItems(edit, "edit.undo", "edit.redo", "-", "edit.cut", "edit.copy", "edit.paste", "edit.selectAll")
+	c.buildEditOpsMenu(edit)
+	c.addItems(edit, "-", "edit.insertMode", "edit.readOnly")
 
 	view := add(func() string { return t().MenuView })
-	c.addItems(view, "view.goto", "-", "view.zoomIn", "view.zoomOut", "view.zoomReset")
+	c.buildViewMenu(view)
+	c.subMenu(view, func() string { return t().MenuPanels }, c.pageCommandIDs()...)
+	c.addItems(view, "template.apply")
+
+	find := add(func() string { return t().MenuSearch })
+	c.addItems(find, c.findCommandIDs()...)
+
+	cmpMenu := add(func() string { return t().MenuCompareMenu })
+	c.buildCompareMenu(cmpMenu)
+
+	nav := add(func() string { return t().MenuNavigate })
+	c.addItems(nav, "nav.goto", "nav.back", "nav.forward", "-", "nav.bookmark", "nav.nextBookmark", "nav.prevBookmark",
+		"nav.exportBookmarks", "nav.importBookmarks", "-", "nav.nextTab", "nav.prevTab")
 
 	options := add(func() string { return t().MenuOptions })
 	c.addItems(options, "options.settings")
 
 	help := add(func() string { return t().MenuHelp })
-	c.addItems(help, "help.docs", "-", "help.about")
+	c.addItems(help, "help.palette", "-", "help.docs", "-", "help.about")
 	return bar
 }
 
@@ -168,29 +279,15 @@ func (c *MainForm) recentMenu(file *ui.ContextMenu) {
 	item.SetTextFunc(func() string { return T().MenuRecent })
 }
 
-func (c *MainForm) zoom(step int) {
-	if c.view == nil {
-		return
-	}
-	size := c.view.FontSize() + float64(step)
-	if step == 0 {
-		size = hexview.DefaultFontSize
-	}
-	c.view.SetFontSize(size)
-	s := config.GetSettings()
-	s.FontSize = c.view.FontSize()
-	config.SetSettings(s)
-}
-
-// UpdateTitle shows the open file in the window title
+// UpdateTitle shows the current file in the window title
 func (c *MainForm) UpdateTitle() {
 	title := app.DisplayName
-	if d := c.doc(); d != nil {
+	if t := c.tab(); t != nil {
 		mark := ""
-		if d.Modified() {
+		if t.doc.Modified() {
 			mark = "*"
 		}
-		title = mark + c.docName() + " - " + title
+		title = mark + t.name() + " - " + title
 	}
 	c.Form().SetTitle(title)
 }
@@ -210,12 +307,13 @@ func (c *MainForm) ApplySettings(s config.Settings) {
 		c.lblHint.SetForegroundColor(colorSecondaryText.get())
 	}
 	c.Form().SetAlwaysOnTop(s.AlwaysOnTop)
-	c.updateStatus()
+	c.changeView(func(*config.ViewSettings) {})
 }
 
 // ApplyLanguage updates the texts that do not follow the language by themselves
 func (c *MainForm) ApplyLanguage() {
-	c.UpdateTitle()
+	c.side.applyLanguage()
+	c.updateTabs()
 	c.updateStatus()
 }
 
@@ -264,23 +362,27 @@ func (c *MainForm) BringToFront() {
 	raiseWindow(c.Form())
 }
 
-// RequestClose is the OnClose of the window: a document with edits asks first
+// RequestClose is the OnClose of the window: documents with edits ask first
 func (c *MainForm) RequestClose() bool {
 	if c.saving {
 		return false
 	}
-	if d := c.doc(); d != nil && d.Modified() {
-		c.exit()
-		return false
+	for _, t := range c.tabs {
+		if t.doc.Modified() {
+			c.exit()
+			return false
+		}
 	}
 	c.SaveWindowState()
-	c.dropDocument()
+	for len(c.tabs) > 0 {
+		c.dropTab(0)
+	}
 	return true
 }
 
-// exit closes the window after the document
+// exit closes the window after the documents
 func (c *MainForm) exit() {
-	c.closeDocument(func() {
+	c.closeAll(func() {
 		c.SaveWindowState()
 		c.Form().Close()
 	})

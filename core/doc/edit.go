@@ -86,8 +86,14 @@ func (d *Document) OverwriteZeros(off, n int64, opt EditOptions) error {
 func (d *Document) change(opt EditOptions, kind string, off, del int64, put func() (piece, error)) error {
 	d.mu.Lock()
 	err := d.changeLocked(opt, kind, off, del, put)
+	// Inside a group the subscribers hear of it at EndGroup: a long
+	// operation may edit from another goroutine
+	inGroup := d.groupDeep > 0
+	if inGroup && err == nil {
+		d.groupChanged = true
+	}
 	d.mu.Unlock()
-	if err == nil {
+	if err == nil && !inGroup {
 		d.notify()
 	}
 	return err
@@ -156,6 +162,8 @@ func (d *Document) target(kind string, off int64, typing bool) *HistNode {
 
 // BeginGroup makes the edits until EndGroup one state of the history:
 // undone at once (e.g. a replace of all the matches). Groups may nest.
+// The subscribers are told of the edits of a group at its end, on the
+// goroutine that calls EndGroup.
 func (d *Document) BeginGroup(kind string) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -168,16 +176,23 @@ func (d *Document) BeginGroup(kind string) {
 
 func (d *Document) EndGroup() {
 	d.mu.Lock()
-	defer d.mu.Unlock()
 	if d.groupDeep == 0 {
+		d.mu.Unlock()
 		return
 	}
 	d.groupDeep--
+	changed := false
 	if d.groupDeep == 0 {
 		if d.groupNode != nil {
 			d.groupNode.sealed = true
 		}
 		d.groupNode = nil
+		changed = d.groupChanged
+		d.groupChanged = false
+	}
+	d.mu.Unlock()
+	if changed {
+		d.notify()
 	}
 }
 

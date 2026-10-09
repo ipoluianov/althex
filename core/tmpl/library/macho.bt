@@ -1,0 +1,750 @@
+//! name: Mach-O executable
+//! extensions: dylib, bundle, macho, o, kext
+//! priority: 1
+//! magic: 0 "FE ED FA CE"
+//! magic: 0 "FE ED FA CF"
+//! magic: 0 "CE FA ED FE"
+//! magic: 0 "CF FA ED FE"
+//! magic: 0 "CA FE BA BF"
+//! magic: 0 "CA FE BA BE 00 00 00 01"
+//! magic: 0 "CA FE BA BE 00 00 00 02"
+//! magic: 0 "CA FE BA BE 00 00 00 03"
+//! magic: 0 "CA FE BA BE 00 00 00 04"
+//! magic: 0 "CA FE BA BE 00 00 00 05"
+//! magic: 0 "CA FE BA BE 00 00 00 06"
+//! magic: 0 "CA FE BA BE 00 00 00 07"
+//! magic: 0 "CA FE BA BE 00 00 00 08"
+
+// Mach-O: the executables, dynamic libraries, bundles and object files of
+// macOS, iOS and the other Apple systems. A thin file (mach_header or
+// mach_header_64, either byte order) or a universal ("fat") one: a
+// big-endian fat_header and fat_arch entries, each pointing at a Mach-O of
+// one architecture. Of each: the header, the load commands (segments with
+// their sections, LC_SYMTAB with the symbols, LC_DYSYMTAB, the dylibs,
+// LC_UUID, LC_MAIN, LC_BUILD_VERSION...).
+// (A fat file starts with CAFEBABE like a Java class: the magic lines take
+// it only with 1-8 architectures, where a class would have its version.)
+
+// ---- Common enums ----
+
+enum <int32> CPU_TYPE {
+    CPU_TYPE_ANY = -1, CPU_TYPE_VAX = 1, CPU_TYPE_ROMP = 2, CPU_TYPE_NS32032 = 4,
+    CPU_TYPE_NS32332 = 5, CPU_TYPE_MC680x0 = 6, CPU_TYPE_X86 = 7,
+    CPU_TYPE_MIPS = 8, CPU_TYPE_NS32352 = 9, CPU_TYPE_MC98000 = 10,
+    CPU_TYPE_HPPA = 11, CPU_TYPE_ARM = 12, CPU_TYPE_MC88000 = 13,
+    CPU_TYPE_SPARC = 14, CPU_TYPE_I860 = 15, CPU_TYPE_ALPHA = 16,
+    CPU_TYPE_POWERPC = 18,
+    CPU_TYPE_X86_64 = 0x01000007, CPU_TYPE_ARM64 = 0x0100000C,
+    CPU_TYPE_POWERPC64 = 0x01000012, CPU_TYPE_ARM64_32 = 0x0200000C
+};
+
+enum <uint32> MH_MAGIC_T {
+    MH_MAGIC = 0xFEEDFACE, MH_CIGAM = 0xCEFAEDFE,
+    MH_MAGIC_64 = 0xFEEDFACF, MH_CIGAM_64 = 0xCFFAEDFE
+};
+
+enum <uint32> MH_FILETYPE {
+    MH_OBJECT = 0x1, MH_EXECUTE = 0x2, MH_FVMLIB = 0x3, MH_CORE = 0x4,
+    MH_PRELOAD = 0x5, MH_DYLIB = 0x6, MH_DYLINKER = 0x7, MH_BUNDLE = 0x8,
+    MH_DYLIB_STUB = 0x9, MH_DSYM = 0xA, MH_KEXT_BUNDLE = 0xB, MH_FILESET = 0xC,
+    MH_GPU_EXECUTE = 0xD, MH_GPU_DYLIB = 0xE
+};
+
+string MhFlagsComment(uint32 &f) {
+    local uint32 v = f;
+    local string s = "";
+    if (v & 0x1)        s += " MH_NOUNDEFS";
+    if (v & 0x2)        s += " MH_INCRLINK";
+    if (v & 0x4)        s += " MH_DYLDLINK";
+    if (v & 0x8)        s += " MH_BINDATLOAD";
+    if (v & 0x10)       s += " MH_PREBOUND";
+    if (v & 0x20)       s += " MH_SPLIT_SEGS";
+    if (v & 0x40)       s += " MH_LAZY_INIT";
+    if (v & 0x80)       s += " MH_TWOLEVEL";
+    if (v & 0x100)      s += " MH_FORCE_FLAT";
+    if (v & 0x200)      s += " MH_NOMULTIDEFS";
+    if (v & 0x400)      s += " MH_NOFIXPREBINDING";
+    if (v & 0x800)      s += " MH_PREBINDABLE";
+    if (v & 0x1000)     s += " MH_ALLMODSBOUND";
+    if (v & 0x2000)     s += " MH_SUBSECTIONS_VIA_SYMBOLS";
+    if (v & 0x4000)     s += " MH_CANONICAL";
+    if (v & 0x8000)     s += " MH_WEAK_DEFINES";
+    if (v & 0x10000)    s += " MH_BINDS_TO_WEAK";
+    if (v & 0x20000)    s += " MH_ALLOW_STACK_EXECUTION";
+    if (v & 0x40000)    s += " MH_ROOT_SAFE";
+    if (v & 0x80000)    s += " MH_SETUID_SAFE";
+    if (v & 0x100000)   s += " MH_NO_REEXPORTED_DYLIBS";
+    if (v & 0x200000)   s += " MH_PIE";
+    if (v & 0x400000)   s += " MH_DEAD_STRIPPABLE_DYLIB";
+    if (v & 0x800000)   s += " MH_HAS_TLV_DESCRIPTORS";
+    if (v & 0x1000000)  s += " MH_NO_HEAP_EXECUTION";
+    if (v & 0x2000000)  s += " MH_APP_EXTENSION_SAFE";
+    if (v & 0x4000000)  s += " MH_NLIST_OUTOFSYNC_WITH_DYLDINFO";
+    if (v & 0x8000000)  s += " MH_SIM_SUPPORT";
+    if (v & 0x80000000) s += " MH_DYLIB_IN_CACHE";
+    return SubStr(s, 1);
+}
+
+// ---- Fat (universal) header: always big-endian ----
+
+struct fat_header {
+    uint32 magic <format=hex, comment="FAT_MAGIC 0xCAFEBABE, FAT_MAGIC_64 0xCAFEBABF">;
+    uint32 nfat_arch;
+};
+
+struct fat_arch {
+    CPU_TYPE cputype;
+    uint32   cpusubtype <format=hex>;
+    uint32   offset <format=hex>;
+    uint32   size <format=hex>;
+    uint32   align <comment="a power of 2">;
+} <read=FatArchRead>;
+
+struct fat_arch_64 {
+    CPU_TYPE cputype;
+    uint32   cpusubtype <format=hex>;
+    uint64   offset <format=hex>;
+    uint64   size <format=hex>;
+    uint32   align <comment="a power of 2">;
+    uint32   reserved;
+} <read=FatArchRead>;
+
+string FatArchRead(fat_arch &a) {
+    return Str("%s 0x%X bytes at 0x%X", EnumToString(a.cputype), a.size, a.offset);
+}
+
+// ---- mach_header ----
+
+struct mach_header {
+    MH_MAGIC_T  magic <format=hex>;
+    CPU_TYPE    cputype;
+    uint32      cpusubtype <format=hex>;
+    MH_FILETYPE filetype;
+    uint32      ncmds;
+    uint32      sizeofcmds;
+    uint32      flags <format=hex, comment=MhFlagsComment>;
+};
+
+struct mach_header_64 {
+    MH_MAGIC_T  magic <format=hex>;
+    CPU_TYPE    cputype;
+    uint32      cpusubtype <format=hex>;
+    MH_FILETYPE filetype;
+    uint32      ncmds;
+    uint32      sizeofcmds;
+    uint32      flags <format=hex, comment=MhFlagsComment>;
+    uint32      reserved;
+};
+
+// ---- Load commands ----
+
+enum <uint32> LC_TYPE {
+    LC_SEGMENT = 0x1, LC_SYMTAB = 0x2, LC_SYMSEG = 0x3, LC_THREAD = 0x4,
+    LC_UNIXTHREAD = 0x5, LC_LOADFVMLIB = 0x6, LC_IDFVMLIB = 0x7, LC_IDENT = 0x8,
+    LC_FVMFILE = 0x9, LC_PREPAGE = 0xA, LC_DYSYMTAB = 0xB, LC_LOAD_DYLIB = 0xC,
+    LC_ID_DYLIB = 0xD, LC_LOAD_DYLINKER = 0xE, LC_ID_DYLINKER = 0xF,
+    LC_PREBOUND_DYLIB = 0x10, LC_ROUTINES = 0x11, LC_SUB_FRAMEWORK = 0x12,
+    LC_SUB_UMBRELLA = 0x13, LC_SUB_CLIENT = 0x14, LC_SUB_LIBRARY = 0x15,
+    LC_TWOLEVEL_HINTS = 0x16, LC_PREBIND_CKSUM = 0x17,
+    LC_LOAD_WEAK_DYLIB = 0x80000018, LC_SEGMENT_64 = 0x19, LC_ROUTINES_64 = 0x1A,
+    LC_UUID = 0x1B, LC_RPATH = 0x8000001C, LC_CODE_SIGNATURE = 0x1D,
+    LC_SEGMENT_SPLIT_INFO = 0x1E, LC_REEXPORT_DYLIB = 0x8000001F,
+    LC_LAZY_LOAD_DYLIB = 0x20, LC_ENCRYPTION_INFO = 0x21, LC_DYLD_INFO = 0x22,
+    LC_DYLD_INFO_ONLY = 0x80000022, LC_LOAD_UPWARD_DYLIB = 0x80000023,
+    LC_VERSION_MIN_MACOSX = 0x24, LC_VERSION_MIN_IPHONEOS = 0x25,
+    LC_FUNCTION_STARTS = 0x26, LC_DYLD_ENVIRONMENT = 0x27, LC_MAIN = 0x80000028,
+    LC_DATA_IN_CODE = 0x29, LC_SOURCE_VERSION = 0x2A,
+    LC_DYLIB_CODE_SIGN_DRS = 0x2B, LC_ENCRYPTION_INFO_64 = 0x2C,
+    LC_LINKER_OPTION = 0x2D, LC_LINKER_OPTIMIZATION_HINT = 0x2E,
+    LC_VERSION_MIN_TVOS = 0x2F, LC_VERSION_MIN_WATCHOS = 0x30, LC_NOTE = 0x31,
+    LC_BUILD_VERSION = 0x32, LC_DYLD_EXPORTS_TRIE = 0x80000033,
+    LC_DYLD_CHAINED_FIXUPS = 0x80000034, LC_FILESET_ENTRY = 0x80000035,
+    LC_ATOM_INFO = 0x36
+};
+
+// A command of another kind: cmd, cmdsize and its bytes. Each command ends
+// with its bytes past the fields, to cmdsize (a function cannot declare
+// them for all: its fields would go to the top of the tree)
+struct load_command {
+    LC_TYPE cmd;
+    uint32  cmdsize;
+    if (cmdsize > 8)
+        uchar data[cmdsize - 8];
+} <read=LcRead>;
+
+// "LC_SEGMENT_64 __TEXT", "LC_LOAD_DYLIB /usr/lib/libSystem.B.dylib"
+string LcRead(load_command &c) {
+    local string s = EnumToString(c.cmd);
+    if (s == "")
+        s = Str("0x%X", c.cmd);
+    if (exists(c.segname)) {
+        local string seg = ReadString(startof(c.segname), 16);
+        return seg == "" ? s : s + " " + seg;
+    }
+    if (exists(c.name))
+        return s + " " + c.name;
+    if (exists(c.path))
+        return s + " " + c.path;
+    if (exists(c.uuid))
+        return s + " " + UuidText(c.uuid);
+    if (exists(c.entryoff))
+        return Str("%s entryoff 0x%X", s, c.entryoff);
+    if (exists(c.platform))
+        return s + " " + EnumToString(c.platform) + " " + VersionText(c.minos);
+    if (exists(c.version) && exists(c.sdk))
+        return s + " " + VersionText(c.version);
+    return s;
+}
+
+// A version as xxxx.yy.zz in nibbles
+string VersionText(uint32 v) {
+    return Str("%d.%d.%d", v >> 16, (v >> 8) & 0xFF, v & 0xFF);
+}
+
+string VersionComment(uint32 &v) {
+    return VersionText(v);
+}
+
+string UuidText(uchar &u[]) {
+    local string s = "";
+    local int i;
+    for (i = 0; i < 16; i++) {
+        s += Str("%02X", u[i]);
+        if (i == 3 || i == 5 || i == 7 || i == 9)
+            s += "-";
+    }
+    return s;
+}
+
+string UuidRead(uchar &u[]) {
+    return UuidText(u);
+}
+
+// vm_prot_t
+string ProtComment(int32 &p) {
+    return Str("%c%c%c", (p & 1) ? 'r' : '-', (p & 2) ? 'w' : '-', (p & 4) ? 'x' : '-');
+}
+
+
+// ---- Segments and sections ----
+
+string SectionFlagsComment(uint32 &f) {
+    local uint32 v = f;
+    local string s;
+    switch (v & 0xFF) {
+    case 0x00: s = "S_REGULAR"; break;
+    case 0x01: s = "S_ZEROFILL"; break;
+    case 0x02: s = "S_CSTRING_LITERALS"; break;
+    case 0x03: s = "S_4BYTE_LITERALS"; break;
+    case 0x04: s = "S_8BYTE_LITERALS"; break;
+    case 0x05: s = "S_LITERAL_POINTERS"; break;
+    case 0x06: s = "S_NON_LAZY_SYMBOL_POINTERS"; break;
+    case 0x07: s = "S_LAZY_SYMBOL_POINTERS"; break;
+    case 0x08: s = "S_SYMBOL_STUBS"; break;
+    case 0x09: s = "S_MOD_INIT_FUNC_POINTERS"; break;
+    case 0x0A: s = "S_MOD_TERM_FUNC_POINTERS"; break;
+    case 0x0B: s = "S_COALESCED"; break;
+    case 0x0C: s = "S_GB_ZEROFILL"; break;
+    case 0x0D: s = "S_INTERPOSING"; break;
+    case 0x0E: s = "S_16BYTE_LITERALS"; break;
+    case 0x0F: s = "S_DTRACE_DOF"; break;
+    case 0x10: s = "S_LAZY_DYLIB_SYMBOL_POINTERS"; break;
+    case 0x11: s = "S_THREAD_LOCAL_REGULAR"; break;
+    case 0x12: s = "S_THREAD_LOCAL_ZEROFILL"; break;
+    case 0x13: s = "S_THREAD_LOCAL_VARIABLES"; break;
+    case 0x14: s = "S_THREAD_LOCAL_VARIABLE_POINTERS"; break;
+    case 0x15: s = "S_THREAD_LOCAL_INIT_FUNCTION_POINTERS"; break;
+    case 0x16: s = "S_INIT_FUNC_OFFSETS"; break;
+    default:   s = Str("type 0x%X", v & 0xFF);
+    }
+    if (v & 0x80000000) s += " S_ATTR_PURE_INSTRUCTIONS";
+    if (v & 0x40000000) s += " S_ATTR_NO_TOC";
+    if (v & 0x20000000) s += " S_ATTR_STRIP_STATIC_SYMS";
+    if (v & 0x10000000) s += " S_ATTR_NO_DEAD_STRIP";
+    if (v & 0x08000000) s += " S_ATTR_LIVE_SUPPORT";
+    if (v & 0x04000000) s += " S_ATTR_SELF_MODIFYING_CODE";
+    if (v & 0x02000000) s += " S_ATTR_DEBUG";
+    if (v & 0x00000400) s += " S_ATTR_SOME_INSTRUCTIONS";
+    if (v & 0x00000200) s += " S_ATTR_EXT_RELOC";
+    if (v & 0x00000100) s += " S_ATTR_LOC_RELOC";
+    return s;
+}
+
+struct section {
+    char   sectname[16];
+    char   segname[16];
+    uint32 addr <format=hex>;
+    uint32 size <format=hex>;
+    uint32 offset <format=hex>;
+    uint32 align <comment="a power of 2">;
+    uint32 reloff <format=hex>;
+    uint32 nreloc;
+    uint32 flags <format=hex, comment=SectionFlagsComment>;
+    uint32 reserved1;
+    uint32 reserved2;
+} <read=SectionRead>;
+
+struct section_64 {
+    char   sectname[16];
+    char   segname[16];
+    uint64 addr <format=hex>;
+    uint64 size <format=hex>;
+    uint32 offset <format=hex>;
+    uint32 align <comment="a power of 2">;
+    uint32 reloff <format=hex>;
+    uint32 nreloc;
+    uint32 flags <format=hex, comment=SectionFlagsComment>;
+    uint32 reserved1;
+    uint32 reserved2;
+    uint32 reserved3;
+} <read=SectionRead>;
+
+// "__text 0x1000 bytes at 0x400"
+string SectionRead(section_64 &s) {
+    return Str("%s 0x%X bytes at 0x%X", ReadString(startof(s.sectname), 16), s.size, s.offset);
+}
+
+struct segment_command {
+    LC_TYPE cmd;
+    uint32  cmdsize;
+    char    segname[16];
+    uint32  vmaddr <format=hex>;
+    uint32  vmsize <format=hex>;
+    uint32  fileoff <format=hex>;
+    uint32  filesize <format=hex>;
+    int32   maxprot <format=hex, comment=ProtComment>;
+    int32   initprot <format=hex, comment=ProtComment>;
+    uint32  nsects;
+    uint32  flags <format=hex, comment="SG_HIGHVM 1, SG_FVMLIB 2, SG_NORELOC 4, SG_PROTECTED_VERSION_1 8, SG_READ_ONLY 0x10">;
+    local int64 n = Min(nsects, (cmdsize - 56) / 68);
+    if (n > 0)
+        section sections[n];
+    if (FTell() < startof(cmd) + cmdsize)
+        uchar data[startof(cmd) + cmdsize - FTell()];
+} <read=LcRead>;
+
+struct segment_command_64 {
+    LC_TYPE cmd;
+    uint32  cmdsize;
+    char    segname[16];
+    uint64  vmaddr <format=hex>;
+    uint64  vmsize <format=hex>;
+    uint64  fileoff <format=hex>;
+    uint64  filesize <format=hex>;
+    int32   maxprot <format=hex, comment=ProtComment>;
+    int32   initprot <format=hex, comment=ProtComment>;
+    uint32  nsects;
+    uint32  flags <format=hex, comment="SG_HIGHVM 1, SG_FVMLIB 2, SG_NORELOC 4, SG_PROTECTED_VERSION_1 8, SG_READ_ONLY 0x10">;
+    local int64 n = Min(nsects, (cmdsize - 72) / 80);
+    if (n > 0)
+        section_64 sections[n];
+    if (FTell() < startof(cmd) + cmdsize)
+        uchar data[startof(cmd) + cmdsize - FTell()];
+} <read=LcRead>;
+
+// ---- Other commands ----
+
+struct symtab_command {
+    LC_TYPE cmd;
+    uint32  cmdsize;
+    uint32  symoff <format=hex, comment="the offset of the nlist entries">;
+    uint32  nsyms;
+    uint32  stroff <format=hex, comment="the offset of the string table">;
+    uint32  strsize <format=hex>;
+    if (FTell() < startof(cmd) + cmdsize)
+        uchar data[startof(cmd) + cmdsize - FTell()];
+} <read=LcRead>;
+
+struct dysymtab_command {
+    LC_TYPE cmd;
+    uint32  cmdsize;
+    uint32  ilocalsym;
+    uint32  nlocalsym;
+    uint32  iextdefsym;
+    uint32  nextdefsym;
+    uint32  iundefsym;
+    uint32  nundefsym;
+    uint32  tocoff <format=hex>;
+    uint32  ntoc;
+    uint32  modtaboff <format=hex>;
+    uint32  nmodtab;
+    uint32  extrefsymoff <format=hex>;
+    uint32  nextrefsyms;
+    uint32  indirectsymoff <format=hex>;
+    uint32  nindirectsyms;
+    uint32  extreloff <format=hex>;
+    uint32  nextrel;
+    uint32  locreloff <format=hex>;
+    uint32  nlocrel;
+    if (FTell() < startof(cmd) + cmdsize)
+        uchar data[startof(cmd) + cmdsize - FTell()];
+} <read=LcRead>;
+
+// LC_LOAD_DYLIB, LC_ID_DYLIB, LC_LOAD_WEAK_DYLIB, LC_REEXPORT_DYLIB,
+// LC_LAZY_LOAD_DYLIB, LC_LOAD_UPWARD_DYLIB
+struct dylib_command {
+    LC_TYPE cmd;
+    uint32  cmdsize;
+    uint32  name_offset <comment="dylib.name (lc_str): from the start of the command">;
+    uint32  timestamp;
+    uint32  current_version <format=hex, comment=VersionComment>;
+    uint32  compatibility_version <format=hex, comment=VersionComment>;
+    if (name_offset >= 24 && name_offset < cmdsize)
+        string name @ (startof(cmd) + name_offset);
+    if (FTell() < startof(cmd) + cmdsize)
+        uchar data[startof(cmd) + cmdsize - FTell()];
+} <read=LcRead>;
+
+// LC_LOAD_DYLINKER, LC_ID_DYLINKER, LC_DYLD_ENVIRONMENT, and the commands of
+// one string (LC_SUB_FRAMEWORK, LC_SUB_CLIENT, LC_SUB_UMBRELLA, LC_SUB_LIBRARY)
+struct dylinker_command {
+    LC_TYPE cmd;
+    uint32  cmdsize;
+    uint32  name_offset <comment="name (lc_str): from the start of the command">;
+    if (name_offset >= 12 && name_offset < cmdsize)
+        string name @ (startof(cmd) + name_offset);
+    if (FTell() < startof(cmd) + cmdsize)
+        uchar data[startof(cmd) + cmdsize - FTell()];
+} <read=LcRead>;
+
+struct rpath_command {
+    LC_TYPE cmd;
+    uint32  cmdsize;
+    uint32  path_offset <comment="path (lc_str): from the start of the command">;
+    if (path_offset >= 12 && path_offset < cmdsize)
+        string path @ (startof(cmd) + path_offset);
+    if (FTell() < startof(cmd) + cmdsize)
+        uchar data[startof(cmd) + cmdsize - FTell()];
+} <read=LcRead>;
+
+struct uuid_command {
+    LC_TYPE cmd;
+    uint32  cmdsize;
+    uchar   uuid[16] <read=UuidRead>;
+    if (FTell() < startof(cmd) + cmdsize)
+        uchar data[startof(cmd) + cmdsize - FTell()];
+} <read=LcRead>;
+
+// LC_MAIN
+struct entry_point_command {
+    LC_TYPE cmd;
+    uint32  cmdsize;
+    uint64  entryoff <format=hex, comment="the file offset of main() from the start of __TEXT">;
+    uint64  stacksize <format=hex>;
+    if (FTell() < startof(cmd) + cmdsize)
+        uchar data[startof(cmd) + cmdsize - FTell()];
+} <read=LcRead>;
+
+enum <uint32> PLATFORM {
+    PLATFORM_UNKNOWN = 0, PLATFORM_MACOS = 1, PLATFORM_IOS = 2, PLATFORM_TVOS = 3,
+    PLATFORM_WATCHOS = 4, PLATFORM_BRIDGEOS = 5, PLATFORM_MACCATALYST = 6,
+    PLATFORM_IOSSIMULATOR = 7, PLATFORM_TVOSSIMULATOR = 8,
+    PLATFORM_WATCHOSSIMULATOR = 9, PLATFORM_DRIVERKIT = 10,
+    PLATFORM_VISIONOS = 11, PLATFORM_VISIONOSSIMULATOR = 12,
+    PLATFORM_FIRMWARE = 13, PLATFORM_SEPOS = 14
+};
+
+enum <uint32> TOOL { TOOL_CLANG = 1, TOOL_SWIFT = 2, TOOL_LD = 3, TOOL_LLD = 4 };
+
+struct build_tool_version {
+    TOOL   tool;
+    uint32 version <format=hex, comment=VersionComment>;
+};
+
+struct build_version_command {
+    LC_TYPE  cmd;
+    uint32   cmdsize;
+    PLATFORM platform;
+    uint32   minos <format=hex, comment=VersionComment>;
+    uint32   sdk <format=hex, comment=VersionComment>;
+    uint32   ntools;
+    local int64 n = Min(ntools, (cmdsize - 24) / 8);
+    if (n > 0)
+        build_tool_version tools[n];
+    if (FTell() < startof(cmd) + cmdsize)
+        uchar data[startof(cmd) + cmdsize - FTell()];
+} <read=LcRead>;
+
+// LC_VERSION_MIN_MACOSX, _IPHONEOS, _TVOS, _WATCHOS
+struct version_min_command {
+    LC_TYPE cmd;
+    uint32  cmdsize;
+    uint32  version <format=hex, comment=VersionComment>;
+    uint32  sdk <format=hex, comment=VersionComment>;
+    if (FTell() < startof(cmd) + cmdsize)
+        uchar data[startof(cmd) + cmdsize - FTell()];
+} <read=LcRead>;
+
+// LC_CODE_SIGNATURE, LC_SEGMENT_SPLIT_INFO, LC_FUNCTION_STARTS,
+// LC_DATA_IN_CODE, LC_DYLIB_CODE_SIGN_DRS, LC_LINKER_OPTIMIZATION_HINT,
+// LC_DYLD_EXPORTS_TRIE, LC_DYLD_CHAINED_FIXUPS, LC_ATOM_INFO
+struct linkedit_data_command {
+    LC_TYPE cmd;
+    uint32  cmdsize;
+    uint32  dataoff <format=hex>;
+    uint32  datasize <format=hex>;
+    if (FTell() < startof(cmd) + cmdsize)
+        uchar data[startof(cmd) + cmdsize - FTell()];
+} <read=LcRead>;
+
+// LC_DYLD_INFO, LC_DYLD_INFO_ONLY
+struct dyld_info_command {
+    LC_TYPE cmd;
+    uint32  cmdsize;
+    uint32  rebase_off <format=hex>;
+    uint32  rebase_size <format=hex>;
+    uint32  bind_off <format=hex>;
+    uint32  bind_size <format=hex>;
+    uint32  weak_bind_off <format=hex>;
+    uint32  weak_bind_size <format=hex>;
+    uint32  lazy_bind_off <format=hex>;
+    uint32  lazy_bind_size <format=hex>;
+    uint32  export_off <format=hex>;
+    uint32  export_size <format=hex>;
+    if (FTell() < startof(cmd) + cmdsize)
+        uchar data[startof(cmd) + cmdsize - FTell()];
+} <read=LcRead>;
+
+string SourceVersionComment(uint64 &v) {
+    // A.B.C.D.E in 24.10.10.10.10 bits
+    return Str("%d.%d.%d.%d.%d", (v >> 40) & 0xFFFFFF, (v >> 30) & 0x3FF,
+        (v >> 20) & 0x3FF, (v >> 10) & 0x3FF, v & 0x3FF);
+}
+
+struct source_version_command {
+    LC_TYPE cmd;
+    uint32  cmdsize;
+    uint64  version <format=hex, comment=SourceVersionComment>;
+    if (FTell() < startof(cmd) + cmdsize)
+        uchar data[startof(cmd) + cmdsize - FTell()];
+} <read=LcRead>;
+
+// LC_ENCRYPTION_INFO, LC_ENCRYPTION_INFO_64 (with a pad)
+struct encryption_info_command {
+    LC_TYPE cmd;
+    uint32  cmdsize;
+    uint32  cryptoff <format=hex>;
+    uint32  cryptsize <format=hex>;
+    uint32  cryptid <comment="0 - not encrypted">;
+    if (FTell() < startof(cmd) + cmdsize)
+        uchar data[startof(cmd) + cmdsize - FTell()];
+} <read=LcRead>;
+
+// LC_THREAD, LC_UNIXTHREAD: the registers of the first thread
+struct thread_command {
+    LC_TYPE cmd;
+    uint32  cmdsize;
+    uint32  flavor;
+    uint32  count <comment="in uint32s">;
+    if (FTell() < startof(cmd) + cmdsize)
+        uchar state[startof(cmd) + cmdsize - FTell()];
+} <read=LcRead>;
+
+// ---- Symbols ----
+
+string NTypeComment(uchar &t) {
+    local uint32 v = t;
+    if (v & 0xE0)
+        return Str("N_STAB 0x%02X (a debugging symbol)", v);
+    local string s;
+    switch (v & 0x0E) {
+    case 0x0: s = "N_UNDF"; break;
+    case 0x2: s = "N_ABS"; break;
+    case 0xE: s = "N_SECT"; break;
+    case 0xC: s = "N_PBUD"; break;
+    case 0xA: s = "N_INDR"; break;
+    default:  s = Str("0x%X", v & 0x0E);
+    }
+    if (v & 0x10) s += " N_PEXT";
+    if (v & 0x01) s += " N_EXT";
+    return s;
+}
+
+struct nlist(int64 strOff, int64 strEnd) {
+    uint32 n_strx <format=hex>;
+    uchar  n_type <format=hex, comment=NTypeComment>;
+    uchar  n_sect;
+    uint16 n_desc <format=hex>;
+    uint32 n_value <format=hex>;
+    if (n_strx > 0 && strOff >= 0 && strOff + n_strx < strEnd)
+        string name @ (strOff + n_strx);
+} <read=NlistRead>;
+
+struct nlist_64(int64 strOff, int64 strEnd) {
+    uint32 n_strx <format=hex>;
+    uchar  n_type <format=hex, comment=NTypeComment>;
+    uchar  n_sect;
+    uint16 n_desc <format=hex>;
+    uint64 n_value <format=hex>;
+    if (n_strx > 0 && strOff >= 0 && strOff + n_strx < strEnd)
+        string name @ (strOff + n_strx);
+} <read=NlistRead>;
+
+string NlistRead(nlist_64 &s) {
+    local string n = "";
+    if (exists(s.name))
+        n = s.name;
+    return Str("%s 0x%X", n, s.n_value);
+}
+
+local int64 fsize = FileSize();
+local int64 symLeft = 65536;    // the symbols shown, in all
+
+struct SYMBOLS(int64 n, int is64, int64 strOff, int64 strEnd) {
+    local int64 i;
+    for (i = 0; i < n; i++) {
+        if (is64)
+            nlist_64 sym(strOff, strEnd);
+        else
+            nlist sym(strOff, strEnd);
+    }
+};
+
+// ---- A Mach-O file: thin, or one architecture of a fat one ----
+
+// The load commands: ncmds of them in sizeofcmds bytes
+struct LOAD_COMMANDS(int64 ncmds, int64 sizeofcmds, int is64) {
+    local int64 base = FTell();
+    local int64 end = Min(base + sizeofcmds, fsize);
+    local int64 i, size;
+    local uint32 c;
+    for (i = 0; i < ncmds && i < 65536; i++) {
+        if (FTell() + 8 > end)
+            break;
+        c = ReadUInt(FTell());
+        size = ReadUInt(FTell() + 4);
+        if (size < 8 || FTell() + size > end) {
+            Warning("a broken load command at 0x%X", FTell());
+            break;
+        }
+        if (c == LC_SYMTAB && size >= 24 && nsyms == 0) {
+            // For the symbols, in MACH_O
+            symoff = ReadUInt(FTell() + 8);
+            nsyms = ReadUInt(FTell() + 12);
+            stroff = startof(header) + ReadUInt(FTell() + 16);
+            strend = stroff + ReadUInt(FTell() + 20);
+        }
+        // A command too small for its fields is shown as bytes
+        if ((c == LC_SEGMENT_64 && size >= 72) || (c == LC_SEGMENT && size >= 56)) {
+            if (c == LC_SEGMENT_64)
+                segment_command_64 command;
+            else
+                segment_command command;
+        } else if (c == LC_SYMTAB && size >= 24)
+            symtab_command command;
+        else if (c == LC_DYSYMTAB && size >= 80)
+            dysymtab_command command;
+        else if ((c == LC_LOAD_DYLIB || c == LC_ID_DYLIB || c == LC_LOAD_WEAK_DYLIB ||
+                  c == LC_REEXPORT_DYLIB || c == LC_LAZY_LOAD_DYLIB ||
+                  c == LC_LOAD_UPWARD_DYLIB) && size >= 24)
+            dylib_command command;
+        else if ((c == LC_LOAD_DYLINKER || c == LC_ID_DYLINKER || c == LC_DYLD_ENVIRONMENT ||
+                  c == LC_SUB_FRAMEWORK || c == LC_SUB_CLIENT || c == LC_SUB_UMBRELLA ||
+                  c == LC_SUB_LIBRARY) && size >= 12)
+            dylinker_command command;
+        else if (c == LC_RPATH && size >= 12)
+            rpath_command command;
+        else if (c == LC_UUID && size >= 24)
+            uuid_command command;
+        else if (c == LC_MAIN && size >= 24)
+            entry_point_command command;
+        else if (c == LC_BUILD_VERSION && size >= 24)
+            build_version_command command;
+        else if ((c == LC_VERSION_MIN_MACOSX || c == LC_VERSION_MIN_IPHONEOS ||
+                  c == LC_VERSION_MIN_TVOS || c == LC_VERSION_MIN_WATCHOS) && size >= 16)
+            version_min_command command;
+        else if ((c == LC_CODE_SIGNATURE || c == LC_SEGMENT_SPLIT_INFO ||
+                  c == LC_FUNCTION_STARTS || c == LC_DATA_IN_CODE ||
+                  c == LC_DYLIB_CODE_SIGN_DRS || c == LC_LINKER_OPTIMIZATION_HINT ||
+                  c == LC_DYLD_EXPORTS_TRIE || c == LC_DYLD_CHAINED_FIXUPS ||
+                  c == LC_ATOM_INFO) && size >= 16)
+            linkedit_data_command command;
+        else if ((c == LC_DYLD_INFO || c == LC_DYLD_INFO_ONLY) && size >= 48)
+            dyld_info_command command;
+        else if (c == LC_SOURCE_VERSION && size >= 16)
+            source_version_command command;
+        else if ((c == LC_ENCRYPTION_INFO || c == LC_ENCRYPTION_INFO_64) && size >= 20)
+            encryption_info_command command;
+        else if ((c == LC_THREAD || c == LC_UNIXTHREAD) && size >= 16)
+            thread_command command;
+        else
+            load_command command;
+    }
+};
+
+struct MACH_O {
+    local int64 base = FTell();
+    local int b0 = ReadUByte(base), b3 = ReadUByte(base + 3);
+    // FE ED FA CE/CF - big-endian, CE/CF FA ED FE - little-endian
+    if (b0 == 0xFE)
+        BigEndian();
+    else
+        LittleEndian();
+    local int is64 = b0 == 0xCF || (b0 == 0xFE && b3 == 0xCF);
+    local int64 ncmds, sizeofcmds;
+    // LOAD_COMMANDS sets these from LC_SYMTAB
+    local int64 symoff = 0, nsyms = 0, stroff = -1, strend = -1, esz = is64 ? 16 : 12;
+    if (base + (is64 ? 32 : 28) > fsize) {
+        uchar truncated_header[fsize - base];
+        Warning("the Mach-O header at 0x%X is cut", base);
+        return;
+    }
+    if (is64) {
+        mach_header_64 header <open=true>;
+    } else {
+        mach_header header <open=true>;
+    }
+    ncmds = header.ncmds;
+    sizeofcmds = header.sizeofcmds;
+    if (ncmds > 0 && FTell() < fsize)
+        LOAD_COMMANDS load_commands(ncmds, sizeofcmds, is64);
+
+    // The symbols of LC_SYMTAB (its offsets are from the start of this Mach-O)
+    if (stroff >= fsize)
+        stroff = strend = -1;
+    else if (strend > fsize)
+        strend = fsize;
+    if (nsyms > 0 && symoff > 0 && base + symoff < fsize && symLeft > 0) {
+        nsyms = Min(Min(nsyms, (fsize - base - symoff) / esz), symLeft);
+        symLeft -= nsyms;
+        if (nsyms > 0)
+            SYMBOLS symbols(nsyms, is64, stroff, strend) @ (base + symoff);
+    }
+} <read=MachORead>;
+
+string MachORead(MACH_O &m) {
+    return EnumToString(m.header.cputype) + " " + EnumToString(m.header.filetype);
+}
+
+// ---- The file ----
+
+local int b0 = fsize >= 4 ? ReadUByte(0) : 0;
+if (b0 == 0xCA) {
+    // Universal: the header and the fat_arch entries are big-endian
+    BigEndian();
+    fat_header fat <open=true>;
+    local int fat64 = fat.magic == 0xCAFEBABF;
+    local int64 n = Min(fat.nfat_arch, 64);
+    local int64 asz = fat64 ? 32 : 20;
+    if (n > (fsize - 8) / asz)
+        n = (fsize - 8) / asz;
+    if (n > 0) {
+        if (fat64)
+            fat_arch_64 fat_arches[n] <open=true>;
+        else
+            fat_arch fat_arches[n] <open=true>;
+    }
+    local int64 k, off;
+    local int m0;
+    for (k = 0; k < n; k++) {
+        off = fat_arches[k].offset;
+        if (off <= 0 || off + 28 > fsize)
+            continue;
+        m0 = ReadUByte(off);
+        if (m0 != 0xFE && m0 != 0xCE && m0 != 0xCF)
+            continue;
+        MACH_O arch @ off;
+    }
+} else if (fsize >= 28) {
+    MACH_O macho <open=true>;
+}

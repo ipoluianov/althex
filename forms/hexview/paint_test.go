@@ -55,7 +55,7 @@ func TestPerfPaint(t *testing.T) {
 		scale float64
 	}{{"FullHD", 1920, 1080, 1}, {"4K", 3840, 2160, 2}} {
 		t.Run(sc.name, func(t *testing.T) {
-			v := NewView(d)
+			v := NewView(d, DefaultOptions())
 			v.focused = true
 			v.SelectAll()
 			img := image.NewRGBA(image.Rect(0, 0, sc.w, sc.h))
@@ -83,7 +83,7 @@ func TestPerfPaint(t *testing.T) {
 
 func BenchmarkPaintFullHD(b *testing.B) {
 	d := hugeDoc(b, 1<<30)
-	v := NewView(d)
+	v := NewView(d, DefaultOptions())
 	img := image.NewRGBA(image.Rect(0, 0, 1920, 1080))
 	drawFrame(v, img, 1)
 	time.Sleep(20 * time.Millisecond)

@@ -1,0 +1,248 @@
+//! name: PNG image
+//! extensions: png, apng
+//! magic: 0 "89 50 4E 47 0D 0A 1A 0A"
+
+// Portable Network Graphics (ISO/IEC 15948, W3C PNG specification): the
+// 8-byte signature, then chunks of {length, type, data, crc} up to IEND.
+// All numbers are big-endian.
+
+BigEndian();
+
+enum <uchar> PNG_COLOR_TYPE {
+    GRAYSCALE       = 0,
+    TRUECOLOR       = 2,
+    INDEXED_COLOR   = 3,
+    GRAYSCALE_ALPHA = 4,
+    TRUECOLOR_ALPHA = 6
+};
+
+enum <uchar> PNG_COMPRESSION_METHOD { DEFLATE = 0 };
+enum <uchar> PNG_FILTER_METHOD { ADAPTIVE_FILTERING = 0 };
+enum <uchar> PNG_INTERLACE_METHOD { NO_INTERLACE = 0, ADAM7 = 1 };
+enum <uchar> PNG_COMPRESSION_FLAG { UNCOMPRESSED = 0, COMPRESSED = 1 };
+enum <uchar> PNG_RENDERING_INTENT {
+    PERCEPTUAL = 0, RELATIVE_COLORIMETRIC = 1, SATURATION = 2, ABSOLUTE_COLORIMETRIC = 3
+};
+enum <uchar> PNG_UNIT_SPECIFIER { UNKNOWN_UNIT = 0, METRE = 1 };
+
+// Chunk types as big-endian numbers, to choose how the data is parsed
+local uint32 CT_IHDR = 0x49484452, CT_PLTE = 0x504C5445, CT_IDAT = 0x49444154;
+local uint32 CT_IEND = 0x49454E44, CT_tRNS = 0x74524E53, CT_gAMA = 0x67414D41;
+local uint32 CT_cHRM = 0x6348524D, CT_sRGB = 0x73524742, CT_iCCP = 0x69434350;
+local uint32 CT_tEXt = 0x74455874, CT_zTXt = 0x7A545874, CT_iTXt = 0x69545874;
+local uint32 CT_pHYs = 0x70485973, CT_tIME = 0x74494D45, CT_bKGD = 0x624B4744;
+
+// The color type of IHDR: tRNS and bKGD depend on it
+local int pngColorType = -1;
+local uint32 lastChunkType = 0;
+
+// The length of the text at pos up to its zero byte, if the zero comes
+// before end; -1 if it does not (a damaged chunk)
+int64 ZeroTerminated(int64 pos, int64 end) {
+    local int64 p = pos;
+    while (p < end) {
+        if (ReadUByte(p) == 0)
+            return p - pos;
+        p++;
+    }
+    return -1;
+}
+
+// A keyword, a profile name, a language tag...: Latin-1 text with a zero;
+// what has no zero before end is read as chars to end
+struct PNG_ZSTRING(int64 end) {
+    local int64 n = ZeroTerminated(FTell(), Min(end, FTell() + 65536));
+    if (n >= 0) {
+        if (n > 0)
+            char text[n];
+        uchar nul;
+    } else if (end > FTell()) {
+        char text[end - FTell()] <comment="no terminating zero">;
+    }
+};
+
+string ZStringRead(PNG_ZSTRING &s) {
+    if (exists(s.text))
+        return "\"" + s.text + "\"";
+    return "\"\"";
+}
+
+struct PNG_IHDR {
+    uint32 width;
+    uint32 height;
+    uchar  bitDepth <comment="bits per sample or per palette index: 1, 2, 4, 8 or 16">;
+    PNG_COLOR_TYPE colorType;
+    PNG_COMPRESSION_METHOD compressionMethod;
+    PNG_FILTER_METHOD filterMethod;
+    PNG_INTERLACE_METHOD interlaceMethod;
+};
+
+struct PNG_RGB {
+    uchar red, green, blue;
+} <read=RGBRead>;
+
+string RGBRead(PNG_RGB &c) {
+    return Str("#%02X%02X%02X", c.red, c.green, c.blue);
+}
+
+struct PNG_CHRM {
+    uint32 whitePointX <comment="x 100000">;
+    uint32 whitePointY;
+    uint32 redX;
+    uint32 redY;
+    uint32 greenX;
+    uint32 greenY;
+    uint32 blueX;
+    uint32 blueY;
+};
+
+struct PNG_PHYS {
+    uint32 pixelsPerUnitX;
+    uint32 pixelsPerUnitY;
+    PNG_UNIT_SPECIFIER unitSpecifier;
+};
+
+struct PNG_TIME {
+    uint16 year;
+    uchar  month, day, hour, minute, second;
+};
+
+string TimeRead(PNG_TIME &t) {
+    return Str("%04d-%02d-%02d %02d:%02d:%02d", t.year, t.month, t.day, t.hour, t.minute, t.second);
+}
+
+struct PNG_CHUNK {
+    uint32 length <comment="the size of the data only">;
+    char   type[4] <comment=ChunkTypeComment>;
+    local uint32 t = ReadUInt(startof(type));
+    lastChunkType = t;
+    local int64 start = FTell();
+    local int64 end = start + length;
+
+    if (length > FileSize() - start) {
+        // A damaged length or a truncated file: the rest is the data
+        if (FileSize() > start)
+            uchar data[FileSize() - start] <comment="truncated">;
+    } else {
+        if (t == CT_IHDR && length >= 13) {
+            PNG_IHDR ihdr <open=true>;
+            pngColorType = ihdr.colorType;
+        } else if (t == CT_PLTE && length >= 3) {
+            PNG_RGB palette[Min(length / 3, 256)];
+        } else if (t == CT_tRNS && pngColorType == 0 && length >= 2) {
+            uint16 gray <comment="the transparent gray level">;
+        } else if (t == CT_tRNS && pngColorType == 2 && length >= 6) {
+            uint16 red, green, blue;
+        } else if (t == CT_tRNS && pngColorType == 3 && length > 0) {
+            uchar alpha[length] <comment="the alpha of the palette entries">;
+        } else if (t == CT_gAMA && length >= 4) {
+            uint32 gamma <comment="image gamma x 100000">;
+        } else if (t == CT_cHRM && length >= 32) {
+            PNG_CHRM chrm;
+        } else if (t == CT_sRGB && length >= 1) {
+            PNG_RENDERING_INTENT renderingIntent;
+        } else if (t == CT_iCCP && length >= 2) {
+            PNG_ZSTRING profileName(end) <read=ZStringRead>;
+            if (end - FTell() >= 1)
+                PNG_COMPRESSION_METHOD compressionMethod;
+            if (end > FTell())
+                uchar compressedProfile[end - FTell()] <comment="zlib stream of an ICC profile">;
+        } else if (t == CT_tEXt && length > 0) {
+            PNG_ZSTRING keyword(end) <read=ZStringRead>;
+            if (end > FTell())
+                char text[end - FTell()];
+        } else if (t == CT_zTXt && length > 0) {
+            PNG_ZSTRING keyword(end) <read=ZStringRead>;
+            if (end - FTell() >= 1)
+                PNG_COMPRESSION_METHOD compressionMethod;
+            if (end > FTell())
+                uchar compressedText[end - FTell()] <comment="zlib stream">;
+        } else if (t == CT_iTXt && length > 0) {
+            PNG_ZSTRING keyword(end) <read=ZStringRead>;
+            if (end - FTell() >= 2) {
+                PNG_COMPRESSION_FLAG compressionFlag;
+                PNG_COMPRESSION_METHOD compressionMethod;
+            }
+            if (end > FTell())
+                PNG_ZSTRING languageTag(end) <read=ZStringRead>;
+            if (end > FTell())
+                PNG_ZSTRING translatedKeyword(end) <read=ZStringRead>;
+            if (end > FTell())
+                char text[end - FTell()] <comment="UTF-8, or a zlib stream when compressed">;
+        } else if (t == CT_pHYs && length >= 9) {
+            PNG_PHYS phys;
+        } else if (t == CT_tIME && length >= 7) {
+            PNG_TIME lastModification <read=TimeRead>;
+        } else if (t == CT_bKGD && (pngColorType == 0 || pngColorType == 4) && length >= 2) {
+            uint16 gray;
+        } else if (t == CT_bKGD && (pngColorType == 2 || pngColorType == 6) && length >= 6) {
+            uint16 red, green, blue;
+        } else if (t == CT_bKGD && pngColorType == 3 && length >= 1) {
+            uchar paletteIndex;
+        } else if (t == CT_IDAT && length > 0) {
+            uchar data[length] <comment="part of the zlib stream of the filtered image">;
+        } else if (length > 0) {
+            uchar data[length];
+        }
+        // What the parsed fields did not take
+        if (FTell() < end)
+            uchar extra[end - FTell()];
+        FSeek(end);
+        if (FileSize() - FTell() >= 4)
+            uint32 crc <format=hex, comment="CRC-32 of the type and the data">;
+    }
+};
+
+string ChunkTypeComment(char type[]) {
+    local uint32 t = (type[0] << 24) | (type[1] << 16) | (type[2] << 8) | type[3];
+    local string s = "";
+    switch (t) {
+    case 0x49484452: s = "image header"; break;
+    case 0x504C5445: s = "palette"; break;
+    case 0x49444154: s = "image data"; break;
+    case 0x49454E44: s = "image trailer"; break;
+    case 0x74524E53: s = "transparency"; break;
+    case 0x67414D41: s = "image gamma"; break;
+    case 0x6348524D: s = "primary chromaticities"; break;
+    case 0x73524742: s = "standard RGB color space"; break;
+    case 0x69434350: s = "embedded ICC profile"; break;
+    case 0x74455874: s = "textual data"; break;
+    case 0x7A545874: s = "compressed textual data"; break;
+    case 0x69545874: s = "international textual data"; break;
+    case 0x70485973: s = "physical pixel dimensions"; break;
+    case 0x74494D45: s = "last-modification time"; break;
+    case 0x624B4744: s = "background color"; break;
+    case 0x73424954: s = "significant bits"; break;
+    case 0x68495354: s = "image histogram"; break;
+    case 0x73504C54: s = "suggested palette"; break;
+    case 0x6143544C: s = "APNG animation control"; break;
+    case 0x6663544C: s = "APNG frame control"; break;
+    case 0x66644154: s = "APNG frame data"; break;
+    case 0x65584966: s = "Exif data"; break;
+    default: s = "unknown chunk"; break;
+    }
+    // Bit 5 of the first letter: lowercase - ancillary
+    if (type[0] & 0x20)
+        return s + ", ancillary";
+    return s + ", critical";
+}
+
+string ChunkRead(PNG_CHUNK &c) {
+    local string s = Str("%c%c%c%c %u bytes", c.type[0], c.type[1], c.type[2], c.type[3], c.length);
+    if (exists(c.ihdr.width))
+        s += Str(", %ux%u", c.ihdr.width, c.ihdr.height);
+    return s;
+}
+
+if (FileSize() >= 8) {
+    uchar signature[8] <format=hex, comment="89 'PNG' 0D 0A 1A 0A">;
+    local int chunks = 0;
+    while (FileSize() - FTell() >= 8 && chunks < 1000000) {
+        PNG_CHUNK chunk <read=ChunkRead>;
+        chunks++;
+        if (lastChunkType == CT_IEND)
+            break;
+    }
+}
+if (!FEof())
+    uchar trailingData[FileSize() - FTell()] <comment="after IEND, or too short for a chunk">;

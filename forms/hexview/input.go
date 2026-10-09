@@ -12,8 +12,8 @@ func (v *View) keyDown(key ui.Key, mods ui.KeyModifiers) bool {
 	page := int64(max(1, v.rowsShown-1)) * bpr
 	switch key {
 	case ui.KeyArrowLeft:
-		if v.col == colHex && v.nibble == 1 && !shift {
-			v.nibble = 0
+		if v.col == colNum && v.digit > 0 && !shift {
+			v.digit--
 			v.moved(false)
 			return true
 		}
@@ -33,10 +33,10 @@ func (v *View) keyDown(key ui.Key, mods ui.KeyModifiers) bool {
 		}
 		v.moveCaret(v.caret+bpr, shift)
 	case ui.KeyPageUp:
-		v.topRow -= page / bpr
+		v.setTop(v.topRow - page/bpr)
 		v.moveCaret(v.caret-page, shift)
 	case ui.KeyPageDown:
-		v.topRow += page / bpr
+		v.setTop(v.topRow + page/bpr)
 		v.moveCaret(min(v.caret+page, size), shift)
 	case ui.KeyHome:
 		if ctrl {
@@ -55,8 +55,8 @@ func (v *View) keyDown(key ui.Key, mods ui.KeyModifiers) bool {
 			return false
 		}
 		v.col = 1 - v.col
-		v.nibble = 0
-		v.moved(false)
+		v.digit = 0
+		v.moved(true)
 	case ui.KeyInsert:
 		if ctrl || shift {
 			return false
@@ -79,7 +79,7 @@ func (v *View) keyDown(key ui.Key, mods ui.KeyModifiers) bool {
 func (v *View) moveCaret(pos int64, extend bool) {
 	pos = max(0, min(pos, v.doc.Size()))
 	v.caret = pos
-	v.nibble = 0
+	v.digit = 0
 	v.moved(extend)
 }
 
@@ -94,9 +94,7 @@ func (v *View) moved(extend bool) {
 }
 
 func (v *View) scrollRows(n int64) {
-	v.topRow += n
-	v.clampTop()
-	v.update()
+	v.setTop(v.topRow + n)
 }
 
 func (v *View) charTyped(r rune, mods ui.KeyModifiers) bool {
@@ -109,19 +107,19 @@ func (v *View) charTyped(r rune, mods ui.KeyModifiers) bool {
 	if r < 32 || r == 127 {
 		return false
 	}
-	if v.col == colHex {
-		d := hexValue(r)
-		if d < 0 {
-			return true // not a hex digit: nothing to type
+	if v.col == colNum {
+		d := digitValue(r)
+		if d < 0 || d >= v.opts.Mode.base() {
+			return true // not a digit of the mode: nothing to type
 		}
-		v.typeNibble(byte(d))
+		v.typeDigit(d)
 		return true
 	}
 	v.typeRune(r)
 	return true
 }
 
-func hexValue(r rune) int {
+func digitValue(r rune) int {
 	switch {
 	case r >= '0' && r <= '9':
 		return int(r - '0')
@@ -136,36 +134,32 @@ func hexValue(r rune) int {
 // ---- Mouse ----
 
 // hit returns the position under the point (logical pixels of the view),
-// the column and the half of the byte; ok is false outside the bytes
-func (v *View) hit(x, y int) (pos int64, col, nibble int, ok bool) {
+// the column and the digit of the byte; ok is false before the layout
+func (v *View) hit(x, y int) (pos int64, col, digit int, ok bool) {
 	if v.font == nil {
 		return 0, 0, 0, false
 	}
 	px, py := v.toPx(x), v.toPx(y)
 	cw := v.font.CharWidth
 	row := v.topRow + int64(max(0, py-v.headerH)/v.font.LineHeight)
-	if py < v.headerH {
-		row = v.topRow
-	}
-	i := 0
-	switch {
-	case px >= v.xText-cw:
+	j := 0
+	if px >= v.xText-cw {
 		col = colText
-		i = max(0, min((px-v.xText)/cw, v.bpr-1))
-	default:
-		col = colHex
-		for i = v.bpr - 1; i > 0 && px < v.cellX(i)-cw/2; i-- {
+		j = max(0, min((px-v.xText)/cw, v.bpr-1))
+	} else {
+		col = colNum
+		// The cell whose start is the last one left of the point (with half a gap)
+		i := v.bpr - 1
+		for ; i > 0 && px < v.cellX(i)-cw/2; i-- {
 		}
-		if px-v.cellX(i) >= cw {
-			nibble = 1
-		}
+		digit = max(0, min((px-v.cellX(i))/cw, v.opts.Mode.digits()-1))
+		j = v.byteOfCell(i)
 	}
-	pos = row*int64(v.bpr) + int64(i)
-	size := v.doc.Size()
-	if pos >= size {
-		pos, nibble = size, 0
+	pos = row*int64(v.bpr) + int64(j)
+	if size := v.doc.Size(); pos >= size {
+		pos, digit = size, 0
 	}
-	return pos, col, nibble, true
+	return pos, col, digit, true
 }
 
 func (v *View) mouseDown(button ui.MouseButton, x, y int, mods ui.KeyModifiers) bool {
@@ -178,21 +172,21 @@ func (v *View) mouseDown(button ui.MouseButton, x, y int, mods ui.KeyModifiers) 
 		v.scrollBarDown(v.toPx(y))
 		return true
 	}
-	pos, col, nibble, ok := v.hit(x, y)
+	pos, col, digit, ok := v.hit(x, y)
 	if !ok {
 		return true
 	}
 	v.col = col
 	if mods.Shift {
 		v.caret = pos
-		v.nibble = 0
+		v.digit = 0
 		v.moved(true)
 		return true
 	}
 	v.caret, v.anchor = pos, pos
-	v.nibble = nibble
-	if col != colHex || v.insert {
-		v.nibble = 0
+	v.digit = digit
+	if col != colNum || v.insert {
+		v.digit = 0
 	}
 	v.mouse.selecting = true
 	v.mouse.origin = pos
@@ -233,7 +227,7 @@ func (v *View) dragTo(x, y int) {
 		v.anchor, v.caret = min(o+1, size), pos
 	}
 	if v.caret != v.anchor {
-		v.nibble = 0
+		v.digit = 0
 	}
 	v.ensureCaretVisible()
 	v.changed()
@@ -290,7 +284,5 @@ func (v *View) scrollBarDrag(py int) {
 	}
 	maxTop := float64(v.maxTop())
 	delta := float64(py-v.mouse.dragY) * maxTop / float64(track-th)
-	v.topRow = v.mouse.dragTop + int64(delta)
-	v.clampTop()
-	v.update()
+	v.setTop(v.mouse.dragTop + int64(delta))
 }

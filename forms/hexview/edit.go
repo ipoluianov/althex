@@ -51,8 +51,10 @@ func (v *View) dropSelection() error {
 	return nil
 }
 
-// typeNibble types a hex digit at the caret
-func (v *View) typeNibble(d byte) {
+// typeDigit types a digit of the mode at the caret: it replaces that
+// digit of the byte; after the last digit the caret goes to the next byte.
+// A value over 255 (e.g. 3xx in decimal) is not typed.
+func (v *View) typeDigit(d int) {
 	if !v.canEdit() {
 		return
 	}
@@ -60,42 +62,60 @@ func (v *View) typeNibble(d byte) {
 		v.report(err)
 		return
 	}
+	digits, base := v.opts.Mode.digits(), v.opts.Mode.base()
 	off := v.caret
-	var err error
-	if v.nibble == 0 {
-		if v.insert || off == v.doc.Size() {
-			err = v.doc.Insert(off, []byte{d << 4}, typing)
-		} else {
-			err = v.doc.Overwrite(off, []byte{d<<4 | v.byteAt(off)&0x0f}, typing)
-		}
-		if err == nil {
-			v.nibble = 1
-		}
-	} else {
-		err = v.doc.Overwrite(off, []byte{v.byteAt(off)&0xf0 | d}, typing)
-		if err == nil {
-			v.nibble = 0
-			v.caret = off + 1
-		}
+	add := v.digit == 0 && (v.insert || off == v.doc.Size())
+	old := 0
+	if !add {
+		old = int(v.byteAt(off))
 	}
-	v.report(err)
+	// Replace the digit: place is its weight
+	place := 1
+	for k := digits - 1; k > v.digit; k-- {
+		place *= base
+	}
+	val := old - (old/place%base)*place + d*place
+	if val > 255 {
+		return
+	}
+	var err error
+	if add {
+		err = v.doc.Insert(off, []byte{byte(val)}, typing)
+	} else {
+		err = v.doc.Overwrite(off, []byte{byte(val)}, typing)
+	}
+	if err != nil {
+		v.report(err)
+		return
+	}
+	v.digit++
+	if v.digit == digits {
+		v.digit = 0
+		v.caret = off + 1
+	}
 	v.anchor = v.caret
 	v.ensureCaretVisible()
 	v.resetBlink()
 	v.changed()
 }
 
-// typeRune types a character in the text column as UTF-8 (one byte for
-// ASCII); other encodings come with the encoding of the column
+// typeRune types a character in the text column in its encoding (UTF-8
+// without one); a character the encoding lacks is not typed
 func (v *View) typeRune(r rune) {
 	if !v.canEdit() {
 		return
+	}
+	data := utf8.AppendRune(nil, r)
+	if enc := v.opts.Encoding; enc != nil {
+		var err error
+		if data, err = enc.Encode(string(r)); err != nil || len(data) == 0 {
+			return
+		}
 	}
 	if err := v.dropSelection(); err != nil {
 		v.report(err)
 		return
 	}
-	data := utf8.AppendRune(nil, r)
 	off := v.caret
 	var err error
 	if v.insert {
@@ -108,7 +128,7 @@ func (v *View) typeRune(r rune) {
 	}
 	v.report(err)
 	v.anchor = v.caret
-	v.nibble = 0
+	v.digit = 0
 	v.ensureCaretVisible()
 	v.resetBlink()
 	v.changed()
@@ -127,7 +147,7 @@ func (v *View) DeleteForward() {
 		return
 	}
 	v.report(v.doc.Delete(start, n, doc.EditOptions{}))
-	v.caret, v.anchor, v.nibble = start, start, 0
+	v.caret, v.anchor, v.digit = start, start, 0
 	v.moved(false)
 }
 
@@ -138,8 +158,8 @@ func (v *View) DeleteBackward() {
 	}
 	start, n := v.Selection()
 	if n == 0 {
-		if v.nibble == 1 {
-			// The half typed: the byte is removed whole
+		if v.digit > 0 {
+			// Typed in part: the byte is removed whole
 			start, n = v.caret, 1
 		} else if v.caret > 0 {
 			start, n = v.caret-1, 1
@@ -148,7 +168,7 @@ func (v *View) DeleteBackward() {
 		}
 	}
 	v.report(v.doc.Delete(start, n, doc.EditOptions{}))
-	v.caret, v.anchor, v.nibble = start, start, 0
+	v.caret, v.anchor, v.digit = start, start, 0
 	v.moved(false)
 }
 
@@ -161,7 +181,7 @@ func (v *View) Undo() {
 	if err != nil {
 		return
 	}
-	v.caret, v.anchor, v.nibble = n.Off, n.Off, 0
+	v.caret, v.anchor, v.digit = n.Off, n.Off, 0
 	v.moved(false)
 }
 
@@ -174,13 +194,13 @@ func (v *View) Redo() {
 	if err != nil {
 		return
 	}
-	v.caret, v.anchor, v.nibble = n.Off+n.Len, n.Off+n.Len, 0
+	v.caret, v.anchor, v.digit = n.Off+n.Len, n.Off+n.Len, 0
 	v.moved(false)
 }
 
 // SelectAll selects the whole document
 func (v *View) SelectAll() {
-	v.anchor, v.caret, v.nibble = 0, v.doc.Size(), 0
+	v.anchor, v.caret, v.digit = 0, v.doc.Size(), 0
 	v.changed()
 }
 
@@ -208,10 +228,10 @@ func (v *View) Copy() {
 	if len(data) == 0 {
 		return
 	}
-	if v.col == colHex {
+	if v.col == colNum {
 		ui.ClipboardSetText(FormatHex(data))
 	} else {
-		ui.ClipboardSetText(bytesToText(data))
+		ui.ClipboardSetText(v.bytesToText(data))
 	}
 }
 
@@ -237,13 +257,19 @@ func (v *View) Paste() {
 		return
 	}
 	var data []byte
-	if v.col == colHex {
+	if v.col == colNum {
 		if b, ok := ParseHex(text); ok {
 			data = b
 		}
 	}
 	if data == nil {
 		data = []byte(text)
+		if enc := v.opts.Encoding; enc != nil {
+			if data, err = enc.Encode(text); err != nil {
+				v.report(err)
+				return
+			}
+		}
 	}
 	if err := v.dropSelection(); err != nil {
 		v.report(err)
@@ -260,7 +286,7 @@ func (v *View) Paste() {
 		v.caret = off + int64(len(data))
 	}
 	v.report(err)
-	v.nibble = 0
+	v.digit = 0
 	v.moved(false)
 }
 
@@ -272,8 +298,8 @@ func FormatHex(data []byte) string {
 		if i > 0 {
 			sb.WriteByte(' ')
 		}
-		sb.WriteByte(hexDigits[b>>4])
-		sb.WriteByte(hexDigits[b&15])
+		sb.WriteByte(digitChars[b>>4])
+		sb.WriteByte(digitChars[b&15])
 	}
 	return sb.String()
 }
@@ -297,7 +323,7 @@ func ParseHex(s string) ([]byte, bool) {
 				continue
 			}
 		}
-		d := hexValue(rune(c))
+		d := digitValue(rune(c))
 		if d < 0 {
 			return nil, false
 		}
@@ -314,9 +340,25 @@ func ParseHex(s string) ([]byte, bool) {
 	return out, true
 }
 
-// bytesToText makes text of the bytes: UTF-8 as it is, otherwise each byte a
-// character (Latin-1)
-func bytesToText(data []byte) string {
+// bytesToText makes text of the bytes in the encoding of the text column;
+// without one UTF-8 as it is, otherwise each byte a character (Latin-1)
+func (v *View) bytesToText(data []byte) string {
+	if enc := v.opts.Encoding; enc != nil {
+		var sb strings.Builder
+		for i := 0; i < len(data); {
+			r, size, ok := enc.Decode(data, i)
+			if size < 1 {
+				size = 1
+			}
+			if ok {
+				sb.WriteRune(r)
+			} else {
+				sb.WriteByte('.')
+			}
+			i += size
+		}
+		return sb.String()
+	}
 	if utf8.Valid(data) {
 		return string(data)
 	}

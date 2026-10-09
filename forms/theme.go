@@ -28,6 +28,10 @@ func (c themeColors) get() color.RGBA {
 var (
 	colorLink          = themeColors{ui.ColorFromHex("#3d8bf2"), ui.ColorFromHex("#1d6fb5")}
 	colorSecondaryText = themeColors{ui.ColorFromHex("#8c8c8c"), ui.ColorFromHex("#555555")}
+	colorFound         = themeColors{color.RGBA{0xb0, 0x8a, 0x10, 0x90}, color.RGBA{0xf5, 0xc5, 0x18, 0x90}}
+	colorChanged       = themeColors{color.RGBA{0xc0, 0x30, 0x30, 0x80}, color.RGBA{0xf0, 0x80, 0x80, 0x90}}
+	colorShifted       = themeColors{color.RGBA{0x30, 0x90, 0x40, 0x80}, color.RGBA{0x80, 0xd0, 0x90, 0x90}}
+	colorModified      = themeColors{ui.ColorFromHex("#ef6c57"), ui.ColorFromHex("#d9412b")}
 )
 
 // linkLabels are recolored when the theme changes, see newLinkLabel
