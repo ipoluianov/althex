@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <!-- Solid tile in the AltBins style, the glyph inside in white -->
+  <rect x="8" y="8" width="240" height="240" rx="44" fill="#e8590c"/>
+  <!-- Two rows of byte cells, one of them selected (yellow);
+       simple shapes, so it reads at 16x16 -->
+  <rect x="48" y="64" width="40" height="48" rx="8" fill="#fff"/>
+  <rect x="108" y="64" width="40" height="48" rx="8" fill="#ffd43b"/>
+  <rect x="168" y="64" width="40" height="48" rx="8" fill="#fff"/>
+  <rect x="48" y="144" width="40" height="48" rx="8" fill="#fff"/>
+  <rect x="108" y="144" width="40" height="48" rx="8" fill="#fff"/>
+  <rect x="168" y="144" width="40" height="48" rx="8" fill="#fff"/>
+</svg>

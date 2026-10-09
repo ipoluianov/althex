@@ -1,0 +1,2 @@
+# Shell scripts run on Linux (e.g. build/preremove.sh goes into the packages)
+*.sh text eol=lf
