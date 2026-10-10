@@ -9,7 +9,7 @@ for t in linux/amd64 linux/arm64 windows/amd64 darwin/arm64; do
 done
 # Checksums of the release files (6.3 of the spec), for the release notes
 OUTDIR="$(ls -d "$DIR/../bin/${BUILD_STAMP}"-* | head -1)"
-(cd "$OUTDIR" && find . -maxdepth 1 -type f ! -name SHA256SUMS -printf '%f\n' | sort | xargs sha256sum > SHA256SUMS)
+(cd "$OUTDIR" && find . -maxdepth 1 -type f ! -name SHA256SUMS | sed 's|^\./||' | sort | xargs sha256sum > SHA256SUMS)
 echo "Checksums: $OUTDIR/SHA256SUMS"
 # Notarize the signed dmg with Apple (a few minutes); macOS only, the dmg
 # made on other systems is unsigned
