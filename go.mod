@@ -3,7 +3,7 @@ module github.com/ipoluianov/althex
 go 1.27.1
 
 require (
-	github.com/ipoluianov/nui v0.0.15
+	github.com/ipoluianov/nui v0.0.16
 	github.com/klauspost/compress v1.18.6
 	golang.org/x/arch v0.32.0
 	golang.org/x/image v0.34.0
