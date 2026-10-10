@@ -1,0 +1,89 @@
+//! name: Android sparse image
+//! priority: 1
+//! extensions: simg
+//! magic: 0 "3A FF 26 ED"
+
+// Android sparse image (libsparse sparse_format.h), as made by img2simg and
+// used by fastboot: a header and chunks, each a number of blocks of the
+// image: raw (the blocks follow), fill (a 4-byte value repeated), don't
+// care (left out) and CRC-32 (of the image so far). Little-endian.
+
+LittleEndian();
+
+// Chunks shown as fields; the rest are one array of bytes
+local int64 MAX_CHUNKS = 50000;
+
+enum <uint16> SPARSE_CHUNK_TYPE {
+    CHUNK_TYPE_RAW = 0xCAC1,
+    CHUNK_TYPE_FILL = 0xCAC2,
+    CHUNK_TYPE_DONT_CARE = 0xCAC3,
+    CHUNK_TYPE_CRC32 = 0xCAC4
+};
+
+struct SPARSE_HEADER {
+    uint32 magic <format=hex, comment="ED26FF3A">;
+    uint16 majorVersion;
+    uint16 minorVersion;
+    uint16 fileHeaderSize <comment="28">;
+    uint16 chunkHeaderSize <comment="12">;
+    uint32 blockSize;
+    uint32 totalBlocks <comment="of the image">;
+    uint32 totalChunks;
+    uint32 imageChecksum <format=hex, comment="CRC-32 of the image; usually 0">;
+};
+
+local int64 blockSize = 0;
+local int64 chunkHeaderSize = 12;
+local int64 outBlock = 0;
+
+struct SPARSE_CHUNK {
+    local int64 start = FTell();
+    SPARSE_CHUNK_TYPE chunkType;
+    uint16 reserved;
+    uint32 chunkSize <comment="blocks of the image">;
+    uint32 totalSize <comment="bytes of the chunk in the file, the header included">;
+    local int64 outStart = outBlock;
+    outBlock += chunkSize;
+    if (chunkHeaderSize > 12 && start + chunkHeaderSize <= FileSize())
+        uchar extraHeader[chunkHeaderSize - 12];
+    local int64 end = start + totalSize;
+    if (totalSize < chunkHeaderSize || end > FileSize())
+        end = FileSize();
+    local int64 n = end - FTell();
+    if (n > 0) {
+        if (chunkType == CHUNK_TYPE_RAW)
+            uchar data[n];
+        else if (chunkType == CHUNK_TYPE_FILL && n >= 4)
+            uint32 fillValue <format=hex>;
+        else if (chunkType == CHUNK_TYPE_CRC32 && n >= 4)
+            uint32 crc32 <format=hex>;
+        if (end > FTell())
+            uchar extra[end - FTell()];
+    }
+};
+
+string ChunkRead(SPARSE_CHUNK &c) {
+    local string s = Str("%s, blocks %d-%d", EnumToString(c.chunkType), c.outStart, c.outStart + c.chunkSize);
+    if (exists(c.fillValue))
+        s += Str(", fill %08X", c.fillValue);
+    return s;
+}
+
+local int64 size = FileSize();
+if (size >= 28) {
+    SPARSE_HEADER header <open=true>;
+    blockSize = header.blockSize;
+    if (header.chunkHeaderSize >= 12)
+        chunkHeaderSize = header.chunkHeaderSize;
+    if (header.fileHeaderSize > 28 && header.fileHeaderSize <= size)
+        uchar extraHeader[header.fileHeaderSize - 28];
+    if (header.fileHeaderSize >= 28)
+        FSeek(header.fileHeaderSize);
+    local int64 i = 0;
+    while (i < header.totalChunks && i < MAX_CHUNKS && FileSize() - FTell() >= chunkHeaderSize) {
+        SPARSE_CHUNK chunk <read=ChunkRead>;
+        i++;
+    }
+    if (!FEof())
+        uchar rest[FileSize() - FTell()] <comment="more chunks, or data after the last one">;
+}

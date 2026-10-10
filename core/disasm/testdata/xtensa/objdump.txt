@@ -1,0 +1,2002 @@
+# random words, xtensa-lx106-elf-objdump: address, bytes, length, text, ours
+# 100000 words: 27120 excw for options lx106 lacks; of the other 72880 same text 72877
+40080000	4204cb	3	l8ui a4, a4, 203	l8ui a4, a4, 203
+40080008	1e34c5	1	.byte 0x1e	.byte 0x1e
+40080010	8e9b20	1	.byte 0x8e	.byte 0x8e
+40080018	7909	2	s32i.n a7, a9, 0	s32i.n a7, a9, 0
+40080020	0ca3d3	2	movi.n a3, 10	movi.n a3, 10
+40080028	7296cd	3	l16si a7, a6, 0x19a	l16si a7, a6, 0x19a
+40080030	58a511	2	l32i.n a5, a5, 40	l32i.n a5, a5, 40
+40080038	98fe	2	l32i.n a9, a14, 60	l32i.n a9, a14, 60
+?40080040	8df9e4	2	excw	.byte 0x8d
+40080048	5fb54a	1	.byte 0x5f	.byte 0x5f
+40080050	45ffd9	3	call0 0x4005a048	call0 0x4005a048
+40080058	ecbf	2	bnez.n a15, 0x40080087	bnez.n a15, 0x40080087
+?40080060	352a09	3	excw	call12 0x40089304
+40080068	16ed74	3	beqz a13, 0x400807ba	beqz a13, 0x400807ba
+40080070	2bb908	2	addi.n a11, a9, 2	addi.n a11, a9, 2
+40080078	4a7e	2	add.n a7, a14, a4	add.n a7, a14, a4
+40080080	1e0e04	1	.byte 0x1e	.byte 0x1e
+?40080088	b51162	3	excw	call12 0x400e21a4
+40080090	d1a417	3	l32r a13, 0x40045f20	l32r a13, 0x40045f20
+40080098	2b3d	2	addi.n a3, a13, 2	addi.n a3, a13, 2
+400800a0	569a0d	3	bnez a10, 0x4008017d	bnez a10, 0x4008017d
+400800a8	5fa0a8	1	.byte 0x5f	.byte 0x5f
+?400800b0	f099e2	3	excw	remu a9, a9, a15
+400800b8	6b98	2	addi.n a9, a8, 6	addi.n a9, a8, 6
+400800c0	6b1619	2	addi.n a1, a6, 6	addi.n a1, a6, 6
+400800c8	f1de3e	3	l32r a15, 0x4004fc40	l32r a15, 0x4004fc40
+400800d0	b63388	3	bltui a3, 3, 0x4008005c	bltui a3, 3, 0x4008005c
+400800d8	1bf6	2	addi.n a15, a6, 1	addi.n a15, a6, 1
+400800e0	991257	2	s32i.n a9, a2, 4	s32i.n a9, a2, 4
+400800e8	526045	3	s32i a5, a0, 0x114	s32i a5, a0, 0x114
+400800f0	ef8722	1	.byte 0xef	.byte 0xef
+400800f8	f885	2	l32i.n a15, a5, 32	l32i.n a15, a5, 32
+40080100	1a2d5b	2	add.n a2, a13, a1	add.n a2, a13, a1
+?40080108	258585	3	excw	call8 0x4000595c
+?40080110	95c74d	3	excw	call4 0x400cdd8c
+40080118	8946	2	s32i.n a8, a6, 16	s32i.n a8, a6, 16
+40080120	2777d4	3	bbci a7, 18, 0x400800f8	bbci a7, 18, 0x400800f8
+40080128	bd07e8	2	mov.n a11, a7	mov.n a11, a7
+40080130	c87536	2	l32i.n a12, a5, 28	l32i.n a12, a5, 28
+40080138	fb02	2	addi.n a0, a2, 15	addi.n a0, a2, 15
+40080140	2a466b	2	add.n a4, a6, a2	add.n a4, a6, a2
+?40080148	928c0f	3	excw	.byte 0x92
+40080150	eae3f4	2	add.n a14, a3, a14	add.n a14, a3, a14
+40080158	2cc9	2	movi.n a9, 44	movi.n a9, 44
+?40080160	22bc04	3	excw	l32ai a2, a12, 16
+?40080168	90f5e7	3	excw	.byte 0x90
+?40080170	f5255b	3	excw	call12 0x400db3d0
+?40080178	cdee	2	excw	.byte 0xcd
+40080180	0606cf	3	j 0x40073d9c	j 0x40073d9c
+?40080188	3dd0e9	2	excw	.byte 0x3d
+40080190	7af111	2	add.n a15, a1, a7	add.n a15, a1, a7
+40080198	3c73	2	movi.n a3, 55	movi.n a3, 55
+400801a0	49cfa8	2	s32i.n a4, a15, 48	s32i.n a4, a15, 48
+400801a8	d243a1	3	s8i a13, a3, 161	s8i a13, a3, 161
+400801b0	0561c2	3	call0 0x400427c4	call0 0x400427c4
+400801b8	3a1d	2	add.n a1, a13, a3	add.n a1, a13, a3
+400801c0	961c41	3	bltz a12, 0x400805d5	bltz a12, 0x400805d5
+?400801c8	d08d3e	3	excw	.byte 0xd0
+?400801d0	d5014f	3	excw	call4 0x400cf1f0
+400801d8	eb4d	2	addi.n a4, a13, 14	addi.n a4, a13, 14
+400801e0	4cd0da	2	movi.n a0, 77	movi.n a0, 77
+400801e8	9203fe	3	l8ui a9, a3, 254	l8ui a9, a3, 254
+400801f0	0edc53	1	.byte 0xe	.byte 0xe
+400801f8	faf0	2	add.n a15, a0, a15	add.n a15, a0, a15
+40080200	3ea67d	1	.byte 0x3e	.byte 0x3e
+40080208	f2a65f	3	movi a15, 0x65f	movi a15, 0x65f
+40080210	025a72	3	s16i a0, a10, 228	s16i a0, a10, 228
+?40080218	3d2f	2	excw	.byte 0x3d
+40080220	571874	3	beq a8, a5, 0x40080298	beq a8, a5, 0x40080298
+?40080228	d3239d	3	excw	.byte 0xd3
+40080230	268f00	3	beqi a15, 8, 0x40080234	beqi a15, 8, 0x40080234
+40080238	0cac	2	movi.n a12, 10	movi.n a12, 10
+?40080240	7d1f6b	2	excw	.byte 0x7d
+40080248	b030a4	3	extui a3, a11, 0, 11	extui a3, a11, 0, 11
+40080250	0567a0	3	call0 0x400208c4	call0 0x400208c4
+40080258	e83b	2	l32i.n a14, a11, 12	l32i.n a14, a11, 12
+40080260	0faa24	1	.byte 0xf	.byte 0xf
+?40080268	b00acb	3	excw	movf.s f0, f10, b11
+40080270	46e172	3	j 0x4009cdf9	j 0x4009cdf9
+40080278	1a43	2	add.n a4, a3, a1	add.n a4, a3, a1
+?40080280	836c56	3	excw	.byte 0x83
+40080288	4f3a06	1	.byte 0x4f	.byte 0x4f
+40080290	b76dd6	3	bbci a13, 11, 0x4008026a	bbci a13, 11, 0x4008026a
+?40080298	fdd3	2	excw	.byte 0xfd
+?400802a0	f4de9d	3	excw	.byte 0xf4
+?400802a8	64ac21	3	excw	.byte 0x64
+400802b0	ebfd6e	2	addi.n a15, a13, 14	addi.n a15, a13, 14
+400802b8	fc55	2	bnez.n a5, 0x400802f1	bnez.n a5, 0x400802f1
+?400802c0	144f9e	3	excw	.byte 0x14
+?400802c8	53bedc	3	excw	.byte 0x53
+400802d0	7e8998	1	.byte 0x7e	.byte 0x7e
+400802d8	08c6	2	l32i.n a0, a6, 48	l32i.n a0, a6, 48
+?400802e0	034473	3	excw	ssi f0, a4, 0x1cc
+400802e8	865fff	3	j 0x4008006a	j 0x4008006a
+400802f0	f25734	3	s16i a15, a7, 104	s16i a15, a7, 104
+400802f8	a864	2	l32i.n a10, a4, 24	l32i.n a10, a4, 24
+40080300	7c7c5c	2	movi.n a12, -9	movi.n a12, -9
+?40080308	d473a4	3	excw	.byte 0xd4
+40080310	1a50b9	2	add.n a5, a0, a1	add.n a5, a0, a1
+40080318	5c7f	2	movi.n a15, 87	movi.n a15, 87
+40080320	acf94b	2	beqz.n a9, 0x40080353	beqz.n a9, 0x40080353
+40080328	bbf859	2	addi.n a15, a8, 11	addi.n a15, a8, 11
+?40080330	9db574	2	excw	.byte 0x9d
+40080338	bb30	2	addi.n a3, a0, 11	addi.n a3, a0, 11
+40080340	49609f	2	s32i.n a4, a0, 24	s32i.n a4, a0, 24
+40080348	ef37c3	1	.byte 0xef	.byte 0xef
+40080350	6aac09	2	add.n a10, a12, a6	add.n a10, a12, a6
+40080358	1bd3	2	addi.n a13, a3, 1	addi.n a13, a3, 1
+40080360	6aff43	2	add.n a15, a15, a6	add.n a15, a15, a6
+?40080368	702dcf	3	excw	.byte 0x70
+?40080370	6494a5	3	excw	.byte 0x64
+40080378	4b90	2	addi.n a9, a0, 4	addi.n a9, a0, 4
+?40080380	b03659	3	excw	.byte 0xb0
+40080388	c7c4b9	3	bnall a4, a12, 0x40080345	bnall a4, a12, 0x40080345
+40080390	d8c496	2	l32i.n a13, a4, 48	l32i.n a13, a4, 48
+40080398	7a7f	2	add.n a7, a15, a7	add.n a7, a15, a7
+400803a0	9f4768	1	.byte 0x9f	.byte 0x9f
+400803a8	58cfe1	2	l32i.n a5, a15, 48	l32i.n a5, a15, 48
+?400803b0	3407fb	3	excw	.byte 0x34
+400803b8	da47	2	add.n a4, a7, a13	add.n a4, a7, a13
+?400803c0	904769	3	excw	.byte 0x90
+400803c8	8ee875	1	.byte 0x8e	.byte 0x8e
+400803d0	78fbd9	2	l32i.n a7, a11, 60	l32i.n a7, a11, 60
+?400803d8	bd77	2	excw	.byte 0xbd
+400803e0	1f547d	1	.byte 0x1f	.byte 0x1f
+?400803e8	e2fa74	3	excw	s32ri a14, a10, 0x1d0
+?400803f0	f418ac	3	excw	.byte 0xf4
+400803f8	4acd	2	add.n a12, a13, a4	add.n a12, a13, a4
+40080400	ee3865	1	.byte 0xee	.byte 0xee
+40080408	fe416f	1	.byte 0xfe	.byte 0xfe
+?40080410	14ae2f	3	excw	.byte 0x14
+40080418	78a4	2	l32i.n a7, a4, 40	l32i.n a7, a4, 40
+40080420	8e35df	1	.byte 0x8e	.byte 0x8e
+40080428	7c3481	2	movi.n a4, -13	movi.n a4, -13
+40080430	217ab1	3	l32r a2, 0x4006ca18	l32r a2, 0x4006ca18
+40080438	fce1	2	bnez.n a1, 0x4008047a	bnez.n a1, 0x4008047a
+40080440	1c9d96	2	movi.n a13, 25	movi.n a13, 25
+40080448	9cc900	2	beqz.n a9, 0x40080468	beqz.n a9, 0x40080468
+40080450	0e5523	1	.byte 0xe	.byte 0xe
+40080458	5aaa	2	add.n a10, a10, a5	add.n a10, a10, a5
+?40080460	94a42d	3	excw	.byte 0x94
+40080468	c29d45	3	l16si a12, a13, 138	l16si a12, a13, 138
+40080470	5e3f7e	1	.byte 0x5e	.byte 0x5e
+?40080478	fdea	2	excw	.byte 0xfd
+40080480	0c8f48	2	movi.n a15, 8	movi.n a15, 8
+?40080488	d3c9da	3	excw	ssiu f13, a9, 0x368
+40080490	298d18	2	s32i.n a2, a13, 32	s32i.n a2, a13, 32
+40080498	da1a	2	add.n a1, a10, a13	add.n a1, a10, a13
+400804a0	1fab01	1	.byte 0x1f	.byte 0x1f
+400804a8	6c0725	2	movi.n a7, -32	movi.n a7, -32
+400804b0	b098c4	3	extui a9, a11, 8, 13	extui a9, a11, 8, 13
+400804b8	2ca7	2	movi.n a7, 42	movi.n a7, 42
+400804c0	6b1dee	2	addi.n a1, a13, 6	addi.n a1, a13, 6
+?400804c8	a4caa9	3	excw	.byte 0xa4
+400804d0	3a972e	2	add.n a9, a7, a3	add.n a9, a7, a3
+400804d8	e88c	2	l32i.n a14, a12, 32	l32i.n a14, a12, 32
+400804e0	e81046	2	l32i.n a14, a0, 4	l32i.n a14, a0, 4
+400804e8	5e41d4	1	.byte 0x5e	.byte 0x5e
+?400804f0	95eac8	3	excw	call4 0x4004939c
+400804f8	9ab5	2	add.n a11, a5, a9	add.n a11, a5, a9
+40080500	eb7fdf	2	addi.n a7, a15, 14	addi.n a7, a15, 14
+40080508	480595	2	l32i.n a4, a5, 0	l32i.n a4, a5, 0
+40080510	ded2b1	1	.byte 0xde	.byte 0xde
+40080518	1a4e	2	add.n a4, a14, a1	add.n a4, a14, a1
+40080520	d10140	3	l32r a13, 0x40050524	l32r a13, 0x40050524
+40080528	8f5250	1	.byte 0x8f	.byte 0x8f
+?40080530	f4646a	3	excw	.byte 0xf4
+40080538	e83c	2	l32i.n a14, a12, 12	l32i.n a14, a12, 12
+40080540	61e4cc	3	l32r a6, 0x400738d0	l32r a6, 0x400738d0
+40080548	065655	3	j 0x40095aa4	j 0x40095aa4
+40080550	1ebbd7	1	.byte 0x1e	.byte 0x1e
+40080558	8c8f	2	beqz.n a15, 0x40080564	beqz.n a15, 0x40080564
+40080560	59631d	2	s32i.n a5, a3, 24	s32i.n a5, a3, 24
+40080568	07fefc	3	bbsi a14, 16, 0x40080568	bbsi a14, 16, 0x40080568
+40080570	5fbd72	1	.byte 0x5f	.byte 0x5f
+40080578	986e	2	l32i.n a9, a14, 24	l32i.n a9, a14, 24
+40080580	a6b1bf	3	blti a1, 16, 0x40080543	blti a1, 16, 0x40080543
+40080588	4bbad7	2	addi.n a11, a10, 4	addi.n a11, a10, 4
+40080590	7abb82	2	add.n a11, a11, a7	add.n a11, a11, a7
+?40080598	5d2e	2	excw	.byte 0x5d
+?400805a0	6386be	3	excw	lsiu f6, a6, 0x2f8
+?400805a8	0dd0ef	2	excw	.byte 0xd
+400805b0	69c22f	2	s32i.n a6, a2, 48	s32i.n a6, a2, 48
+400805b8	1af5	2	add.n a15, a5, a1	add.n a15, a5, a1
+400805c0	713727	3	l32r a7, 0x4004a29c	l32r a7, 0x4004a29c
+400805c8	c88042	2	l32i.n a12, a0, 32	l32i.n a12, a0, 32
+400805d0	45d436	3	call0 0x400b7318	call0 0x400b7318
+?400805d8	edb3	2	excw	.byte 0xed
+400805e0	581367	2	l32i.n a5, a3, 4	l32i.n a5, a3, 4
+400805e8	08833d	2	l32i.n a0, a3, 32	l32i.n a0, a3, 32
+400805f0	0eb54e	1	.byte 0xe	.byte 0xe
+400805f8	f8c6	2	l32i.n a15, a6, 48	l32i.n a15, a6, 48
+40080600	19bd72	2	s32i.n a1, a13, 44	s32i.n a1, a13, 44
+40080608	5f85d4	1	.byte 0x5f	.byte 0x5f
+40080610	7ba335	2	addi.n a10, a3, 7	addi.n a10, a3, 7
+40080618	d85c	2	l32i.n a13, a12, 20	l32i.n a13, a12, 20
+40080620	111272	3	l32r a1, 0x4005ce68	l32r a1, 0x4005ce68
+40080628	1ffaca	1	.byte 0x1f	.byte 0x1f
+40080630	3baed0	2	addi.n a10, a14, 3	addi.n a10, a14, 3
+40080638	fbb9	2	addi.n a11, a9, 15	addi.n a11, a9, 15
+40080640	89019a	2	s32i.n a8, a1, 0	s32i.n a8, a1, 0
+40080648	5adf8e	2	add.n a13, a15, a5	add.n a13, a15, a5
+40080650	4a3631	2	add.n a3, a6, a4	add.n a3, a6, a4
+?40080658	dd78	2	excw	.byte 0xdd
+40080660	aca001	2	beqz.n a0, 0x4008068e	beqz.n a0, 0x4008068e
+?40080668	401051	3	excw	.byte 0x40
+?40080670	8dc4bd	2	excw	.byte 0x8d
+40080678	f899	2	l32i.n a15, a9, 36	l32i.n a15, a9, 36
+40080680	a87e93	2	l32i.n a10, a14, 28	l32i.n a10, a14, 28
+40080688	eb554f	2	addi.n a5, a5, 14	addi.n a5, a5, 14
+40080690	37913e	3	bne a1, a3, 0x400806d2	bne a1, a3, 0x400806d2
+?40080698	bd9c	2	excw	.byte 0xbd
+?400806a0	8d9cf1	2	excw	.byte 0x8d
+400806a8	bce61f	2	beqz.n a6, 0x400806ea	beqz.n a6, 0x400806ea
+400806b0	ea5c53	2	add.n a5, a12, a14	add.n a5, a12, a14
+400806b8	cc0b	2	bnez.n a11, 0x400806bc	bnez.n a11, 0x400806bc
+?400806c0	5409ab	3	excw	.byte 0x54
+?400806c8	c0fa6d	3	excw	.byte 0xc0
+400806d0	91ebe2	3	l32r a9, 0x4007927c	l32r a9, 0x4007927c
+400806d8	d84f	2	l32i.n a13, a15, 16	l32i.n a13, a15, 16
+400806e0	cb710f	2	addi.n a7, a1, 12	addi.n a7, a1, 12
+400806e8	a9e9fc	2	s32i.n a10, a9, 56	s32i.n a10, a9, 56
+400806f0	9a39b6	2	add.n a3, a9, a9	add.n a3, a9, a9
+400806f8	4a4a	2	add.n a4, a10, a4	add.n a4, a10, a4
+?40080700	50cb06	3	excw	.byte 0x50
+40080708	3882ea	2	l32i.n a3, a2, 32	l32i.n a3, a2, 32
+?40080710	9d49d6	2	excw	.byte 0x9d
+?40080718	cd67	2	excw	.byte 0xcd
+40080720	0f0c97	1	.byte 0xf	.byte 0xf
+40080728	4265f7	3	s32i a4, a5, 0x3dc	s32i a4, a5, 0x3dc
+?40080730	340656	3	excw	.byte 0x34
+40080738	6ada	2	add.n a13, a10, a6	add.n a13, a10, a6
+40080740	e204a9	3	l8ui a14, a4, 169	l8ui a14, a4, 169
+40080748	8f7317	1	.byte 0x8f	.byte 0x8f
+?40080750	a33087	3	excw	.byte 0xa3
+40080758	eb75	2	addi.n a7, a5, 14	addi.n a7, a5, 14
+40080760	bf8bf3	1	.byte 0xbf	.byte 0xbf
+40080768	1bae74	2	addi.n a10, a14, 1	addi.n a10, a14, 1
+?40080770	fdefe3	2	excw	.byte 0xfd
+?40080778	6dcb	2	excw	.byte 0x6d
+40080780	9171e0	3	l32r a9, 0x40078944	l32r a9, 0x40078944
+?40080788	e085ae	3	excw	.byte 0xe0
+40080790	11845f	3	l32r a1, 0x400585a0	l32r a1, 0x400585a0
+40080798	4ce4	2	movi.n a4, 78	movi.n a4, 78
+400807a0	9910fd	2	s32i.n a9, a0, 4	s32i.n a9, a0, 4
+400807a8	4fbecb	1	.byte 0x4f	.byte 0x4f
+?400807b0	c4fc6a	3	excw	.byte 0xc4
+400807b8	f9f9	2	s32i.n a15, a9, 60	s32i.n a15, a9, 60
+400807c0	fc29e9	2	bnez.n a9, 0x400807f6	bnez.n a9, 0x400807f6
+400807c8	c7c23b	3	bnall a2, a12, 0x40080807	bnall a2, a12, 0x40080807
+400807d0	c54d90	3	call0 0x40010cb0	call0 0x40010cb0
+400807d8	8b22	2	addi.n a2, a2, 8	addi.n a2, a2, 8
+?400807e0	f55653	3	excw	call12 0x400d3d50
+400807e8	166ba0	3	beqz a11, 0x400801f2	beqz a11, 0x400801f2
+400807f0	88b70f	2	l32i.n a8, a7, 44	l32i.n a8, a7, 44
+400807f8	09c4	2	s32i.n a0, a4, 48	s32i.n a0, a4, 48
+40080800	dcbc7c	2	bnez.n a12, 0x4008081f	bnez.n a12, 0x4008081f
+40080808	0e8c58	1	.byte 0xe	.byte 0xe
+40080810	6636cc	3	bnei a6, 3, 0x400807e0	bnei a6, 3, 0x400807e0
+40080818	8960	2	s32i.n a8, a0, 24	s32i.n a8, a0, 24
+40080820	2150f3	3	l32r a2, 0x4007d560	l32r a2, 0x4007d560
+40080828	99c003	2	s32i.n a9, a0, 48	s32i.n a9, a0, 48
+?40080830	bda05a	2	excw	.byte 0xbd
+40080838	881d	2	l32i.n a8, a13, 4	l32i.n a8, a13, 4
+40080840	5960a6	2	s32i.n a5, a0, 24	s32i.n a5, a0, 24
+40080848	4633e4	3	j 0x40079919	j 0x40079919
+40080850	8245d4	3	s8i a8, a5, 212	s8i a8, a5, 212
+40080858	8993	2	s32i.n a8, a3, 36	s32i.n a8, a3, 36
+?40080860	1590bb	3	excw	call4 0x4003c164
+40080868	0f1fb0	1	.byte 0xf	.byte 0xf
+40080870	2c7066	2	movi.n a0, 39	movi.n a0, 39
+40080878	5899	2	l32i.n a5, a9, 36	l32i.n a5, a9, 36
+40080880	cf1b7c	1	.byte 0xcf	.byte 0xcf
+40080888	9a7379	2	add.n a7, a3, a9	add.n a7, a3, a9
+?40080890	75e91b	3	excw	call12 0x4009c728
+40080898	db89	2	addi.n a8, a9, 13	addi.n a8, a9, 13
+400808a0	7e0b5c	1	.byte 0x7e	.byte 0x7e
+400808a8	4a8a86	2	add.n a8, a10, a4	add.n a8, a10, a4
+400808b0	007215	3	extui a7, a0, 18, 2	extui a7, a0, 18, 2
+400808b8	3bad	2	addi.n a10, a13, 3	addi.n a10, a13, 3
+400808c0	8b9632	2	addi.n a9, a6, 8	addi.n a9, a6, 8
+400808c8	9977eb	2	s32i.n a9, a7, 28	s32i.n a9, a7, 28
+400808d0	cbbf19	2	addi.n a11, a15, 12	addi.n a11, a15, 12
+400808d8	b8b5	2	l32i.n a11, a5, 44	l32i.n a11, a5, 44
+400808e0	de22e6	1	.byte 0xde	.byte 0xde
+400808e8	6811d1	2	l32i.n a6, a1, 4	l32i.n a6, a1, 4
+?400808f0	044923	3	excw	.byte 0x4
+?400808f8	3deb	2	excw	.byte 0x3d
+40080900	ccaafe	2	bnez.n a10, 0x4008090e	bnez.n a10, 0x4008090e
+40080908	3e61ce	1	.byte 0x3e	.byte 0x3e
+40080910	c2c237	3	addi a12, a2, 55	addi a12, a2, 55
+40080918	884c	2	l32i.n a8, a12, 16	l32i.n a8, a12, 16
+40080920	ef8bcb	1	.byte 0xef	.byte 0xef
+40080928	324690	3	s8i a3, a6, 144	s8i a3, a6, 144
+?40080930	5d6c2e	2	excw	.byte 0x5d
+40080938	287c	2	l32i.n a2, a12, 28	l32i.n a2, a12, 28
+40080940	bf5ad8	1	.byte 0xbf	.byte 0xbf
+?40080948	752d18	3	excw	call12 0x40098c20
+?40080950	92bec8	3	excw	l32ai a9, a14, 0x320
+40080958	594e	2	s32i.n a5, a14, 16	s32i.n a5, a14, 16
+?40080960	ad544b	2	excw	.byte 0xad
+40080968	af55c5	1	.byte 0xaf	.byte 0xaf
+?40080970	80ae66	3	excw	.byte 0x80
+40080978	1b19	2	addi.n a1, a9, 1	addi.n a1, a9, 1
+40080980	268a6e	3	beqi a10, 8, 0x400809f2	beqi a10, 8, 0x400809f2
+40080988	5c1202	2	movi.n a2, 81	movi.n a2, 81
+?40080990	940e71	3	excw	umul.aa.hl a14, a9
+?40080998	bd80	2	excw	.byte 0xbd
+400809a0	984dc7	2	l32i.n a9, a13, 16	l32i.n a9, a13, 16
+400809a8	2ab0f3	2	add.n a11, a0, a2	add.n a11, a0, a2
+?400809b0	359f6c	3	excw	call12 0x400ed3a4
+400809b8	4919	2	s32i.n a4, a9, 4	s32i.n a4, a9, 4
+?400809c0	950a36	3	excw	call4 0x400b6a6c
+?400809c8	1d2ae3	2	excw	.byte 0x1d
+?400809d0	3611cc	3	excw	entry a1, 0x6608
+400809d8	2cbb	2	movi.n a11, 43	movi.n a11, 43
+400809e0	5ad3a8	2	add.n a13, a3, a5	add.n a13, a3, a5
+400809e8	a2493d	3	s8i a10, a9, 61	s8i a10, a9, 61
+?400809f0	dd38c7	2	excw	.byte 0xdd
+400809f8	3b3d	2	addi.n a3, a13, 3	addi.n a3, a13, 3
+?40080a00	74c1c1	3	excw	.byte 0x74
+40080a08	fb63e9	2	addi.n a6, a3, 15	addi.n a6, a3, 15
+?40080a10	9d1941	2	excw	.byte 0x9d
+40080a18	4be8	2	addi.n a14, a8, 4	addi.n a14, a8, 4
+?40080a20	30e44f	3	excw	.byte 0x30
+40080a28	796193	2	s32i.n a7, a1, 24	s32i.n a7, a1, 24
+40080a30	b84552	2	l32i.n a11, a5, 16	l32i.n a11, a5, 16
+40080a38	1940	2	s32i.n a1, a0, 16	s32i.n a1, a0, 16
+40080a40	a8c951	2	l32i.n a10, a9, 48	l32i.n a10, a9, 48
+40080a48	5b6938	2	addi.n a6, a9, 5	addi.n a6, a9, 5
+40080a50	2a9cfd	2	add.n a9, a12, a2	add.n a9, a12, a2
+?40080a58	bde2	2	excw	.byte 0xbd
+40080a60	986125	2	l32i.n a9, a1, 24	l32i.n a9, a1, 24
+?40080a68	73f3fb	3	excw	.byte 0x73
+40080a70	8c4224	2	beqz.n a2, 0x40080a78	beqz.n a2, 0x40080a78
+40080a78	eb98	2	addi.n a9, a8, 14	addi.n a9, a8, 14
+40080a80	bba95c	2	addi.n a10, a9, 11	addi.n a10, a9, 11
+40080a88	f7bdfc	3	bgeu a13, a15, 0x40080a88	bgeu a13, a15, 0x40080a88
+40080a90	9790c1	3	bne a0, a9, 0x40080a55	bne a0, a9, 0x40080a55
+40080a98	3bf9	2	addi.n a15, a9, 3	addi.n a15, a9, 3
+40080aa0	b638ec	3	bltui a8, 3, 0x40080a90	bltui a8, 3, 0x40080a90
+40080aa8	7e6cae	1	.byte 0x7e	.byte 0x7e
+40080ab0	c88f77	2	l32i.n a12, a15, 32	l32i.n a12, a15, 32
+40080ab8	4b09	2	addi.n a0, a9, 4	addi.n a0, a9, 4
+?40080ac0	b32a64	3	excw	.byte 0xb3
+?40080ac8	1de9dd	2	excw	.byte 0x1d
+40080ad0	fb8a91	2	addi.n a8, a10, 15	addi.n a8, a10, 15
+40080ad8	19c7	2	s32i.n a1, a7, 48	s32i.n a1, a7, 48
+40080ae0	ffbbfa	1	.byte 0xff	.byte 0xff
+40080ae8	088b7b	2	l32i.n a0, a11, 32	l32i.n a0, a11, 32
+40080af0	1a4e87	2	add.n a4, a14, a1	add.n a4, a14, a1
+40080af8	5841	2	l32i.n a5, a1, 16	l32i.n a5, a1, 16
+40080b00	51bf77	3	l32r a5, 0x4005e9fc	l32r a5, 0x4005e9fc
+?40080b08	366f1a	3	excw	entry a15, 0xd30
+?40080b10	1d3527	2	excw	.byte 0x1d
+?40080b18	edbb	2	excw	.byte 0xed
+40080b20	ec1fa3	2	bnez.n a15, 0x40080b45	bnez.n a15, 0x40080b45
+?40080b28	e55909	3	excw	call8 0x4008a0c8
+?40080b30	fdd01c	2	excw	.byte 0xfd
+40080b38	2a6a	2	add.n a6, a10, a2	add.n a6, a10, a2
+40080b40	d71fe7	3	beq a15, a13, 0x40080b2b	beq a15, a13, 0x40080b2b
+?40080b48	c4edd4	3	excw	.byte 0xc4
+40080b50	da859e	2	add.n a8, a5, a13	add.n a8, a5, a13
+40080b58	9bd5	2	addi.n a13, a5, 9	addi.n a13, a5, 9
+40080b60	3f818d	1	.byte 0x3f	.byte 0x3f
+40080b68	710c97	3	l32r a7, 0x40066798	l32r a7, 0x40066798
+40080b70	8ca995	2	beqz.n a9, 0x40080b7e	beqz.n a9, 0x40080b7e
+40080b78	399d	2	s32i.n a3, a13, 36	s32i.n a3, a13, 36
+?40080b80	f4ae14	3	excw	.byte 0xf4
+?40080b88	42eb3e	3	excw	s32c1i a4, a11, 248
+40080b90	079d4b	3	bne a13, a0, 0x40080bdf	bne a13, a0, 0x40080bdf
+40080b98	986a	2	l32i.n a9, a10, 24	l32i.n a9, a10, 24
+?40080ba0	02e8da	3	excw	s32c1i a0, a8, 0x368
+40080ba8	c7815c	3	bany a1, a12, 0x40080c08	bany a1, a12, 0x40080c08
+40080bb0	6aa2dc	2	add.n a10, a2, a6	add.n a10, a2, a6
+40080bb8	8c56	2	beqz.n a6, 0x40080bc1	beqz.n a6, 0x40080bc1
+?40080bc0	202a9f	3	excw	.byte 0x20
+?40080bc8	4ddb90	2	excw	.byte 0x4d
+?40080bd0	234a70	3	excw	ssi f2, a10, 0x1c0
+40080bd8	fb12	2	addi.n a1, a2, 15	addi.n a1, a2, 15
+40080be0	b986db	2	s32i.n a11, a6, 32	s32i.n a11, a6, 32
+?40080be8	5482e4	3	excw	.byte 0x54
+40080bf0	f73c9a	3	bltu a12, a15, 0x40080b8e	bltu a12, a15, 0x40080b8e
+40080bf8	98ba	2	l32i.n a9, a10, 44	l32i.n a9, a10, 44
+?40080c00	53e01b	3	excw	.byte 0x53
+?40080c08	5d1b10	2	excw	.byte 0x5d
+40080c10	8f458d	1	.byte 0x8f	.byte 0x8f
+40080c18	887d	2	l32i.n a8, a13, 28	l32i.n a8, a13, 28
+40080c20	825d93	3	s16i a8, a13, 0x126	s16i a8, a13, 0x126
+40080c28	c862aa	2	l32i.n a12, a2, 24	l32i.n a12, a2, 24
+40080c30	0f1a8d	1	.byte 0xf	.byte 0xf
+?40080c38	9de9	2	excw	.byte 0x9d
+40080c40	61e783	3	l32r a6, 0x40061bdc	l32r a6, 0x40061bdc
+40080c48	1f4d19	1	.byte 0x1f	.byte 0x1f
+40080c50	aabba4	2	add.n a11, a11, a10	add.n a11, a11, a10
+40080c58	a90b	2	s32i.n a10, a11, 0	s32i.n a10, a11, 0
+40080c60	a108f4	3	l32r a10, 0x4007dc80	l32r a10, 0x4007dc80
+?40080c68	d4a4ff	3	excw	.byte 0xd4
+?40080c70	35b5e8	3	excw	call12 0x400697c4
+40080c78	9a52	2	add.n a5, a2, a9	add.n a5, a2, a9
+40080c80	47e7c7	3	bbsi a7, 4, 0x40080c4b	bbsi a7, 4, 0x40080c4b
+?40080c88	74f94e	3	excw	.byte 0x74
+40080c90	f6d634	3	bgeui a6, 64, 0x40080cc8	bgeui a6, 64, 0x40080cc8
+?40080c98	4dec	2	excw	.byte 0x4d
+40080ca0	2aaa25	2	add.n a10, a10, a2	add.n a10, a10, a2
+40080ca8	faa2c3	2	add.n a10, a2, a15	add.n a10, a2, a15
+?40080cb0	5488fc	3	excw	.byte 0x54
+40080cb8	1a33	2	add.n a3, a3, a1	add.n a3, a3, a1
+40080cc0	6b62ed	2	addi.n a6, a2, 6	addi.n a6, a2, 6
+?40080cc8	1d2f4a	2	excw	.byte 0x1d
+40080cd0	fb3526	2	addi.n a3, a5, 15	addi.n a3, a5, 15
+?40080cd8	4d90	2	excw	.byte 0x4d
+?40080ce0	3083c7	3	excw	.byte 0x30
+?40080ce8	e04f0c	3	excw	.byte 0xe0
+40080cf0	219a27	3	l32r a2, 0x4004ab58	l32r a2, 0x4004ab58
+40080cf8	3d0c	2	mov.n a3, a12	mov.n a3, a12
+?40080d00	3d94b5	2	excw	.byte 0x3d
+40080d08	b9f9a6	2	s32i.n a11, a9, 60	s32i.n a11, a9, 60
+40080d10	3afc28	2	add.n a15, a12, a3	add.n a15, a12, a3
+40080d18	aa56	2	add.n a5, a6, a10	add.n a5, a6, a10
+40080d20	9a54be	2	add.n a5, a4, a9	add.n a5, a4, a9
+40080d28	e7cb06	3	bnall a11, a14, 0x40080d32	bnall a11, a14, 0x40080d32
+40080d30	dba17d	2	addi.n a10, a1, 13	addi.n a10, a1, 13
+40080d38	bbc1	2	addi.n a12, a1, 11	addi.n a12, a1, 11
+40080d40	8c2071	2	beqz.n a0, 0x40080d46	beqz.n a0, 0x40080d46
+?40080d48	f0a5fb	3	excw	.byte 0xf0
+40080d50	b7fa88	3	bbsi a10, 27, 0x40080cdc	bbsi a10, 27, 0x40080cdc
+40080d58	e91d	2	s32i.n a14, a13, 4	s32i.n a14, a13, 4
+40080d60	585a1f	2	l32i.n a5, a10, 20	l32i.n a5, a10, 20
+40080d68	96ea13	3	bltz a10, 0x40080eaa	bltz a10, 0x40080eaa
+?40080d70	6de1b3	2	excw	.byte 0x6d
+40080d78	089f	2	l32i.n a0, a15, 36	l32i.n a0, a15, 36
+40080d80	9aa8b6	2	add.n a10, a8, a9	add.n a10, a8, a9
+40080d88	4e5eea	1	.byte 0x4e	.byte 0x4e
+?40080d90	e28a3c	3	excw	.byte 0xe2
+40080d98	b84a	2	l32i.n a11, a10, 16	l32i.n a11, a10, 16
+?40080da0	03df3b	3	excw	.byte 0x3
+40080da8	518690	3	l32r a5, 0x40064fc0	l32r a5, 0x40064fc0
+40080db0	38f24c	2	l32i.n a3, a2, 60	l32i.n a3, a2, 60
+?40080db8	1dad	2	excw	.byte 0x1d
+40080dc0	8f565f	1	.byte 0x8f	.byte 0x8f
+?40080dc8	d4987f	3	excw	.byte 0xd4
+40080dd0	086730	2	l32i.n a0, a7, 24	l32i.n a0, a7, 24
+40080dd8	382c	2	l32i.n a3, a12, 8	l32i.n a3, a12, 8
+40080de0	462848	3	j 0x40092e85	j 0x40092e85
+40080de8	82a744	3	movi a8, 0x744	movi a8, 0x744
+40080df0	80f3d4	3	extui a15, a8, 3, 14	extui a15, a8, 3, 14
+40080df8	db20	2	addi.n a2, a0, 13	addi.n a2, a0, 13
+40080e00	f2d5c7	3	addmi a15, a5, 0xffffc700	addmi a15, a5, 0xffffc700
+40080e08	6a2588	2	add.n a2, a5, a6	add.n a2, a5, a6
+?40080e10	330614	3	excw	lsi f3, a6, 80
+40080e18	09b5	2	s32i.n a0, a5, 44	s32i.n a0, a5, 44
+?40080e20	f0610a	3	excw	add.s f6, f1, f15
+40080e28	0c7682	2	movi.n a6, 7	movi.n a6, 7
+40080e30	d6b67a	3	bgez a6, 0x400815df	bgez a6, 0x400815df
+40080e38	686a	2	l32i.n a6, a10, 24	l32i.n a6, a10, 24
+40080e40	4652ca	3	j 0x4007378d	j 0x4007378d
+40080e48	0857b3	2	l32i.n a0, a7, 20	l32i.n a0, a7, 20
+40080e50	39a891	2	s32i.n a3, a8, 40	s32i.n a3, a8, 40
+?40080e58	6ddb	2	excw	.byte 0x6d
+?40080e60	d46b32	3	excw	.byte 0xd4
+?40080e68	b23251	3	excw	.byte 0xb2
+?40080e70	368b52	3	excw	entry a11, 0x2940
+40080e78	b9a7	2	s32i.n a11, a7, 40	s32i.n a11, a7, 40
+40080e80	09bfb3	2	s32i.n a0, a15, 44	s32i.n a0, a15, 44
+40080e88	08b804	2	l32i.n a0, a8, 44	l32i.n a0, a8, 44
+40080e90	b61dfa	3	bltui a13, 0x10000, 0x40080e8e	bltui a13, 0x10000, 0x40080e8e
+40080e98	9940	2	s32i.n a9, a0, 16	s32i.n a9, a0, 16
+40080ea0	c9175d	2	s32i.n a12, a7, 4	s32i.n a12, a7, 4
+40080ea8	5c3399	2	movi.n a3, 83	movi.n a3, 83
+?40080eb0	e539f2	3	excw	call8 0x40073250
+40080eb8	aba5	2	addi.n a10, a5, 10	addi.n a10, a5, 10
+?40080ec0	5542ed	3	excw	call4 0x4006e2e8
+?40080ec8	2deced	2	excw	.byte 0x2d
+40080ed0	8520b6	3	call0 0x400370dc	call0 0x400370dc
+40080ed8	3a4f	2	add.n a4, a15, a3	add.n a4, a15, a3
+40080ee0	f8332f	2	l32i.n a15, a3, 12	l32i.n a15, a3, 12
+?40080ee8	4debd5	2	excw	.byte 0x4d
+40080ef0	090339	2	s32i.n a0, a3, 0	s32i.n a0, a3, 0
+40080ef8	fa74	2	add.n a7, a4, a15	add.n a7, a4, a15
+?40080f00	55c0ca	3	excw	call4 0x4004bb08
+40080f08	468273	3	j 0x4009dd15	j 0x4009dd15
+40080f10	660980	3	bnei a9, -1, 0x40080e94	bnei a9, -1, 0x40080e94
+40080f18	fb8a	2	addi.n a8, a10, 15	addi.n a8, a10, 15
+40080f20	bbd980	2	addi.n a13, a9, 11	addi.n a13, a9, 11
+40080f28	6b1186	2	addi.n a1, a1, 6	addi.n a1, a1, 6
+?40080f30	ed864f	2	excw	.byte 0xed
+40080f38	3cc4	2	movi.n a4, 60	movi.n a4, 60
+?40080f40	a37974	3	excw	.byte 0xa3
+?40080f48	54a4de	3	excw	.byte 0x54
+40080f50	5c0d46	2	movi.n a13, 80	movi.n a13, 80
+?40080f58	4db2	2	excw	.byte 0x4d
+40080f60	05e8ee	3	call0 0x4006fde4	call0 0x4006fde4
+?40080f68	1d194e	2	excw	.byte 0x1d
+?40080f70	2021da	3	excw	ufloat.s f2, a1, 2
+40080f78	d9c0	2	s32i.n a13, a0, 48	s32i.n a13, a0, 48
+?40080f80	e33188	3	excw	.byte 0xe3
+40080f88	e1ef10	3	l32r a14, 0x40045344	l32r a14, 0x40045344
+40080f90	c876f8	2	l32i.n a12, a6, 28	l32i.n a12, a6, 28
+40080f98	a883	2	l32i.n a10, a3, 32	l32i.n a10, a3, 32
+40080fa0	163ef2	3	beqz a14, 0x40080ec7	beqz a14, 0x40080ec7
+40080fa8	7acdc2	2	add.n a12, a13, a7	add.n a12, a13, a7
+40080fb0	b7c672	3	bnall a6, a11, 0x40081026	bnall a6, a11, 0x40081026
+40080fb8	9c34	2	beqz.n a4, 0x40080fcf	beqz.n a4, 0x40080fcf
+40080fc0	2986ef	2	s32i.n a2, a6, 32	s32i.n a2, a6, 32
+40080fc8	397429	2	s32i.n a3, a4, 28	s32i.n a3, a4, 28
+?40080fd0	cd1f09	2	excw	.byte 0xcd
+40080fd8	2b4b	2	addi.n a4, a11, 2	addi.n a4, a11, 2
+40080fe0	2f5bbe	1	.byte 0x2f	.byte 0x2f
+40080fe8	797c85	2	s32i.n a7, a12, 28	s32i.n a7, a12, 28
+40080ff0	ec34dc	2	bnez.n a4, 0x40081017	bnez.n a4, 0x40081017
+40080ff8	ec6a	2	bnez.n a10, 0x40081022	bnez.n a10, 0x40081022
+?40081000	7d62a3	2	excw	.byte 0x7d
+?40081008	74ebf0	3	excw	.byte 0x74
+40081010	6ff0da	1	.byte 0x6f	.byte 0x6f
+40081018	1abb	2	add.n a11, a11, a1	add.n a11, a11, a1
+?40081020	8d44f1	2	excw	.byte 0x8d
+40081028	7ee581	1	.byte 0x7e	.byte 0x7e
+40081030	45fa9a	3	call0 0x4001bfd8	call0 0x4001bfd8
+40081038	dcd9	2	bnez.n a9, 0x40081059	bnez.n a9, 0x40081059
+40081040	08f5b2	2	l32i.n a0, a5, 60	l32i.n a0, a5, 60
+?40081048	f4cc82	3	excw	.byte 0xf4
+40081050	7aac11	2	add.n a10, a12, a7	add.n a10, a12, a7
+40081058	ec91	2	bnez.n a1, 0x40081085	bnez.n a1, 0x40081085
+?40081060	931153	3	excw	.byte 0x93
+40081068	6bc9b3	2	addi.n a12, a9, 6	addi.n a12, a9, 6
+40081070	514cbf	3	l32r a5, 0x40070da0	l32r a5, 0x40070da0
+40081078	2cda	2	movi.n a10, 45	movi.n a10, 45
+?40081080	63685f	3	excw	.byte 0x63
+?40081088	9d5211	2	excw	.byte 0x9d
+40081090	f8439c	2	l32i.n a15, a3, 16	l32i.n a15, a3, 16
+40081098	2b00	2	addi.n a0, a0, 2	addi.n a0, a0, 2
+400810a0	0500a0	3	call0 0x400210a4	call0 0x400210a4
+400810a8	82aa74	3	movi a8, 0xfffffa74	movi a8, 0xfffffa74
+400810b0	7e7635	1	.byte 0x7e	.byte 0x7e
+400810b8	9ca3	2	beqz.n a3, 0x400810d6	beqz.n a3, 0x400810d6
+400810c0	16acb7	3	beqz a12, 0x40080c3e	beqz a12, 0x40080c3e
+?400810c8	0d68c9	2	excw	.byte 0xd
+?400810d0	a3ef12	3	excw	.byte 0xa3
+400810d8	4805	2	l32i.n a4, a5, 0	l32i.n a4, a5, 0
+?400810e0	dd36dc	2	excw	.byte 0xdd
+400810e8	910241	3	l32r a9, 0x400514f0	l32r a9, 0x400514f0
+?400810f0	241ad8	3	excw	.byte 0x24
+400810f8	0972	2	s32i.n a0, a2, 28	s32i.n a0, a2, 28
+?40081100	a493c9	3	excw	.byte 0xa4
+40081108	eec221	1	.byte 0xee	.byte 0xee
+40081110	9a132f	2	add.n a1, a3, a9	add.n a1, a3, a9
+40081118	3bcd	2	addi.n a12, a13, 3	addi.n a12, a13, 3
+?40081120	228d42	3	excw	.byte 0x22
+40081128	265cc9	3	beqi a12, 5, 0x400810f5	beqi a12, 5, 0x400810f5
+?40081130	15a015	3	excw	call4 0x40096b34
+40081138	8908	2	s32i.n a8, a8, 0	s32i.n a8, a8, 0
+40081140	c7718c	3	bbci a1, 28, 0x400810d0	bbci a1, 28, 0x400810d0
+?40081148	f53fa8	3	excw	call12 0x40029548
+40081150	1e98af	1	.byte 0x1e	.byte 0x1e
+40081158	89cd	2	s32i.n a8, a13, 48	s32i.n a8, a13, 48
+40081160	9e3ca6	1	.byte 0x9e	.byte 0x9e
+40081168	984214	2	l32i.n a9, a2, 16	l32i.n a9, a2, 16
+40081170	789213	2	l32i.n a7, a2, 36	l32i.n a7, a2, 36
+40081178	6b69	2	addi.n a6, a9, 6	addi.n a6, a9, 6
+40081180	aecb7f	1	.byte 0xae	.byte 0xae
+40081188	916582	3	l32r a9, 0x40061b1c	l32r a9, 0x40061b1c
+?40081190	251317	3	excw	call8 0x400982c4
+40081198	6c35	2	movi.n a5, -29	movi.n a5, -29
+400811a0	17ce96	3	bnall a14, a1, 0x4008113a	bnall a14, a1, 0x4008113a
+400811a8	0fb273	1	.byte 0xf	.byte 0xf
+?400811b0	432ee0	3	excw	.byte 0x43
+400811b8	4cf6	2	movi.n a6, 79	movi.n a6, 79
+?400811c0	15222c	3	excw	call4 0x400ad3e4
+400811c8	ebd743	2	addi.n a13, a7, 14	addi.n a13, a7, 14
+400811d0	894ae8	2	s32i.n a8, a10, 16	s32i.n a8, a10, 16
+400811d8	ba6b	2	add.n a6, a11, a11	add.n a6, a11, a11
+400811e0	198b8c	2	s32i.n a1, a11, 32	s32i.n a1, a11, 32
+400811e8	c5042e	3	call0 0x400af238	call0 0x400af238
+400811f0	7709a3	3	bnone a9, a7, 0x40081197	bnone a9, a7, 0x40081197
+?400811f8	4dde	2	excw	.byte 0x4d
+40081200	099799	2	s32i.n a0, a7, 36	s32i.n a0, a7, 36
+40081208	77bc13	3	bgeu a12, a7, 0x4008121f	bgeu a12, a7, 0x4008121f
+40081210	b75bd4	3	bbc a11, a11, 0x400811e8	bbc a11, a11, 0x400811e8
+?40081218	5d7f	2	excw	.byte 0x5d
+40081220	88ea5c	2	l32i.n a8, a10, 56	l32i.n a8, a10, 56
+40081228	873693	3	bltu a6, a8, 0x400811bf	bltu a6, a8, 0x400811bf
+40081230	56108e	3	bnez a0, 0x40080b15	bnez a0, 0x40080b15
+40081238	18f5	2	l32i.n a1, a5, 60	l32i.n a1, a5, 60
+40081240	eb281e	2	addi.n a2, a8, 14	addi.n a2, a8, 14
+?40081248	028298	3	excw	.byte 0x2
+40081250	ab30a0	2	addi.n a3, a0, 10	addi.n a3, a0, 10
+40081258	aca7	2	beqz.n a7, 0x40081286	beqz.n a7, 0x40081286
+40081260	becd01	1	.byte 0xbe	.byte 0xbe
+40081268	e69301	3	bgei a3, 10, 0x4008126d	bgei a3, 10, 0x4008126d
+?40081270	fd693f	2	excw	.byte 0xfd
+40081278	fa1f	2	add.n a1, a15, a15	add.n a1, a15, a15
+40081280	8875a2	2	l32i.n a8, a5, 28	l32i.n a8, a5, 28
+40081288	795878	2	s32i.n a7, a8, 20	s32i.n a7, a8, 20
+40081290	aae919	2	add.n a14, a9, a10	add.n a14, a9, a10
+40081298	9a57	2	add.n a5, a7, a9	add.n a5, a7, a9
+?400812a0	65da83	3	excw	call8 0x40005048
+400812a8	967e6e	3	bltz a14, 0x40081993	bltz a14, 0x40081993
+400812b0	9a513a	2	add.n a5, a1, a9	add.n a5, a1, a9
+400812b8	8a4b	2	add.n a4, a11, a8	add.n a4, a11, a8
+?400812c0	70bc99	3	excw	.byte 0x70
+400812c8	1ed7eb	1	.byte 0x1e	.byte 0x1e
+400812d0	cf8516	1	.byte 0xcf	.byte 0xcf
+400812d8	acaf	2	beqz.n a15, 0x40081306	beqz.n a15, 0x40081306
+400812e0	668d01	3	bnei a13, 8, 0x400812e5	bnei a13, 8, 0x400812e5
+?400812e8	036ec8	3	excw	.byte 0x3
+400812f0	9cbf6d	2	beqz.n a15, 0x4008130f	beqz.n a15, 0x4008130f
+400812f8	1a46	2	add.n a4, a6, a1	add.n a4, a6, a1
+40081300	c891c9	2	l32i.n a12, a1, 36	l32i.n a12, a1, 36
+40081308	7bc51d	2	addi.n a12, a5, 7	addi.n a12, a5, 7
+40081310	4e6ed5	1	.byte 0x4e	.byte 0x4e
+40081318	48e2	2	l32i.n a4, a2, 56	l32i.n a4, a2, 56
+40081320	ef8807	1	.byte 0xef	.byte 0xef
+40081328	690820	2	s32i.n a6, a8, 0	s32i.n a6, a8, 0
+?40081330	b4ead2	3	excw	.byte 0xb4
+40081338	a84a	2	l32i.n a10, a10, 16	l32i.n a10, a10, 16
+40081340	aa5920	2	add.n a5, a9, a10	add.n a5, a9, a10
+?40081348	ad34d1	2	excw	.byte 0xad
+40081350	968391	3	bltz a3, 0x40080c6c	bltz a3, 0x40080c6c
+40081358	c91b	2	s32i.n a12, a11, 4	s32i.n a12, a11, 4
+?40081360	f4b813	3	excw	.byte 0xf4
+40081368	c70c30	3	bnone a12, a12, 0x4008139c	bnone a12, a12, 0x4008139c
+40081370	be0c4b	1	.byte 0xbe	.byte 0xbe
+40081378	cc73	2	bnez.n a3, 0x40081383	bnez.n a3, 0x40081383
+?40081380	a53242	3	excw	call8 0x400c36ac
+40081388	0e4dbf	1	.byte 0xe	.byte 0xe
+?40081390	502960	3	excw	.byte 0x50
+40081398	2900	2	s32i.n a2, a0, 0	s32i.n a2, a0, 0
+400813a0	f1208a	3	l32r a15, 0x40063c20	l32r a15, 0x40063c20
+400813a8	cbadbc	2	addi.n a10, a13, 12	addi.n a10, a13, 12
+400813b0	86b32b	3	j 0x4008c282	j 0x4008c282
+400813b8	0a4d	2	add.n a4, a13, a0	add.n a4, a13, a0
+400813c0	00b5a5	3	extui a11, a0, 21, 11	extui a11, a0, 21, 11
+?400813c8	928b3c	3	excw	.byte 0x92
+400813d0	cfac81	1	.byte 0xcf	.byte 0xcf
+400813d8	a89b	2	l32i.n a10, a11, 36	l32i.n a10, a11, 36
+400813e0	69a393	2	s32i.n a6, a3, 40	s32i.n a6, a3, 40
+400813e8	5ef53d	1	.byte 0x5e	.byte 0x5e
+400813f0	dfbde0	1	.byte 0xdf	.byte 0xdf
+400813f8	391f	2	s32i.n a3, a15, 4	s32i.n a3, a15, 4
+40081400	bc2e52	2	beqz.n a14, 0x40081436	beqz.n a14, 0x40081436
+?40081408	36da85	3	excw	entry a10, 0x42e8
+40081410	1ba92c	2	addi.n a10, a9, 1	addi.n a10, a9, 1
+40081418	e961	2	s32i.n a14, a1, 24	s32i.n a14, a1, 24
+40081420	48b0e3	2	l32i.n a4, a0, 44	l32i.n a4, a0, 44
+40081428	68d387	2	l32i.n a6, a3, 52	l32i.n a6, a3, 52
+?40081430	b5a38c	3	excw	call12 0x4000de6c
+40081438	aa5f	2	add.n a5, a15, a10	add.n a5, a15, a10
+40081440	812faa	3	l32r a8, 0x4006bcfc	l32r a8, 0x4006bcfc
+40081448	dc9398	2	bnez.n a3, 0x40081465	bnez.n a3, 0x40081465
+?40081450	e3f5ec	3	excw	.byte 0xe3
+40081458	29fb	2	s32i.n a2, a11, 60	s32i.n a2, a11, 60
+40081460	d1c7bf	3	l32r a13, 0x4007137c	l32r a13, 0x4007137c
+40081468	58931e	2	l32i.n a5, a3, 36	l32i.n a5, a3, 36
+40081470	b6c3f6	3	bltui a3, 32, 0x4008146a	bltui a3, 32, 0x4008146a
+40081478	0c35	2	movi.n a5, 3	movi.n a5, 3
+40081480	b8811b	2	l32i.n a11, a1, 32	l32i.n a11, a1, 32
+?40081488	336319	3	excw	.byte 0x33
+40081490	c5761a	3	call0 0x4009bc00	call0 0x4009bc00
+40081498	9b54	2	addi.n a5, a4, 9	addi.n a5, a4, 9
+?400814a0	a3d5a8	3	excw	.byte 0xa3
+400814a8	f0b7c0	3	sub a11, a7, a15	sub a11, a7, a15
+400814b0	8b4d9e	2	addi.n a4, a13, 8	addi.n a4, a13, 8
+400814b8	9ce2	2	beqz.n a2, 0x400814da	beqz.n a2, 0x400814da
+400814c0	d721e7	3	blt a1, a13, 0x400814ab	blt a1, a13, 0x400814ab
+400814c8	3f65c3	1	.byte 0x3f	.byte 0x3f
+400814d0	059d07	3	call0 0x40088ea4	call0 0x40088ea4
+400814d8	f9a5	2	s32i.n a15, a5, 40	s32i.n a15, a5, 40
+400814e0	49fb93	2	s32i.n a4, a11, 60	s32i.n a4, a11, 60
+400814e8	1149e6	3	l32r a1, 0x4007ae0c	l32r a1, 0x4007ae0c
+?400814f0	0d87bd	2	excw	.byte 0xd
+400814f8	b8e2	2	l32i.n a11, a2, 56	l32i.n a11, a2, 56
+40081500	c06ad4	3	extui a6, a12, 10, 14	extui a6, a12, 10, 14
+40081508	1e64da	1	.byte 0x1e	.byte 0x1e
+40081510	469b8c	3	j 0x40064781	j 0x40064781
+40081518	49d5	2	s32i.n a4, a5, 52	s32i.n a4, a5, 52
+40081520	2f6f87	1	.byte 0x2f	.byte 0x2f
+?40081528	fdc715	2	excw	.byte 0xfd
+40081530	993015	2	s32i.n a9, a0, 12	s32i.n a9, a0, 12
+?40081538	3df1	2	excw	.byte 0x3d
+40081540	11e81b	3	l32r a1, 0x400484e0	l32r a1, 0x400484e0
+40081548	6a89e4	2	add.n a8, a9, a6	add.n a8, a9, a6
+40081550	b13a32	3	l32r a11, 0x4004de38	l32r a11, 0x4004de38
+40081558	29b9	2	s32i.n a2, a9, 44	s32i.n a2, a9, 44
+40081560	b1d7c5	3	l32r a11, 0x40072cbc	l32r a11, 0x40072cbc
+40081568	2a7266	2	add.n a7, a2, a2	add.n a7, a2, a2
+40081570	6c4abb	2	movi.n a10, -28	movi.n a10, -28
+40081578	2df7	2	break.n 7	break.n 7
+40081580	c5b239	3	call0 0x400bb0b0	call0 0x400bb0b0
+40081588	3b7a13	2	addi.n a7, a10, 3	addi.n a7, a10, 3
+?40081590	806a13	3	excw	.byte 0x80
+?40081598	9d52	2	excw	.byte 0x9d
+400815a0	7eba33	1	.byte 0x7e	.byte 0x7e
+400815a8	be893f	1	.byte 0xbe	.byte 0xbe
+400815b0	c1fafc	3	l32r a12, 0x40080998	l32r a12, 0x40080998
+400815b8	ea89	2	add.n a8, a9, a14	add.n a8, a9, a14
+400815c0	bf9f86	1	.byte 0xbf	.byte 0xbf
+400815c8	be5274	1	.byte 0xbe	.byte 0xbe
+?400815d0	1d728e	2	excw	.byte 0x1d
+400815d8	1aa7	2	add.n a10, a7, a1	add.n a10, a7, a1
+?400815e0	3315cb	3	excw	.byte 0x33
+?400815e8	b3ee56	3	excw	.byte 0xb3
+400815f0	a6a39f	3	blti a3, 12, 0x40081593	blti a3, 12, 0x40081593
+400815f8	78d4	2	l32i.n a7, a4, 52	l32i.n a7, a4, 52
+?40081600	c3d614	3	excw	.byte 0xc3
+40081608	902e20	3	or a2, a14, a9	or a2, a14, a9
+40081610	692ce0	2	s32i.n a6, a12, 8	s32i.n a6, a12, 8
+40081618	4b63	2	addi.n a6, a3, 4	addi.n a6, a3, 4
+40081620	aa5753	2	add.n a5, a7, a10	add.n a5, a7, a10
+?40081628	e3342e	3	excw	.byte 0xe3
+?40081630	42e491	3	excw	s32c1i a4, a4, 0x244
+40081638	3b6a	2	addi.n a6, a10, 3	addi.n a6, a10, 3
+40081640	e788b6	3	bany a8, a14, 0x400815fa	bany a8, a14, 0x400815fa
+40081648	88df65	2	l32i.n a8, a15, 52	l32i.n a8, a15, 52
+40081650	9f95f7	1	.byte 0x9f	.byte 0x9f
+40081658	2997	2	s32i.n a2, a7, 36	s32i.n a2, a7, 36
+40081660	3851c2	2	l32i.n a3, a1, 20	l32i.n a3, a1, 20
+?40081668	c42e4e	3	excw	.byte 0xc4
+40081670	a7359d	3	bltu a5, a10, 0x40081611	bltu a5, a10, 0x40081611
+40081678	a9b1	2	s32i.n a10, a1, 44	s32i.n a10, a1, 44
+40081680	a73c9e	3	bltu a12, a10, 0x40081622	bltu a12, a10, 0x40081622
+40081688	d14614	3	l32r a13, 0x400467a0	l32r a13, 0x400467a0
+40081690	f941dc	2	s32i.n a15, a1, 16	s32i.n a15, a1, 16
+40081698	4b34	2	addi.n a3, a4, 4	addi.n a3, a4, 4
+?400816a0	33eb6d	3	excw	.byte 0x33
+400816a8	221fb6	3	l16ui a2, a15, 0x16c	l16ui a2, a15, 0x16c
+?400816b0	c06c91	3	excw	.byte 0xc0
+400816b8	09e1	2	s32i.n a0, a1, 56	s32i.n a0, a1, 56
+400816c0	3819a1	2	l32i.n a3, a9, 4	l32i.n a3, a9, 4
+400816c8	acc2a4	2	beqz.n a2, 0x400816f8	beqz.n a2, 0x400816f8
+?400816d0	838a15	3	excw	lsiu f8, a10, 84
+400816d8	c820	2	l32i.n a12, a0, 8	l32i.n a12, a0, 8
+?400816e0	64eaa0	3	excw	.byte 0x64
+?400816e8	a57a1d	3	excw	call8 0x4009ee94
+400816f0	61df23	3	l32r a6, 0x4004a66c	l32r a6, 0x4004a66c
+400816f8	5d07	2	mov.n a5, a7	mov.n a5, a7
+40081700	ca1cf8	2	add.n a1, a12, a12	add.n a1, a12, a12
+40081708	da13a6	2	add.n a1, a3, a13	add.n a1, a3, a13
+40081710	3b7466	2	addi.n a7, a4, 3	addi.n a7, a4, 3
+40081718	1860	2	l32i.n a1, a0, 24	l32i.n a1, a0, 24
+?40081720	80701a	3	excw	sub.s f7, f0, f8
+40081728	b67caa	3	bltui a12, 7, 0x400816d6	bltui a12, 7, 0x400816d6
+40081730	0045b5	3	extui a4, a0, 21, 12	extui a4, a0, 21, 12
+40081738	aa9d	2	add.n a9, a13, a10	add.n a9, a13, a10
+40081740	d6ac62	3	bgez a12, 0x40081d6e	bgez a12, 0x40081d6e
+40081748	9878cc	2	l32i.n a9, a8, 28	l32i.n a9, a8, 28
+?40081750	35e4db	3	excw	call12 0x4005d594
+?40081758	fd28	2	excw	.byte 0xfd
+?40081760	846182	3	excw	.byte 0x84
+40081768	ef02e2	1	.byte 0xef	.byte 0xef
+40081770	6cb0e4	2	movi.n a0, -21	movi.n a0, -21
+40081778	4a33	2	add.n a3, a3, a4	add.n a3, a3, a4
+?40081780	030a12	3	excw	lsi f0, a10, 72
+?40081788	432617	3	excw	.byte 0x43
+40081790	31cb0a	3	l32r a3, 0x400442bc	l32r a3, 0x400442bc
+40081798	28cb	2	l32i.n a2, a11, 48	l32i.n a2, a11, 48
+?400817a0	f5883c	3	excw	call12 0x400be030
+400817a8	976fd5	3	bbci a15, 9, 0x40081781	bbci a15, 9, 0x40081781
+?400817b0	d0e027	3	excw	.byte 0xd0
+400817b8	7baa	2	addi.n a10, a10, 7	addi.n a10, a10, 7
+400817c0	f9a31d	2	s32i.n a15, a3, 40	s32i.n a15, a3, 40
+?400817c8	939983	3	excw	.byte 0x93
+400817d0	ce6e3e	1	.byte 0xce	.byte 0xce
+400817d8	eb1d	2	addi.n a1, a13, 14	addi.n a1, a13, 14
+400817e0	cbc0d3	2	addi.n a12, a0, 12	addi.n a12, a0, 12
+400817e8	ce193f	1	.byte 0xce	.byte 0xce
+?400817f0	f5dbbe	3	excw	call12 0x400405b0
+400817f8	b904	2	s32i.n a11, a4, 0	s32i.n a11, a4, 0
+40081800	ca55e5	2	add.n a5, a5, a12	add.n a5, a5, a12
+?40081808	24c1f3	3	excw	.byte 0x24
+?40081810	547054	3	excw	.byte 0x54
+40081818	2c83	2	movi.n a3, 40	movi.n a3, 40
+40081820	5983cf	2	s32i.n a5, a3, 32	s32i.n a5, a3, 32
+40081828	0553f5	3	call0 0x40076d5c	call0 0x40076d5c
+40081830	eaf7fb	2	add.n a15, a7, a14	add.n a15, a7, a14
+?40081838	dd9d	2	excw	.byte 0xdd
+40081840	02df3c	3	addmi a0, a15, 0x3c00	addmi a0, a15, 0x3c00
+40081848	e88753	2	l32i.n a14, a7, 32	l32i.n a14, a7, 32
+40081850	725f1a	3	s16i a7, a15, 52	s16i a7, a15, 52
+?40081858	ed11	2	excw	.byte 0xed
+40081860	4f8f5e	1	.byte 0x4f	.byte 0x4f
+40081868	3913b3	2	s32i.n a3, a3, 4	s32i.n a3, a3, 4
+?40081870	232529	3	excw	.byte 0x23
+40081878	89fb	2	s32i.n a8, a11, 60	s32i.n a8, a11, 60
+40081880	9b7c31	2	addi.n a7, a12, 9	addi.n a7, a12, 9
+40081888	79c340	2	s32i.n a7, a3, 48	s32i.n a7, a3, 48
+?40081890	6d4d9d	2	excw	.byte 0x6d
+40081898	cc77	2	bnez.n a7, 0x400818a3	bnez.n a7, 0x400818a3
+400818a0	9a6317	2	add.n a6, a3, a9	add.n a6, a3, a9
+400818a8	0aa1d6	2	add.n a10, a1, a0	add.n a10, a1, a0
+400818b0	48f7f7	2	l32i.n a4, a7, 60	l32i.n a4, a7, 60
+?400818b8	7d9d	2	excw	.byte 0x7d
+?400818c0	308ab7	3	excw	.byte 0x30
+400818c8	66e4d3	3	bnei a4, 128, 0x4008189f	bnei a4, 128, 0x4008189f
+400818d0	fb3069	2	addi.n a3, a0, 15	addi.n a3, a0, 15
+400818d8	3c47	2	movi.n a7, 52	movi.n a7, 52
+?400818e0	0475ce	3	excw	.byte 0x4
+?400818e8	34077e	3	excw	muls.aa.lh a7, a3
+?400818f0	4d503f	2	excw	.byte 0x4d
+400818f8	aa14	2	add.n a1, a4, a10	add.n a1, a4, a10
+?40081900	83cb42	3	excw	ssiu f8, a11, 0x108
+40081908	8b6598	2	addi.n a6, a5, 8	addi.n a6, a5, 8
+40081910	e62ff9	3	bgei a15, 2, 0x4008190d	bgei a15, 2, 0x4008190d
+40081918	8b72	2	addi.n a7, a2, 8	addi.n a7, a2, 8
+?40081920	e36d95	3	excw	.byte 0xe3
+40081928	09c8d8	2	s32i.n a0, a8, 48	s32i.n a0, a8, 48
+?40081930	546275	3	excw	.byte 0x54
+40081938	bc31	2	beqz.n a1, 0x4008196f	beqz.n a1, 0x4008196f
+40081940	4b526a	2	addi.n a5, a2, 4	addi.n a5, a2, 4
+40081948	7f1d35	1	.byte 0x7f	.byte 0x7f
+40081950	6212b6	3	l16ui a6, a2, 0x16c	l16ui a6, a2, 0x16c
+40081958	08d7	2	l32i.n a0, a7, 52	l32i.n a0, a7, 52
+40081960	ca2928	2	add.n a2, a9, a12	add.n a2, a9, a12
+40081968	df9ac2	1	.byte 0xdf	.byte 0xdf
+40081970	5a3988	2	add.n a3, a9, a5	add.n a3, a9, a5
+40081978	ca43	2	add.n a4, a3, a12	add.n a4, a3, a12
+40081980	5834c3	2	l32i.n a5, a4, 12	l32i.n a5, a4, 12
+40081988	58452d	2	l32i.n a5, a5, 16	l32i.n a5, a5, 16
+40081990	c5a8a0	3	call0 0x40022420	call0 0x40022420
+40081998	e9af	2	s32i.n a14, a15, 40	s32i.n a14, a15, 40
+400819a0	b21e48	3	l16ui a11, a14, 144	l16ui a11, a14, 144
+?400819a8	732f39	3	excw	.byte 0x73
+?400819b0	4dcc67	2	excw	.byte 0x4d
+400819b8	594b	2	s32i.n a5, a11, 16	s32i.n a5, a11, 16
+400819c0	cfb818	1	.byte 0xcf	.byte 0xcf
+?400819c8	0db9b1	2	excw	.byte 0xd
+400819d0	f79670	3	bne a6, a15, 0x40081a44	bne a6, a15, 0x40081a44
+400819d8	4cfe	2	movi.n a14, 79	movi.n a14, 79
+400819e0	977768	3	bbci a7, 25, 0x40081a4c	bbci a7, 25, 0x40081a4c
+400819e8	594beb	2	s32i.n a5, a11, 16	s32i.n a5, a11, 16
+400819f0	c79029	3	bne a0, a12, 0x40081a1d	bne a0, a12, 0x40081a1d
+400819f8	0c72	2	movi.n a2, 7	movi.n a2, 7
+40081a00	c6b13b	3	j 0x400908cb	j 0x400908cb
+40081a08	5f0ced	1	.byte 0x5f	.byte 0x5f
+40081a10	e70e2a	3	bnone a14, a14, 0x40081a3e	bnone a14, a14, 0x40081a3e
+40081a18	bce4	2	beqz.n a4, 0x40081a5a	beqz.n a4, 0x40081a5a
+?40081a20	f3c429	3	excw	ssiu f15, a4, 164
+40081a28	598793	2	s32i.n a5, a7, 32	s32i.n a5, a7, 32
+40081a30	e83278	2	l32i.n a14, a2, 12	l32i.n a14, a2, 12
+40081a38	2828	2	l32i.n a2, a8, 8	l32i.n a2, a8, 8
+?40081a40	a3c804	3	excw	ssiu f10, a8, 16
+40081a48	292e2b	2	s32i.n a2, a14, 8	s32i.n a2, a14, 8
+40081a50	f6178a	3	bgeui a7, 0x10000, 0x400819de	bgeui a7, 0x10000, 0x400819de
+40081a58	888c	2	l32i.n a8, a12, 32	l32i.n a8, a12, 32
+?40081a60	7693b9	3	excw	loopnez a3, 0x40081b1d
+40081a68	e11794	3	l32r a14, 0x40066ac4	l32r a14, 0x40066ac4
+?40081a70	528eaf	3	excw	.byte 0x52
+40081a78	b80e	2	l32i.n a11, a14, 0	l32i.n a11, a14, 0
+40081a80	2189f9	3	l32r a2, 0x400800a4	l32r a2, 0x400800a4
+40081a88	dee0d3	1	.byte 0xde	.byte 0xde
+40081a90	495eb2	2	s32i.n a4, a14, 20	s32i.n a4, a14, 20
+?40081a98	7dc1	2	excw	.byte 0x7d
+40081aa0	0c4a2e	2	movi.n a10, 4	movi.n a10, 4
+40081aa8	a9d22e	2	s32i.n a10, a2, 52	s32i.n a10, a2, 52
+?40081ab0	5d4180	2	excw	.byte 0x5d
+40081ab8	a98e	2	s32i.n a10, a14, 32	s32i.n a10, a14, 32
+40081ac0	7b2866	2	addi.n a2, a8, 7	addi.n a2, a8, 7
+40081ac8	f22808	3	l32i a15, a8, 32	l32i a15, a8, 32
+?40081ad0	244b10	3	excw	.byte 0x24
+40081ad8	8cb0	2	beqz.n a0, 0x40081ae7	beqz.n a0, 0x40081ae7
+40081ae0	9eff72	1	.byte 0x9e	.byte 0x9e
+40081ae8	2c4c1b	2	movi.n a12, 36	movi.n a12, 36
+40081af0	a7ba63	3	bgeu a10, a10, 0x40081b57	bgeu a10, a10, 0x40081b57
+40081af8	988b	2	l32i.n a9, a11, 32	l32i.n a9, a11, 32
+40081b00	aeb601	1	.byte 0xae	.byte 0xae
+40081b08	8a7a95	2	add.n a7, a10, a8	add.n a7, a10, a8
+40081b10	2f44a1	1	.byte 0x2f	.byte 0x2f
+40081b18	dbb1	2	addi.n a11, a1, 13	addi.n a11, a1, 13
+40081b20	80b065	3	extui a11, a8, 16, 7	extui a11, a8, 16, 7
+40081b28	5939b5	2	s32i.n a5, a9, 12	s32i.n a5, a9, 12
+40081b30	97a370	3	bge a3, a9, 0x40081ba4	bge a3, a9, 0x40081ba4
+40081b38	28e3	2	l32i.n a2, a3, 56	l32i.n a2, a3, 56
+?40081b40	404112	3	excw	andbc b4, b1, b4
+?40081b48	15ad95	3	excw	call4 0x4001761c
+?40081b50	f39efb	3	excw	.byte 0xf3
+?40081b58	8de4	2	excw	.byte 0x8d
+?40081b60	5d6022	2	excw	.byte 0x5d
+40081b68	c66eb4	3	j 0x4006ed27	j 0x4006ed27
+?40081b70	943d76	3	excw	.byte 0x94
+?40081b78	cd22	2	excw	.byte 0xcd
+?40081b80	305918	3	excw	lsxu f5, a9, a3
+40081b88	57948d	3	bne a4, a5, 0x40081b19	bne a4, a5, 0x40081b19
+40081b90	9e6bbb	1	.byte 0x9e	.byte 0x9e
+40081b98	acc6	2	beqz.n a6, 0x40081bc8	beqz.n a6, 0x40081bc8
+40081ba0	97ef50	3	bbsi a15, 9, 0x40081bf4	bbsi a15, 9, 0x40081bf4
+40081ba8	07f469	3	bbsi a4, 16, 0x40081c15	bbsi a4, 16, 0x40081c15
+40081bb0	1acf7f	2	add.n a12, a15, a1	add.n a12, a15, a1
+40081bb8	bbf4	2	addi.n a15, a4, 11	addi.n a15, a4, 11
+?40081bc0	5273a6	3	excw	.byte 0x52
+40081bc8	5a5201	2	add.n a5, a2, a5	add.n a5, a2, a5
+40081bd0	7bf4de	2	addi.n a15, a4, 7	addi.n a15, a4, 7
+40081bd8	b90d	2	s32i.n a11, a13, 0	s32i.n a11, a13, 0
+?40081be0	64ce25	3	excw	.byte 0x64
+40081be8	0b5a3a	2	addi.n a5, a10, -1	addi.n a5, a10, -1
+40081bf0	816eef	3	l32r a8, 0x4007d9a8	l32r a8, 0x4007d9a8
+40081bf8	4a9e	2	add.n a9, a14, a4	add.n a9, a14, a4
+40081c00	e6c0d6	3	bgei a0, 32, 0x40081bda	bgei a0, 32, 0x40081bda
+40081c08	ae15ea	1	.byte 0xae	.byte 0xae
+40081c10	5e594e	1	.byte 0x5e	.byte 0x5e
+40081c18	fb37	2	addi.n a3, a7, 15	addi.n a3, a7, 15
+40081c20	e246dc	3	s8i a14, a6, 220	s8i a14, a6, 220
+40081c28	d7bafe	3	bgeu a10, a13, 0x40081c2a	bgeu a10, a13, 0x40081c2a
+40081c30	81fa8a	3	l32r a8, 0x40064818	l32r a8, 0x40064818
+40081c38	68d1	2	l32i.n a6, a1, 52	l32i.n a6, a1, 52
+?40081c40	15a1e4	3	excw	call4 0x40066654
+40081c48	9897de	2	l32i.n a9, a7, 36	l32i.n a9, a7, 36
+40081c50	41be88	3	l32r a4, 0x40063f48	l32r a4, 0x40063f48
+?40081c58	ad7e	2	excw	.byte 0xad
+?40081c60	362ca6	3	excw	entry a12, 0x5310
+40081c68	c8ea24	2	l32i.n a12, a10, 56	l32i.n a12, a10, 56
+40081c70	47d11c	3	bbs a1, a4, 0x40081c90	bbs a1, a4, 0x40081c90
+40081c78	6c60	2	movi.n a0, -26	movi.n a0, -26
+40081c80	a918ee	2	s32i.n a10, a8, 4	s32i.n a10, a8, 4
+40081c88	aead2b	1	.byte 0xae	.byte 0xae
+40081c90	dcd633	2	bnez.n a6, 0x40081cb1	bnez.n a6, 0x40081cb1
+40081c98	5a8a	2	add.n a8, a10, a5	add.n a8, a10, a5
+?40081ca0	1d11f5	2	excw	.byte 0x1d
+?40081ca8	249b97	3	excw	.byte 0x24
+40081cb0	cb877d	2	addi.n a8, a7, 12	addi.n a8, a7, 12
+40081cb8	8873	2	l32i.n a8, a3, 28	l32i.n a8, a3, 28
+40081cc0	57eec5	3	bbsi a14, 5, 0x40081c89	bbsi a14, 5, 0x40081c89
+?40081cc8	d0b318	3	excw	lsxu f11, a3, a13
+40081cd0	00dca4	3	extui a13, a0, 12, 11	extui a13, a0, 12, 11
+40081cd8	185d	2	l32i.n a1, a13, 20	l32i.n a1, a13, 20
+40081ce0	7fd93d	1	.byte 0x7f	.byte 0x7f
+40081ce8	b8766e	2	l32i.n a11, a6, 28	l32i.n a11, a6, 28
+40081cf0	7e34f4	1	.byte 0x7e	.byte 0x7e
+40081cf8	78f0	2	l32i.n a7, a0, 60	l32i.n a7, a0, 60
+40081d00	791027	2	s32i.n a7, a0, 4	s32i.n a7, a0, 4
+40081d08	2206b8	3	l8ui a2, a6, 184	l8ui a2, a6, 184
+?40081d10	008b6c	3	excw	.byte 0x0
+40081d18	6a30	2	add.n a3, a0, a6	add.n a3, a0, a6
+40081d20	7cb699	2	movi.n a6, -5	movi.n a6, -5
+40081d28	c8adc8	2	l32i.n a12, a13, 40	l32i.n a12, a13, 40
+40081d30	09cc2e	2	s32i.n a0, a12, 48	s32i.n a0, a12, 48
+40081d38	a876	2	l32i.n a10, a6, 28	l32i.n a10, a6, 28
+40081d40	a8eaab	2	l32i.n a10, a10, 56	l32i.n a10, a10, 56
+40081d48	4001a0	3	addx4 a0, a1, a4	addx4 a0, a1, a4
+40081d50	0e6054	1	.byte 0xe	.byte 0xe
+40081d58	b9b2	2	s32i.n a11, a2, 44	s32i.n a11, a2, 44
+40081d60	5cac2a	2	movi.n a12, 90	movi.n a12, 90
+?40081d68	32bc89	3	excw	l32ai a3, a12, 0x224
+?40081d70	7db6d7	2	excw	.byte 0x7d
+40081d78	3a42	2	add.n a4, a2, a3	add.n a4, a2, a3
+?40081d80	2d489c	2	excw	.byte 0x2d
+40081d88	8f540f	1	.byte 0x8f	.byte 0x8f
+40081d90	5e6c17	1	.byte 0x5e	.byte 0x5e
+?40081d98	ed4b	2	excw	.byte 0xed
+?40081da0	3332de	3	excw	.byte 0x33
+40081da8	6c492f	2	movi.n a9, -28	movi.n a9, -28
+40081db0	42a70f	3	movi a4, 0x70f	movi a4, 0x70f
+?40081db8	6da2	2	excw	.byte 0x6d
+40081dc0	f91f14	2	s32i.n a15, a15, 4	s32i.n a15, a15, 4
+40081dc8	37504e	3	bbc a0, a3, 0x40081e1a	bbc a0, a3, 0x40081e1a
+40081dd0	0c4b6f	2	movi.n a11, 4	movi.n a11, 4
+40081dd8	2a50	2	add.n a5, a0, a2	add.n a5, a0, a2
+40081de0	e819c4	2	l32i.n a14, a9, 4	l32i.n a14, a9, 4
+40081de8	f22965	3	l32i a15, a9, 0x194	l32i a15, a9, 0x194
+40081df0	d1c67f	3	l32r a13, 0x40061d08	l32r a13, 0x40061d08
+?40081df8	ad5c	2	excw	.byte 0xad
+40081e00	3e94c0	1	.byte 0x3e	.byte 0x3e
+40081e08	bc1915	2	beqz.n a9, 0x40081e3d	beqz.n a9, 0x40081e3d
+40081e10	ca33af	2	add.n a3, a3, a12	add.n a3, a3, a12
+40081e18	2b98	2	addi.n a9, a8, 2	addi.n a9, a8, 2
+40081e20	28597a	2	l32i.n a2, a9, 20	l32i.n a2, a9, 20
+40081e28	8efeff	1	.byte 0x8e	.byte 0x8e
+40081e30	b1b336	3	l32r a11, 0x4004f8fc	l32r a11, 0x4004f8fc
+40081e38	cce3	2	bnez.n a3, 0x40081e4a	bnez.n a3, 0x40081e4a
+40081e40	5e3b71	1	.byte 0x5e	.byte 0x5e
+?40081e48	9dcd78	2	excw	.byte 0x9d
+40081e50	c1c9c9	3	l32r a12, 0x40074574	l32r a12, 0x40074574
+40081e58	681b	2	l32i.n a6, a11, 4	l32i.n a6, a11, 4
+?40081e60	658f8b	3	excw	call8 0x4000d758
+?40081e68	c38538	3	excw	lsiu f12, a5, 224
+?40081e70	dd51a4	2	excw	.byte 0xdd
+40081e78	482d	2	l32i.n a4, a13, 8	l32i.n a4, a13, 8
+?40081e80	139371	3	excw	.byte 0x13
+40081e88	69c3e0	2	s32i.n a6, a3, 48	s32i.n a6, a3, 48
+40081e90	0cd44b	2	movi.n a4, 13	movi.n a4, 13
+40081e98	19bd	2	s32i.n a1, a13, 44	s32i.n a1, a13, 44
+40081ea0	ac2fe5	2	beqz.n a15, 0x40081ec6	beqz.n a15, 0x40081ec6
+40081ea8	7ea7b0	1	.byte 0x7e	.byte 0x7e
+40081eb0	d266bf	3	s32i a13, a6, 0x2fc	s32i a13, a6, 0x2fc
+40081eb8	a9b0	2	s32i.n a10, a0, 44	s32i.n a10, a0, 44
+40081ec0	985f66	2	l32i.n a9, a15, 20	l32i.n a9, a15, 20
+40081ec8	813522	3	l32r a8, 0x4004a79c	l32r a8, 0x4004a79c
+40081ed0	085ad5	2	l32i.n a0, a10, 20	l32i.n a0, a10, 20
+40081ed8	4823	2	l32i.n a4, a3, 8	l32i.n a4, a3, 8
+40081ee0	e8a49c	2	l32i.n a14, a4, 40	l32i.n a14, a4, 40
+40081ee8	693946	2	s32i.n a6, a9, 12	s32i.n a6, a9, 12
+?40081ef0	230fbb	3	excw	lsi f2, a15, 0x2ec
+40081ef8	9bf7	2	addi.n a15, a7, 9	addi.n a15, a7, 9
+40081f00	1743a3	3	ball a3, a1, 0x40081ea7	ball a3, a1, 0x40081ea7
+40081f08	0b9925	2	addi.n a9, a9, -1	addi.n a9, a9, -1
+40081f10	8b600a	2	addi.n a6, a0, 8	addi.n a6, a0, 8
+40081f18	785b	2	l32i.n a7, a11, 20	l32i.n a7, a11, 20
+?40081f20	53ca24	3	excw	ssiu f5, a10, 144
+40081f28	cb8b28	2	addi.n a8, a11, 12	addi.n a8, a11, 12
+?40081f30	6d3454	2	excw	.byte 0x6d
+40081f38	cc7a	2	bnez.n a10, 0x40081f43	bnez.n a10, 0x40081f43
+?40081f40	35e046	3	excw	call12 0x400c8d44
+40081f48	f1b0e9	3	l32r a15, 0x4007c608	l32r a15, 0x4007c608
+?40081f50	30b52d	3	excw	.byte 0x30
+40081f58	1b62	2	addi.n a6, a2, 1	addi.n a6, a2, 1
+?40081f60	40276e	3	excw	.byte 0x40
+40081f68	0a9504	2	add.n a9, a5, a0	add.n a9, a5, a0
+?40081f70	747b5d	3	excw	.byte 0x74
+40081f78	8830	2	l32i.n a8, a0, 12	l32i.n a8, a0, 12
+40081f80	2c894e	2	movi.n a9, 40	movi.n a9, 40
+40081f88	9a25c7	2	add.n a2, a5, a9	add.n a2, a5, a9
+?40081f90	ed24f2	2	excw	.byte 0xed
+40081f98	9a53	2	add.n a5, a3, a9	add.n a5, a3, a9
+40081fa0	260b40	3	beqi a11, -1, 0x40081fe4	beqi a11, -1, 0x40081fe4
+40081fa8	49db75	2	s32i.n a4, a11, 52	s32i.n a4, a11, 52
+?40081fb0	10c4df	3	excw	.byte 0x10
+40081fb8	acc7	2	beqz.n a7, 0x40081fe8	beqz.n a7, 0x40081fe8
+?40081fc0	73505d	3	excw	.byte 0x73
+40081fc8	b8647e	2	l32i.n a11, a4, 24	l32i.n a11, a4, 24
+40081fd0	c247ff	3	s8i a12, a7, 255	s8i a12, a7, 255
+40081fd8	0976	2	s32i.n a0, a6, 28	s32i.n a0, a6, 28
+40081fe0	7fd38b	1	.byte 0x7f	.byte 0x7f
+40081fe8	aaadaa	2	add.n a10, a13, a10	add.n a10, a13, a10
+40081ff0	f66617	3	bgeui a6, 6, 0x4008200b	bgeui a6, 6, 0x4008200b
+40081ff8	fcd5	2	bnez.n a5, 0x40082039	bnez.n a5, 0x40082039
+40082000	9b67d8	2	addi.n a6, a7, 9	addi.n a6, a7, 9
+40082008	baf696	2	add.n a15, a6, a11	add.n a15, a6, a11
+40082010	61e41e	3	l32r a6, 0x40049ba0	l32r a6, 0x40049ba0
+40082018	dc54	2	bnez.n a4, 0x40082031	bnez.n a4, 0x40082031
+?40082020	638444	3	excw	lsiu f6, a4, 0x110
+40082028	513a18	3	l32r a5, 0x40048110	l32r a5, 0x40048110
+40082030	d63194	3	bgez a1, 0x40081977	bgez a1, 0x40081977
+40082038	b8ec	2	l32i.n a11, a12, 56	l32i.n a11, a12, 56
+?40082040	9506d8	3	excw	call4 0x4005a0ac
+40082048	2b8948	2	addi.n a8, a9, 2	addi.n a8, a9, 2
+?40082050	e3a7ae	3	excw	.byte 0xe3
+40082058	7a90	2	add.n a9, a0, a7	add.n a9, a0, a7
+40082060	51b125	3	l32r a5, 0x4004b724	l32r a5, 0x4004b724
+40082068	5bfd03	2	addi.n a15, a13, 5	addi.n a15, a13, 5
+40082070	718b9c	3	l32r a7, 0x4006929c	l32r a7, 0x4006929c
+40082078	aa5e	2	add.n a5, a14, a10	add.n a5, a14, a10
+40082080	db9961	2	addi.n a9, a9, 13	addi.n a9, a9, 13
+40082088	7b98fb	2	addi.n a9, a8, 7	addi.n a9, a8, 7
+40082090	3a3b30	2	add.n a3, a11, a3	add.n a3, a11, a3
+40082098	6cfb	2	movi.n a11, -17	movi.n a11, -17
+400820a0	5f0001	1	.byte 0x5f	.byte 0x5f
+400820a8	cbd1c6	2	addi.n a13, a1, 12	addi.n a13, a1, 12
+400820b0	f22015	3	l32i a15, a0, 84	l32i a15, a0, 84
+400820b8	29dd	2	s32i.n a2, a13, 52	s32i.n a2, a13, 52
+400820c0	2bc658	2	addi.n a12, a6, 2	addi.n a12, a6, 2
+400820c8	713c36	3	l32r a7, 0x4004f9b8	l32r a7, 0x4004f9b8
+400820d0	7c6148	2	movi.n a1, -10	movi.n a1, -10
+400820d8	d963	2	s32i.n a13, a3, 24	s32i.n a13, a3, 24
+?400820e0	36052b	3	excw	entry a5, 0x1580
+400820e8	72dded	3	addmi a7, a13, 0xffffed00	addmi a7, a13, 0xffffed00
+400820f0	dea484	1	.byte 0xde	.byte 0xde
+400820f8	db9c	2	addi.n a9, a12, 13	addi.n a9, a12, 13
+40082100	9f9e11	1	.byte 0x9f	.byte 0x9f
+?40082108	4d95b7	2	excw	.byte 0x4d
+40082110	ffcce3	1	.byte 0xff	.byte 0xff
+40082118	6acd	2	add.n a12, a13, a6	add.n a12, a13, a6
+?40082120	36f609	3	excw	entry a6, 0x4f8
+40082128	ee6fed	1	.byte 0xee	.byte 0xee
+?40082130	15b575	3	excw	call4 0x400f7c84
+40082138	ea4f	2	add.n a4, a15, a14	add.n a4, a15, a14
+?40082140	b00d96	3	excw	.byte 0xb0
+40082148	6c5468	2	movi.n a4, -27	movi.n a4, -27
+40082150	2e1eb8	1	.byte 0x2e	.byte 0x2e
+40082158	a8bf	2	l32i.n a10, a15, 44	l32i.n a10, a15, 44
+40082160	5c53e4	2	movi.n a3, 85	movi.n a3, 85
+40082168	fe1d8d	1	.byte 0xfe	.byte 0xfe
+40082170	095ef0	2	s32i.n a0, a14, 20	s32i.n a0, a14, 20
+40082178	08cc	2	l32i.n a0, a12, 48	l32i.n a0, a12, 48
+?40082180	0de9ee	2	excw	.byte 0xd
+40082188	8c2f86	2	beqz.n a15, 0x4008218e	beqz.n a15, 0x4008218e
+?40082190	24608b	3	excw	.byte 0x24
+40082198	6bbc	2	addi.n a11, a12, 6	addi.n a11, a12, 6
+?400821a0	156bae	3	excw	call4 0x40030854
+400821a8	b6de14	3	bltui a14, 64, 0x400821c0	bltui a14, 64, 0x400821c0
+400821b0	2af204	2	add.n a15, a2, a2	add.n a15, a2, a2
+?400821b8	1d58	2	excw	.byte 0x1d
+400821c0	3812d2	2	l32i.n a3, a2, 4	l32i.n a3, a2, 4
+400821c8	48fbaa	2	l32i.n a4, a11, 60	l32i.n a4, a11, 60
+400821d0	f1f77b	3	l32r a15, 0x400611ac	l32r a15, 0x400611ac
+400821d8	4c35	2	movi.n a5, 67	movi.n a5, 67
+?400821e0	b08f36	3	excw	.byte 0xb0
+?400821e8	02f909	3	excw	s32ri a0, a9, 36
+?400821f0	448dcc	3	excw	.byte 0x44
+400821f8	9887	2	l32i.n a9, a7, 32	l32i.n a9, a7, 32
+?40082200	43536e	3	excw	.byte 0x43
+?40082208	c005db	3	excw	movt.s f0, f5, b12
+40082210	4f66ad	1	.byte 0x4f	.byte 0x4f
+40082218	49af	2	s32i.n a4, a15, 40	s32i.n a4, a15, 40
+?40082220	04e504	3	excw	.byte 0x4
+?40082228	c3424a	3	excw	ssi f12, a2, 0x128
+40082230	0b0f70	2	addi.n a0, a15, -1	addi.n a0, a15, -1
+40082238	d825	2	l32i.n a13, a5, 8	l32i.n a13, a5, 8
+40082240	d81f6f	2	l32i.n a13, a15, 4	l32i.n a13, a15, 4
+40082248	d78887	3	bany a8, a13, 0x400821d3	bany a8, a13, 0x400821d3
+40082250	8afc6c	2	add.n a15, a12, a8	add.n a15, a12, a8
+40082258	9861	2	l32i.n a9, a1, 24	l32i.n a9, a1, 24
+40082260	3eb61e	1	.byte 0x3e	.byte 0x3e
+?40082268	941916	3	excw	.byte 0x94
+40082270	1e74cc	1	.byte 0x1e	.byte 0x1e
+?40082278	4d24	2	excw	.byte 0x4d
+40082280	deeac8	1	.byte 0xde	.byte 0xde
+?40082288	5468e3	3	excw	.byte 0x54
+40082290	fcd82e	2	bnez.n a8, 0x400822d1	bnez.n a8, 0x400822d1
+40082298	1c80	2	movi.n a0, 24	movi.n a0, 24
+400822a0	426805	3	s32i a4, a8, 20	s32i a4, a8, 20
+?400822a8	c4057f	3	excw	muls.aa.hh a5, a12
+400822b0	181f19	2	l32i.n a1, a15, 4	l32i.n a1, a15, 4
+?400822b8	7d1b	2	excw	.byte 0x7d
+400822c0	af6e22	1	.byte 0xaf	.byte 0xaf
+400822c8	c80c9a	2	l32i.n a12, a12, 0	l32i.n a12, a12, 0
+400822d0	e91ec6	2	s32i.n a14, a14, 4	s32i.n a14, a14, 4
+400822d8	bc6e	2	beqz.n a14, 0x40082312	beqz.n a14, 0x40082312
+400822e0	62a6f0	3	movi a6, 0x6f0	movi a6, 0x6f0
+400822e8	fb144d	2	addi.n a1, a4, 15	addi.n a1, a4, 15
+400822f0	8cd8b1	2	beqz.n a8, 0x40082301	beqz.n a8, 0x40082301
+400822f8	79d2	2	s32i.n a7, a2, 52	s32i.n a7, a2, 52
+40082300	2b9665	2	addi.n a9, a6, 2	addi.n a9, a6, 2
+?40082308	d463d8	3	excw	.byte 0xd4
+40082310	ce1123	1	.byte 0xce	.byte 0xce
+40082318	7c96	2	movi.n a6, -7	movi.n a6, -7
+40082320	7fddf0	1	.byte 0x7f	.byte 0x7f
+40082328	cee175	1	.byte 0xce	.byte 0xce
+?40082330	d44ae3	3	excw	.byte 0xd4
+40082338	6a06	2	add.n a0, a6, a6	add.n a0, a6, a6
+?40082340	333362	3	excw	.byte 0x33
+?40082348	f5f0f3	3	excw	call12 0x40076258
+40082350	be34ac	1	.byte 0xbe	.byte 0xbe
+40082358	1cec	2	movi.n a12, 30	movi.n a12, 30
+?40082360	7d36e8	2	excw	.byte 0x7d
+40082368	cb4760	2	addi.n a4, a7, 12	addi.n a4, a7, 12
+?40082370	ad63d2	2	excw	.byte 0xad
+40082378	faa4	2	add.n a10, a4, a15	add.n a10, a4, a15
+?40082380	f48284	3	excw	.byte 0xf4
+40082388	c5360a	3	call0 0x4008c6f8	call0 0x4008c6f8
+40082390	664153	3	bnei a1, 4, 0x400823e7	bnei a1, 4, 0x400823e7
+40082398	bb81	2	addi.n a8, a1, 11	addi.n a8, a1, 11
+400823a0	091136	2	s32i.n a0, a1, 4	s32i.n a0, a1, 4
+400823a8	859e0d	3	call0 0x4008fd94	call0 0x4008fd94
+?400823b0	80a288	3	excw	.byte 0x80
+400823b8	ba3c	2	add.n a3, a12, a11	add.n a3, a12, a11
+?400823c0	158950	3	excw	call4 0x400d2c54
+400823c8	b246c5	3	s8i a11, a6, 197	s8i a11, a6, 197
+400823d0	8f7107	1	.byte 0x8f	.byte 0x8f
+400823d8	69c8	2	s32i.n a6, a8, 48	s32i.n a6, a8, 48
+400823e0	926d8c	3	s32i a9, a13, 0x230	s32i a9, a13, 0x230
+?400823e8	6593c2	3	excw	call8 0x40044d20
+400823f0	dff421	1	.byte 0xdf	.byte 0xdf
+400823f8	bb1b	2	addi.n a1, a11, 11	addi.n a1, a11, 11
+40082400	0872e6	2	l32i.n a0, a2, 28	l32i.n a0, a2, 28
+?40082408	765e02	3	excw	.byte 0x76
+40082410	4130f6	3	l32r a4, 0x4007fcd0	l32r a4, 0x4007fcd0
+?40082418	bd33	2	excw	.byte 0xbd
+40082420	c742a1	3	ball a2, a12, 0x400823c5	ball a2, a12, 0x400823c5
+?40082428	04fdd9	3	excw	.byte 0x4
+40082430	686863	2	l32i.n a6, a8, 24	l32i.n a6, a8, 24
+40082438	7c10	2	movi.n a0, -15	movi.n a0, -15
+40082440	cc8bdf	2	bnez.n a11, 0x4008244c	bnez.n a11, 0x4008244c
+?40082448	534e23	3	excw	ssi f5, a14, 140
+40082450	8b36cf	2	addi.n a3, a6, 8	addi.n a3, a6, 8
+40082458	2a10	2	add.n a1, a0, a2	add.n a1, a0, a2
+40082460	925d1e	3	s16i a9, a13, 60	s16i a9, a13, 60
+40082468	182279	2	l32i.n a1, a2, 8	l32i.n a1, a2, 8
+?40082470	f43513	3	excw	.byte 0xf4
+40082478	99bb	2	s32i.n a9, a11, 44	s32i.n a9, a11, 44
+40082480	6a608e	2	add.n a6, a0, a6	add.n a6, a0, a6
+?40082488	b0087b	3	excw	ule.s b0, f8, f11
+40082490	0c70dd	2	movi.n a0, 7	movi.n a0, 7
+40082498	2992	2	s32i.n a2, a2, 36	s32i.n a2, a2, 36
+?400824a0	30425b	3	excw	ult.s b4, f2, f3
+400824a8	ceb95b	1	.byte 0xce	.byte 0xce
+400824b0	8500d2	3	call0 0x400544bc	call0 0x400544bc
+400824b8	2b94	2	addi.n a9, a4, 2	addi.n a9, a4, 2
+400824c0	6719be	3	beq a9, a6, 0x40082482	beq a9, a6, 0x40082482
+400824c8	680db4	2	l32i.n a6, a13, 0	l32i.n a6, a13, 0
+400824d0	ba5794	2	add.n a5, a7, a11	add.n a5, a7, a11
+?400824d8	fd1d	2	excw	.byte 0xfd
+400824e0	aebd2d	1	.byte 0xae	.byte 0xae
+400824e8	a8144d	2	l32i.n a10, a4, 4	l32i.n a10, a4, 4
+400824f0	611b8c	3	l32r a6, 0x4006555c	l32r a6, 0x4006555c
+400824f8	e8ab	2	l32i.n a14, a11, 40	l32i.n a14, a11, 40
+?40082500	c35a21	3	excw	.byte 0xc3
+40082508	fbc2bc	2	addi.n a12, a2, 15	addi.n a12, a2, 15
+40082510	88212d	2	l32i.n a8, a1, 8	l32i.n a8, a1, 8
+40082518	1a2a	2	add.n a2, a10, a1	add.n a2, a10, a1
+?40082520	3d9eb8	2	excw	.byte 0x3d
+40082528	6c1801	2	movi.n a8, -31	movi.n a8, -31
+?40082530	f5837b	3	excw	call12 0x400fdd70
+40082538	fabd	2	add.n a11, a13, a15	add.n a11, a13, a15
+40082540	29b515	2	s32i.n a2, a5, 44	s32i.n a2, a5, 44
+40082548	390bb0	2	s32i.n a3, a11, 0	s32i.n a3, a11, 0
+40082550	9fd46e	1	.byte 0x9f	.byte 0x9f
+40082558	fac7	2	add.n a12, a7, a15	add.n a12, a7, a15
+40082560	4b3e25	2	addi.n a3, a14, 4	addi.n a3, a14, 4
+40082568	d11f90	3	l32r a13, 0x400665e4	l32r a13, 0x400665e4
+40082570	9b4314	2	addi.n a4, a3, 9	addi.n a4, a3, 9
+40082578	380f	2	l32i.n a3, a15, 0	l32i.n a3, a15, 0
+40082580	f8fd3e	2	l32i.n a15, a13, 60	l32i.n a15, a13, 60
+?40082588	c3a64b	3	excw	.byte 0xc3
+40082590	cfe1f9	1	.byte 0xcf	.byte 0xcf
+40082598	5a8e	2	add.n a8, a14, a5	add.n a8, a14, a5
+400825a0	ad0bdf	2	mov.n a10, a11	mov.n a10, a11
+?400825a8	6421f2	3	excw	.byte 0x64
+?400825b0	83c404	3	excw	ssiu f8, a4, 16
+400825b8	b9eb	2	s32i.n a11, a11, 56	s32i.n a11, a11, 56
+400825c0	68431f	2	l32i.n a6, a3, 16	l32i.n a6, a3, 16
+400825c8	ca5b06	2	add.n a5, a11, a12	add.n a5, a11, a12
+400825d0	065e6c	3	j 0x4009d74c	j 0x4009d74c
+400825d8	3a62	2	add.n a6, a2, a3	add.n a6, a2, a3
+400825e0	9b4177	2	addi.n a4, a1, 9	addi.n a4, a1, 9
+400825e8	065ca7	3	j 0x4006c35c	j 0x4006c35c
+?400825f0	0dd6d0	2	excw	.byte 0xd
+400825f8	098d	2	s32i.n a0, a13, 32	s32i.n a0, a13, 32
+40082600	3a55c3	2	add.n a5, a5, a3	add.n a5, a5, a3
+?40082608	fd62ab	2	excw	.byte 0xfd
+?40082610	0dee2e	2	excw	.byte 0xd
+?40082618	dd5a	2	excw	.byte 0xdd
+40082620	85bc5a	3	call0 0x400dd1ec	call0 0x400dd1ec
+?40082628	5d95c5	2	excw	.byte 0x5d
+40082630	89dad3	2	s32i.n a8, a10, 52	s32i.n a8, a10, 52
+?40082638	1d3b	2	excw	.byte 0x1d
+?40082640	93dbb0	3	excw	.byte 0x93
+40082648	0ab52c	2	add.n a11, a5, a0	add.n a11, a5, a0
+40082650	06be02	3	j 0x4008314c	j 0x4008314c
+40082658	ed05	2	mov.n a14, a5	mov.n a14, a5
+?40082660	90c29d	3	excw	.byte 0x90
+?40082668	6d53eb	2	excw	.byte 0x6d
+40082670	8fddf5	1	.byte 0x8f	.byte 0x8f
+?40082678	bd83	2	excw	.byte 0xbd
+40082680	0eed42	1	.byte 0xe	.byte 0xe
+?40082688	fdba4b	2	excw	.byte 0xfd
+40082690	b1ac9c	3	l32r a11, 0x40069940	l32r a11, 0x40069940
+40082698	6853	2	l32i.n a6, a3, 20	l32i.n a6, a3, 20
+400826a0	0e7b83	1	.byte 0xe	.byte 0xe
+400826a8	0b6600	2	addi.n a6, a6, -1	addi.n a6, a6, -1
+?400826b0	0de6df	2	excw	.byte 0xd
+400826b8	caf9	2	add.n a15, a9, a12	add.n a15, a9, a12
+400826c0	1b327f	2	addi.n a3, a2, 1	addi.n a3, a2, 1
+400826c8	2bae8e	2	addi.n a10, a14, 2	addi.n a10, a14, 2
+?400826d0	a34028	3	excw	ssi f10, a0, 160
+400826d8	39d7	2	s32i.n a3, a7, 52	s32i.n a3, a7, 52
+400826e0	d98e74	2	s32i.n a13, a14, 32	s32i.n a13, a14, 32
+?400826e8	e34008	3	excw	ssi f14, a0, 32
+400826f0	9edb2a	1	.byte 0x9e	.byte 0x9e
+400826f8	f91d	2	s32i.n a15, a13, 4	s32i.n a15, a13, 4
+40082700	c54fe4	3	call0 0x40066c00	call0 0x40066c00
+40082708	a72181	3	blt a1, a10, 0x4008268d	blt a1, a10, 0x4008268d
+?40082710	446fc5	3	excw	.byte 0x44
+40082718	6a20	2	add.n a2, a0, a6	add.n a2, a0, a6
+40082720	9facdc	1	.byte 0x9f	.byte 0x9f
+40082728	71ac6f	3	l32r a7, 0x4005e5d8	l32r a7, 0x4005e5d8
+40082730	383b28	2	l32i.n a3, a11, 12	l32i.n a3, a11, 12
+?40082738	7d72	2	excw	.byte 0x7d
+40082740	a10efa	3	l32r a10, 0x40080f78	l32r a10, 0x40080f78
+40082748	a1e7bb	3	l32r a10, 0x400716e4	l32r a10, 0x400716e4
+40082750	eb4ab8	2	addi.n a4, a10, 14	addi.n a4, a10, 14
+40082758	ebec	2	addi.n a14, a12, 14	addi.n a14, a12, 14
+40082760	16d9a4	3	beqz a9, 0x400821b1	beqz a9, 0x400821b1
+?40082768	c40079	3	excw	mula.aa.hl a0, a12
+40082770	882a02	2	l32i.n a8, a10, 8	l32i.n a8, a10, 8
+40082778	4888	2	l32i.n a4, a8, 32	l32i.n a4, a8, 32
+?40082780	d43225	3	excw	.byte 0xd4
+40082788	18af9b	2	l32i.n a1, a15, 40	l32i.n a1, a15, 40
+40082790	cfed60	1	.byte 0xcf	.byte 0xcf
+40082798	68d9	2	l32i.n a6, a9, 52	l32i.n a6, a9, 52
+400827a0	095df7	2	s32i.n a0, a13, 20	s32i.n a0, a13, 20
+400827a8	78d4eb	2	l32i.n a7, a4, 52	l32i.n a7, a4, 52
+400827b0	3eb7fe	1	.byte 0x3e	.byte 0x3e
+400827b8	acc8	2	beqz.n a8, 0x400827e8	beqz.n a8, 0x400827e8
+?400827c0	a31c76	3	excw	.byte 0xa3
+400827c8	4b2318	2	addi.n a2, a3, 4	addi.n a2, a3, 4
+400827d0	7c3593	2	movi.n a5, -13	movi.n a5, -13
+400827d8	aa3f	2	add.n a3, a15, a10	add.n a3, a15, a10
+?400827e0	756a72	3	excw	call12 0x400f4e88
+?400827e8	c3e0d1	3	excw	.byte 0xc3
+400827f0	d1c185	3	l32r a13, 0x40063ef4	l32r a13, 0x40063ef4
+400827f8	9bda	2	addi.n a13, a10, 9	addi.n a13, a10, 9
+40082800	4afc02	2	add.n a15, a12, a4	add.n a15, a12, a4
+40082808	9aab4d	2	add.n a10, a11, a9	add.n a10, a11, a9
+?40082810	9de836	2	excw	.byte 0x9d
+40082818	ea14	2	add.n a1, a4, a14	add.n a1, a4, a14
+?40082820	d332f8	3	excw	.byte 0xd3
+40082828	6607ec	3	bnei a7, -1, 0x40082818	bnei a7, -1, 0x40082818
+40082830	b7bca4	3	bgeu a12, a11, 0x400827d8	bgeu a12, a11, 0x400827d8
+40082838	e8b8	2	l32i.n a14, a8, 44	l32i.n a14, a8, 44
+40082840	97d04b	3	bbs a0, a9, 0x4008288f	bbs a0, a9, 0x4008288f
+?40082848	ed8626	2	excw	.byte 0xed
+40082850	397164	2	s32i.n a3, a1, 28	s32i.n a3, a1, 28
+40082858	1ab1	2	add.n a11, a1, a1	add.n a11, a1, a1
+?40082860	dd9176	2	excw	.byte 0xdd
+40082868	e769aa	3	bbci a9, 14, 0x40082816	bbci a9, 14, 0x40082816
+40082870	3ae5b1	2	add.n a14, a5, a3	add.n a14, a5, a3
+40082878	9888	2	l32i.n a9, a8, 32	l32i.n a9, a8, 32
+?40082880	2dc93a	2	excw	.byte 0x2d
+40082888	49f6b5	2	s32i.n a4, a6, 60	s32i.n a4, a6, 60
+40082890	a15f5d	3	l32r a10, 0x40059e0c	l32r a10, 0x40059e0c
+?40082898	1dad	2	excw	.byte 0x1d
+?400828a0	b23b38	3	excw	.byte 0xb2
+400828a8	0550dc	3	call0 0x4005edac	call0 0x4005edac
+400828b0	7e0093	1	.byte 0x7e	.byte 0x7e
+400828b8	0ad5	2	add.n a13, a5, a0	add.n a13, a5, a0
+400828c0	283d62	2	l32i.n a2, a13, 12	l32i.n a2, a13, 12
+400828c8	48a161	2	l32i.n a4, a1, 40	l32i.n a4, a1, 40
+400828d0	dbdd13	2	addi.n a13, a13, 13	addi.n a13, a13, 13
+400828d8	bb82	2	addi.n a8, a2, 11	addi.n a8, a2, 11
+?400828e0	adb1ab	2	excw	.byte 0xad
+400828e8	dfad64	1	.byte 0xdf	.byte 0xdf
+400828f0	81251c	3	l32r a8, 0x40049984	l32r a8, 0x40049984
+?400828f8	1d9e	2	excw	.byte 0x1d
+40082900	520de8	3	l8ui a5, a13, 232	l8ui a5, a13, 232
+?40082908	1d7bd5	2	excw	.byte 0x1d
+40082910	ac54f2	2	beqz.n a4, 0x40082939	beqz.n a4, 0x40082939
+40082918	396b	2	s32i.n a3, a11, 24	s32i.n a3, a11, 24
+40082920	976e52	3	bbci a14, 9, 0x40082976	bbci a14, 9, 0x40082976
+40082928	fff4e9	1	.byte 0xff	.byte 0xff
+?40082930	d3309c	3	excw	.byte 0xd3
+40082938	9bc2	2	addi.n a12, a2, 9	addi.n a12, a2, 9
+40082940	d15868	3	l32r a13, 0x4005caa0	l32r a13, 0x4005caa0
+?40082948	0da77a	2	excw	.byte 0xd
+40082950	913c25	3	l32r a9, 0x4004be40	l32r a9, 0x4004be40
+40082958	3c72	2	movi.n a2, 55	movi.n a2, 55
+40082960	28015d	2	l32i.n a2, a1, 0	l32i.n a2, a1, 0
+40082968	ffc12d	1	.byte 0xff	.byte 0xff
+40082970	bc2751	2	beqz.n a7, 0x400829a6	beqz.n a7, 0x400829a6
+40082978	6b96	2	addi.n a9, a6, 6	addi.n a9, a6, 6
+?40082980	a3ab64	3	excw	.byte 0xa3
+40082988	7f39c1	1	.byte 0x7f	.byte 0x7f
+40082990	d21654	3	l16ui a13, a6, 168	l16ui a13, a6, 168
+?40082998	9d86	2	excw	.byte 0x9d
+400829a0	9f2d25	1	.byte 0x9f	.byte 0x9f
+400829a8	58a2ee	2	l32i.n a5, a2, 40	l32i.n a5, a2, 40
+?400829b0	55520f	3	excw	call4 0x40091ed8
+400829b8	4887	2	l32i.n a4, a7, 32	l32i.n a4, a7, 32
+400829c0	fe99ee	1	.byte 0xfe	.byte 0xfe
+?400829c8	9307eb	3	excw	lsi f9, a7, 0x3ac
+?400829d0	b3b1ae	3	excw	.byte 0xb3
+400829d8	d968	2	s32i.n a13, a8, 24	s32i.n a13, a8, 24
+400829e0	7ba0f5	2	addi.n a10, a0, 7	addi.n a10, a0, 7
+400829e8	da28ac	2	add.n a2, a8, a13	add.n a2, a8, a13
+?400829f0	f47d25	3	excw	.byte 0xf4
+400829f8	7906	2	s32i.n a7, a6, 0	s32i.n a7, a6, 0
+40082a00	58fb91	2	l32i.n a5, a11, 60	l32i.n a5, a11, 60
+40082a08	0e838e	1	.byte 0xe	.byte 0xe
+40082a10	8293c4	3	l16si a8, a3, 0x188	l16si a8, a3, 0x188
+40082a18	5a7f	2	add.n a7, a15, a5	add.n a7, a15, a5
+?40082a20	55c020	3	excw	call4 0x400a3628
+40082a28	9e096e	1	.byte 0x9e	.byte 0x9e
+40082a30	1208ba	3	l8ui a1, a8, 186	l8ui a1, a8, 186
+40082a38	0bb1	2	addi.n a11, a1, -1	addi.n a11, a1, -1
+40082a40	821561	3	l16ui a8, a5, 194	l16ui a8, a5, 194
+?40082a48	cd75c0	2	excw	.byte 0xcd
+40082a50	8841ea	2	l32i.n a8, a1, 16	l32i.n a8, a1, 16
+40082a58	4abc	2	add.n a11, a12, a4	add.n a11, a12, a4
+?40082a60	952423	3	excw	call4 0x400a5cac
+40082a68	985a90	2	l32i.n a9, a10, 20	l32i.n a9, a10, 20
+40082a70	c8b821	2	l32i.n a12, a8, 44	l32i.n a12, a8, 44
+40082a78	1cbe	2	movi.n a14, 27	movi.n a14, 27
+?40082a80	02874e	3	excw	.byte 0x2
+?40082a88	f5b9fd	3	excw	call12 0x40080628
+40082a90	db4dab	2	addi.n a4, a13, 13	addi.n a4, a13, 13
+40082a98	dbf7	2	addi.n a15, a7, 13	addi.n a15, a7, 13
+40082aa0	5294c9	3	l16si a5, a4, 0x192	l16si a5, a4, 0x192
+40082aa8	053c4d	3	call0 0x400cfe6c	call0 0x400cfe6c
+40082ab0	deac6e	1	.byte 0xde	.byte 0xde
+40082ab8	eb01	2	addi.n a0, a1, 14	addi.n a0, a1, 14
+40082ac0	8bbb08	2	addi.n a11, a11, 8	addi.n a11, a11, 8
+?40082ac8	303609	3	excw	l32e a3, a6, -52
+40082ad0	663a21	3	bnei a10, 3, 0x40082af5	bnei a10, 3, 0x40082af5
+40082ad8	1c66	2	movi.n a6, 22	movi.n a6, 22
+40082ae0	ff24d9	1	.byte 0xff	.byte 0xff
+40082ae8	c153ad	3	l32r a12, 0x4006e034	l32r a12, 0x4006e034
+40082af0	a1fb03	3	l32r a10, 0x40043adc	l32r a10, 0x40043adc
+40082af8	2a95	2	add.n a9, a5, a2	add.n a9, a5, a2
+?40082b00	2476fb	3	excw	.byte 0x24
+40082b08	eefcdb	1	.byte 0xee	.byte 0xee
+?40082b10	dd253c	2	excw	.byte 0xdd
+40082b18	d8e5	2	l32i.n a13, a5, 56	l32i.n a13, a5, 56
+40082b20	d8d4a0	2	l32i.n a13, a4, 52	l32i.n a13, a4, 52
+?40082b28	230eee	3	excw	lsi f2, a14, 0x3b8
+?40082b30	1046fb	3	excw	.byte 0x10
+40082b38	4973	2	s32i.n a4, a3, 28	s32i.n a4, a3, 28
+?40082b40	e56d3b	3	excw	call8 0x400be220
+40082b48	29dfce	2	s32i.n a2, a15, 52	s32i.n a2, a15, 52
+?40082b50	00cb3d	3	excw	.byte 0x0
+40082b58	4a1b	2	add.n a1, a11, a4	add.n a1, a11, a4
+40082b60	77414a	3	ball a1, a7, 0x40082bae	ball a1, a7, 0x40082bae
+40082b68	89000a	2	s32i.n a8, a0, 0	s32i.n a8, a0, 0
+40082b70	b93bee	2	s32i.n a11, a11, 12	s32i.n a11, a11, 12
+?40082b78	cdd9	2	excw	.byte 0xcd
+?40082b80	327f12	3	excw	.byte 0x32
+40082b88	3ab068	2	add.n a11, a0, a3	add.n a11, a0, a3
+40082b90	a9c01e	2	s32i.n a10, a0, 48	s32i.n a10, a0, 48
+40082b98	3804	2	l32i.n a3, a4, 0	l32i.n a3, a4, 0
+40082ba0	29b8c3	2	s32i.n a2, a8, 44	s32i.n a2, a8, 44
+40082ba8	72a2c8	3	movi a7, 0x2c8	movi a7, 0x2c8
+40082bb0	272d00	3	blt a13, a2, 0x40082bb4	blt a13, a2, 0x40082bb4
+40082bb8	5a6b	2	add.n a6, a11, a5	add.n a6, a11, a5
+40082bc0	b8a526	2	l32i.n a11, a5, 40	l32i.n a11, a5, 40
+?40082bc8	14e016	3	excw	.byte 0x14
+40082bd0	ca8183	2	add.n a8, a1, a12	add.n a8, a1, a12
+40082bd8	e9f5	2	s32i.n a14, a5, 60	s32i.n a14, a5, 60
+40082be0	0b95e2	2	addi.n a9, a5, -1	addi.n a9, a5, -1
+40082be8	a7a35b	3	bge a3, a10, 0x40082c47	bge a3, a10, 0x40082c47
+40082bf0	9b5fde	2	addi.n a5, a15, 9	addi.n a5, a15, 9
+40082bf8	0a52	2	add.n a5, a2, a0	add.n a5, a2, a0
+40082c00	0ae120	2	add.n a14, a1, a0	add.n a14, a1, a0
+40082c08	bede18	1	.byte 0xbe	.byte 0xbe
+40082c10	ac8b56	2	beqz.n a11, 0x40082c3c	beqz.n a11, 0x40082c3c
+40082c18	eb2b	2	addi.n a2, a11, 14	addi.n a2, a11, 14
+40082c20	1ec541	1	.byte 0x1e	.byte 0x1e
+?40082c28	e363fe	3	excw	.byte 0xe3
+40082c30	26b899	3	beqi a8, 16, 0x40082bcd	beqi a8, 16, 0x40082bcd
+40082c38	6844	2	l32i.n a6, a4, 16	l32i.n a6, a4, 16
+?40082c40	04740f	3	excw	.byte 0x4
+?40082c48	3de285	2	excw	.byte 0x3d
+40082c50	99f341	2	s32i.n a9, a3, 60	s32i.n a9, a3, 60
+40082c58	c8ab	2	l32i.n a12, a11, 40	l32i.n a12, a11, 40
+40082c60	725844	3	s16i a7, a8, 136	s16i a7, a8, 136
+?40082c68	54c316	3	excw	.byte 0x54
+40082c70	d1556b	3	l32r a13, 0x4005d9c4	l32r a13, 0x4005d9c4
+40082c78	eb0c	2	addi.n a0, a12, 14	addi.n a0, a12, 14
+?40082c80	367725	3	excw	entry a7, 0x12b8
+?40082c88	62e93f	3	excw	s32c1i a6, a9, 252
+40082c90	bf274d	1	.byte 0xbf	.byte 0xbf
+40082c98	98ff	2	l32i.n a9, a15, 60	l32i.n a9, a15, 60
+40082ca0	42a08d	3	movi a4, 141	movi a4, 141
+?40082ca8	9529a1	3	excw	call4 0x40023f44
+40082cb0	f94d53	2	s32i.n a15, a13, 16	s32i.n a15, a13, 16
+40082cb8	2c96	2	movi.n a6, 41	movi.n a6, 41
+40082cc0	f821c3	2	l32i.n a15, a1, 8	l32i.n a15, a1, 8
+?40082cc8	e3dac0	3	excw	.byte 0xe3
+40082cd0	82481c	3	s8i a8, a8, 28	s8i a8, a8, 28
+40082cd8	aa9e	2	add.n a9, a14, a10	add.n a9, a14, a10
+40082ce0	7990d4	2	s32i.n a7, a0, 36	s32i.n a7, a0, 36
+?40082ce8	35f37b	3	excw	call12 0x400fec1c
+?40082cf0	4db021	2	excw	.byte 0x4d
+40082cf8	b90c	2	s32i.n a11, a12, 0	s32i.n a11, a12, 0
+40082d00	b02a65	3	extui a2, a11, 26, 7	extui a2, a11, 26, 7
+40082d08	dc88ac	2	bnez.n a8, 0x40082d24	bnez.n a8, 0x40082d24
+40082d10	2e232f	1	.byte 0x2e	.byte 0x2e
+40082d18	8805	2	l32i.n a8, a5, 0	l32i.n a8, a5, 0
+?40082d20	b41a0b	3	excw	.byte 0xb4
+40082d28	1ea359	1	.byte 0x1e	.byte 0x1e
+40082d30	d9fe3c	2	s32i.n a13, a14, 60	s32i.n a13, a14, 60
+40082d38	4cdc	2	movi.n a12, 77	movi.n a12, 77
+?40082d40	b3752e	3	excw	.byte 0xb3
+40082d48	61ff11	3	l32r a6, 0x40047544	l32r a6, 0x40047544
+40082d50	a818cc	2	l32i.n a10, a8, 4	l32i.n a10, a8, 4
+40082d58	9beb	2	addi.n a14, a11, 9	addi.n a14, a11, 9
+40082d60	7b9092	2	addi.n a9, a0, 7	addi.n a9, a0, 7
+40082d68	b85fa1	2	l32i.n a11, a15, 20	l32i.n a11, a15, 20
+?40082d70	8350d4	3	excw	.byte 0x83
+40082d78	a848	2	l32i.n a10, a8, 16	l32i.n a10, a8, 16
+40082d80	7c0178	2	movi.n a1, -16	movi.n a1, -16
+?40082d88	f4a609	3	excw	.byte 0xf4
+40082d90	410841	3	l32r a4, 0x400531b0	l32r a4, 0x400531b0
+40082d98	dab7	2	add.n a11, a7, a13	add.n a11, a7, a13
+?40082da0	ed6d43	2	excw	.byte 0xed
+40082da8	2854c9	2	l32i.n a2, a4, 20	l32i.n a2, a4, 20
+40082db0	9e6a30	1	.byte 0x9e	.byte 0x9e
+40082db8	4c52	2	movi.n a2, 69	movi.n a2, 69
+?40082dc0	b59896	3	excw	call12 0x4001974c
+40082dc8	abd825	2	addi.n a13, a8, 10	addi.n a13, a8, 10
+40082dd0	ccd83b	2	bnez.n a8, 0x40082de1	bnez.n a8, 0x40082de1
+?40082dd8	4df7	2	excw	.byte 0x4d
+40082de0	f11faa	3	l32r a15, 0x4006d65c	l32r a15, 0x4006d65c
+40082de8	fab04e	2	add.n a11, a0, a15	add.n a11, a0, a15
+40082df0	b8c46d	2	l32i.n a11, a4, 48	l32i.n a11, a4, 48
+40082df8	28e2	2	l32i.n a2, a2, 56	l32i.n a2, a2, 56
+40082e00	7e5ed0	1	.byte 0x7e	.byte 0x7e
+40082e08	51fa7f	3	l32r a5, 0x40062df0	l32r a5, 0x40062df0
+40082e10	9812f5	2	l32i.n a9, a2, 4	l32i.n a9, a2, 4
+40082e18	0848	2	l32i.n a0, a8, 16	l32i.n a0, a8, 16
+40082e20	7f42b1	1	.byte 0x7f	.byte 0x7f
+?40082e28	b45f55	3	excw	.byte 0xb4
+40082e30	7ed39a	1	.byte 0x7e	.byte 0x7e
+40082e38	2b72	2	addi.n a7, a2, 2	addi.n a7, a2, 2
+?40082e40	0486c4	3	excw	.byte 0x4
+40082e48	1c4584	2	movi.n a5, 20	movi.n a5, 20
+40082e50	91fb05	3	l32r a9, 0x4004463c	l32r a9, 0x4004463c
+40082e58	9cbe	2	beqz.n a14, 0x40082e77	beqz.n a14, 0x40082e77
+?40082e60	9468b0	3	excw	.byte 0x94
+?40082e68	0ddd99	2	excw	.byte 0xd
+40082e70	c941a6	2	s32i.n a12, a1, 16	s32i.n a12, a1, 16
+40082e78	f80d	2	l32i.n a15, a13, 0	l32i.n a15, a13, 0
+40082e80	5819b2	2	l32i.n a5, a9, 4	l32i.n a5, a9, 4
+40082e88	6e8647	1	.byte 0x6e	.byte 0x6e
+40082e90	2152f9	3	l32r a2, 0x400813d8	l32r a2, 0x400813d8
+40082e98	acb1	2	beqz.n a1, 0x40082ec7	beqz.n a1, 0x40082ec7
+40082ea0	0b662d	2	addi.n a6, a6, -1	addi.n a6, a6, -1
+40082ea8	2e8dd0	1	.byte 0x2e	.byte 0x2e
+40082eb0	c115fe	3	l32r a12, 0x40082704	l32r a12, 0x40082704
+40082eb8	1a90	2	add.n a9, a0, a1	add.n a9, a0, a1
+?40082ec0	6d15f1	2	excw	.byte 0x6d
+?40082ec8	550b71	3	excw	call4 0x400f3f80
+?40082ed0	10ac96	3	excw	.byte 0x10
+40082ed8	99d7	2	s32i.n a9, a7, 52	s32i.n a9, a7, 52
+40082ee0	3fb016	1	.byte 0x3f	.byte 0x3f
+40082ee8	11602e	3	l32r a1, 0x4004e868	l32r a1, 0x4004e868
+40082ef0	2df504	2	break.n 5	break.n 5
+40082ef8	8c97	2	beqz.n a7, 0x40082f05	beqz.n a7, 0x40082f05
+?40082f00	bd325c	2	excw	.byte 0xbd
+40082f08	f2944a	3	l16si a15, a4, 148	l16si a15, a4, 148
+?40082f10	642112	3	excw	.byte 0x64
+?40082f18	4d7e	2	excw	.byte 0x4d
+40082f20	2b47c3	2	addi.n a4, a7, 2	addi.n a4, a7, 2
+?40082f28	c468b3	3	excw	.byte 0xc4
+40082f30	7cf9d3	2	movi.n a9, -1	movi.n a9, -1
+40082f38	9c88	2	beqz.n a8, 0x40082f54	beqz.n a8, 0x40082f54
+40082f40	173a5d	3	bltu a10, a1, 0x40082fa1	bltu a10, a1, 0x40082fa1
+40082f48	39c0f0	2	s32i.n a3, a0, 48	s32i.n a3, a0, 48
+40082f50	7c750f	2	movi.n a5, -9	movi.n a5, -9
+40082f58	7903	2	s32i.n a7, a3, 0	s32i.n a7, a3, 0
+40082f60	5a4ca7	2	add.n a4, a12, a5	add.n a4, a12, a5
+40082f68	915b86	3	l32r a9, 0x400648d4	l32r a9, 0x400648d4
+40082f70	373b0b	3	bltu a11, a3, 0x40082f7f	bltu a11, a3, 0x40082f7f
+40082f78	dac4	2	add.n a12, a4, a13	add.n a12, a4, a13
+?40082f80	fd901f	2	excw	.byte 0xfd
+?40082f88	76baa6	3	excw	.byte 0x76
+40082f90	1953d0	2	s32i.n a1, a3, 20	s32i.n a1, a3, 20
+40082f98	893a	2	s32i.n a8, a10, 12	s32i.n a8, a10, 12
+?40082fa0	833c04	3	excw	.byte 0x83
+40082fa8	484a90	2	l32i.n a4, a10, 16	l32i.n a4, a10, 16
+40082fb0	e96ba4	2	s32i.n a14, a11, 24	s32i.n a14, a11, 24
+40082fb8	284a	2	l32i.n a2, a10, 16	l32i.n a2, a10, 16
+40082fc0	ea2049	2	add.n a2, a0, a14	add.n a2, a0, a14
+40082fc8	97e97b	3	bbsi a9, 9, 0x40083047	bbsi a9, 9, 0x40083047
+40082fd0	1adabb	2	add.n a13, a10, a1	add.n a13, a10, a1
+40082fd8	18df	2	l32i.n a1, a15, 52	l32i.n a1, a15, 52
+?40082fe0	d431dd	3	excw	.byte 0xd4
+40082fe8	b2c95c	3	addi a11, a9, 92	addi a11, a9, 92
+40082ff0	cadf09	2	add.n a13, a15, a12	add.n a13, a15, a12
+40082ff8	08ab	2	l32i.n a0, a11, 40	l32i.n a0, a11, 40
+40083000	a9944b	2	s32i.n a10, a4, 36	s32i.n a10, a4, 36
+40083008	41fdd8	3	l32r a4, 0x400793fc	l32r a4, 0x400793fc
+40083010	b22d6b	3	l32i a11, a13, 0x1ac	l32i a11, a13, 0x1ac
+40083018	4b36	2	addi.n a3, a6, 4	addi.n a3, a6, 4
+40083020	71d992	3	l32r a7, 0x40067b84	l32r a7, 0x40067b84
+40083028	1a44d8	2	add.n a4, a4, a1	add.n a4, a4, a1
+40083030	db396d	2	addi.n a3, a9, 13	addi.n a3, a9, 13
+?40083038	7d96	2	excw	.byte 0x7d
+40083040	26f583	3	beqi a5, 0x100, 0x40082fc7	beqi a5, 0x100, 0x40082fc7
+?40083048	0dcefe	2	excw	.byte 0xd
+40083050	f11313	3	l32r a15, 0x40047c9c	l32r a15, 0x40047c9c
+40083058	9c1b	2	beqz.n a11, 0x4008306d	beqz.n a11, 0x4008306d
+40083060	c06621	3	srai a6, a12, 6	srai a6, a12, 6
+40083068	2afa1e	2	add.n a15, a10, a2	add.n a15, a10, a2
+40083070	cba8df	2	addi.n a10, a8, 12	addi.n a10, a8, 12
+?40083078	0d82	2	excw	.byte 0xd
+40083080	fe119c	1	.byte 0xfe	.byte 0xfe
+?40083088	757826	3	excw	call12 0x400a9810
+40083090	a1c6e3	3	l32r a10, 0x4007bfa8	l32r a10, 0x4007bfa8
+40083098	f8b7	2	l32i.n a15, a7, 44	l32i.n a15, a7, 44
+400830a0	c17d75	3	l32r a12, 0x40060694	l32r a12, 0x40060694
+400830a8	2a6c63	2	add.n a6, a12, a2	add.n a6, a12, a2
+400830b0	3f8e47	1	.byte 0x3f	.byte 0x3f
+400830b8	0bd0	2	addi.n a13, a0, -1	addi.n a13, a0, -1
+400830c0	563a8d	3	bnez a10, 0x40082997	bnez a10, 0x40082997
+400830c8	629940	3	l16si a6, a9, 128	l16si a6, a9, 128
+400830d0	089834	2	l32i.n a0, a8, 36	l32i.n a0, a8, 36
+400830d8	0cda	2	movi.n a10, 13	movi.n a10, 13
+400830e0	9aebaf	2	add.n a14, a11, a9	add.n a14, a11, a9
+?400830e8	36b5b2	3	excw	entry a5, 0x5958
+?400830f0	d4bd29	3	excw	.byte 0xd4
+400830f8	99bb	2	s32i.n a9, a11, 44	s32i.n a9, a11, 44
+40083100	573d2a	3	bltu a13, a5, 0x4008312e	bltu a13, a5, 0x4008312e
+?40083108	2d7d4d	2	excw	.byte 0x2d
+40083110	ab1b38	2	addi.n a1, a11, 10	addi.n a1, a11, 10
+40083118	8c0e	2	beqz.n a14, 0x4008311c	beqz.n a14, 0x4008311c
+40083120	26c93b	3	beqi a9, 32, 0x4008315f	beqi a9, 32, 0x4008315f
+40083128	777b05	3	bbci a11, 23, 0x40083131	bbci a11, 23, 0x40083131
+?40083130	a02de9	3	excw	.byte 0xa0
+40083138	5a2a	2	add.n a2, a10, a5	add.n a2, a10, a5
+40083140	0c68fc	2	movi.n a8, 6	movi.n a8, 6
+40083148	d12acf	3	l32r a13, 0x40076df0	l32r a13, 0x40076df0
+?40083150	7d220e	2	excw	.byte 0x7d
+40083158	c8c9	2	l32i.n a12, a9, 48	l32i.n a12, a9, 48
+?40083160	b473eb	3	excw	.byte 0xb4
+?40083168	f0d48e	3	excw	.byte 0xf0
+?40083170	20a4aa	3	excw	floor.s a10, f4, 2
+40083178	291d	2	s32i.n a2, a13, 4	s32i.n a2, a13, 4
+40083180	780ea7	2	l32i.n a7, a14, 0	l32i.n a7, a14, 0
+40083188	f6807a	3	bgeui a0, 8, 0x40083206	bgeui a0, 8, 0x40083206
+?40083190	42b59c	3	excw	l32ai a4, a5, 0x270
+?40083198	1dd5	2	excw	.byte 0x1d
+400831a0	ab5e43	2	addi.n a5, a14, 10	addi.n a5, a14, 10
+400831a8	aedd4b	1	.byte 0xae	.byte 0xae
+400831b0	6f184b	1	.byte 0x6f	.byte 0x6f
+400831b8	598d	2	s32i.n a5, a13, 32	s32i.n a5, a13, 32
+400831c0	bb7bda	2	addi.n a7, a11, 11	addi.n a7, a11, 11
+400831c8	3af4ee	2	add.n a15, a4, a3	add.n a15, a4, a3
+?400831d0	c359be	3	excw	.byte 0xc3
+400831d8	e97b	2	s32i.n a14, a11, 28	s32i.n a14, a11, 28
+400831e0	504121	3	srai a4, a5, 1	srai a4, a5, 1
+400831e8	3269b4	3	s32i a3, a9, 0x2d0	s32i a3, a9, 0x2d0
+?400831f0	842b35	3	excw	.byte 0x84
+400831f8	aae1	2	add.n a14, a1, a10	add.n a14, a1, a10
+?40083200	c2b48e	3	excw	l32ai a12, a4, 0x238
+?40083208	753c1e	3	excw	call12 0x400a15d0
+40083210	da21b8	2	add.n a2, a1, a13	add.n a2, a1, a13
+?40083218	ed82	2	excw	.byte 0xed
+?40083220	769d56	3	excw	loopnez a13, 0x4008327a
+40083228	e9820d	2	s32i.n a14, a2, 32	s32i.n a14, a2, 32
+40083230	5c996b	2	movi.n a9, 89	movi.n a9, 89
+40083238	4ca5	2	movi.n a5, 74	movi.n a5, 74
+?40083240	2dd210	2	excw	.byte 0x2d
+40083248	412ff9	3	l32r a4, 0x40081704	l32r a4, 0x40081704
+40083250	8f55d5	1	.byte 0x8f	.byte 0x8f
+40083258	0961	2	s32i.n a0, a1, 24	s32i.n a0, a1, 24
+40083260	16c74a	3	beqz a7, 0x40083710	beqz a7, 0x40083710
+?40083268	159834	3	excw	call4 0x400b7bec
+?40083270	e31133	3	excw	.byte 0xe3
+40083278	1ca9	2	movi.n a9, 26	movi.n a9, 26
+40083280	3a1976	2	add.n a1, a9, a3	add.n a1, a9, a3
+40083288	c1bc11	3	l32r a12, 0x40047978	l32r a12, 0x40047978
+40083290	022269	3	l32i a0, a2, 0x1a4	l32i a0, a2, 0x1a4
+40083298	8aed	2	add.n a14, a13, a8	add.n a14, a13, a8
+?400832a0	c42611	3	excw	.byte 0xc4
+?400832a8	f0863d	3	excw	.byte 0xf0
+400832b0	bacdbe	2	add.n a12, a13, a11	add.n a12, a13, a11
+?400832b8	ddcb	2	excw	.byte 0xdd
+400832c0	4be1c2	2	addi.n a14, a1, 4	addi.n a14, a1, 4
+?400832c8	95c9e0	3	excw	call4 0x40063f64
+?400832d0	7605dc	3	excw	bf b5, 0x400832b0
+?400832d8	9d7f	2	excw	.byte 0x9d
+400832e0	5ec8ad	1	.byte 0x5e	.byte 0x5e
+400832e8	5f190d	1	.byte 0x5f	.byte 0x5f
+400832f0	ccc8f4	2	bnez.n a8, 0x40083300	bnez.n a8, 0x40083300
+400832f8	d90b	2	s32i.n a13, a11, 0	s32i.n a13, a11, 0
+40083300	908081	3	src a8, a0, a9	src a8, a0, a9
+40083308	1b9833	2	addi.n a9, a8, 1	addi.n a9, a8, 1
+?40083310	631889	3	excw	.byte 0x63
+40083318	6c07	2	movi.n a7, -32	movi.n a7, -32
+?40083320	550f9f	3	excw	call4 0x40022418
+?40083328	90f6d7	3	excw	.byte 0x90
+?40083330	d5e460	3	excw	call4 0x400e4180
+40083338	ebb6	2	addi.n a11, a6, 14	addi.n a11, a6, 14
+40083340	8b89fd	2	addi.n a8, a9, 8	addi.n a8, a9, 8
+40083348	3c95dc	2	movi.n a5, 57	movi.n a5, 57
+40083350	39c4e7	2	s32i.n a3, a4, 48	s32i.n a3, a4, 48
+40083358	3b74	2	addi.n a7, a4, 3	addi.n a7, a4, 3
+40083360	3a3852	2	add.n a3, a8, a3	add.n a3, a8, a3
+40083368	1257bf	3	s16i a1, a7, 0x17e	s16i a1, a7, 0x17e
+?40083370	149ebd	3	excw	.byte 0x14
+40083378	9aee	2	add.n a14, a14, a9	add.n a14, a14, a9
+?40083380	245e05	3	excw	.byte 0x24
+?40083388	541bab	3	excw	.byte 0x54
+40083390	f725dd	3	blt a5, a15, 0x40083371	blt a5, a15, 0x40083371
+40083398	1944	2	s32i.n a1, a4, 16	s32i.n a1, a4, 16
+?400833a0	2004df	3	excw	.byte 0x20
+400833a8	c52254	3	call0 0x400d75d8	call0 0x400d75d8
+400833b0	aa6a49	2	add.n a6, a10, a10	add.n a6, a10, a10
+?400833b8	2d99	2	excw	.byte 0x2d
+400833c0	71429c	3	l32r a7, 0x4006a4c8	l32r a7, 0x4006a4c8
+400833c8	61a7b2	3	l32r a6, 0x4006fe64	l32r a6, 0x4006fe64
+400833d0	9b2290	2	addi.n a2, a2, 9	addi.n a2, a2, 9
+400833d8	79e4	2	s32i.n a7, a4, 56	s32i.n a7, a4, 56
+400833e0	51b706	3	l32r a5, 0x40044ebc	l32r a5, 0x40044ebc
+400833e8	f9998e	2	s32i.n a15, a9, 36	s32i.n a15, a9, 36
+?400833f0	44956a	3	excw	.byte 0x44
+400833f8	1c28	2	movi.n a8, 18	movi.n a8, 18
+40083400	d61c3d	3	bgez a12, 0x400837d5	bgez a12, 0x400837d5
+40083408	caf0c4	2	add.n a15, a0, a12	add.n a15, a0, a12
+40083410	e644c8	3	bgei a4, 4, 0x400833dc	bgei a4, 4, 0x400833dc
+40083418	598a	2	s32i.n a5, a10, 32	s32i.n a5, a10, 32
+40083420	8fc4ba	1	.byte 0x8f	.byte 0x8f
+40083428	485cd1	2	l32i.n a4, a12, 20	l32i.n a4, a12, 20
+40083430	72c9a3	3	addi a7, a9, -93	addi a7, a9, -93
+40083438	7c53	2	movi.n a3, -11	movi.n a3, -11
+?40083440	957a9c	3	excw	call4 0x4001fbec
+40083448	f0b914	3	extui a11, a15, 9, 2	extui a11, a15, 9, 2
+40083450	0ace82	2	add.n a12, a14, a0	add.n a12, a14, a0
+40083458	ea19	2	add.n a1, a9, a14	add.n a1, a9, a14
+40083460	37c6ec	3	bnall a6, a3, 0x40083450	bnall a6, a3, 0x40083450
+40083468	0c6ad0	2	movi.n a10, 6	movi.n a10, 6
+?40083470	32b548	3	excw	l32ai a3, a5, 0x120
+?40083478	2d79	2	excw	.byte 0x2d
+?40083480	9532d0	3	excw	call4 0x400537ac
+40083488	eff9c7	1	.byte 0xef	.byte 0xef
+40083490	3b5379	2	addi.n a5, a3, 3	addi.n a5, a3, 3
+40083498	89b8	2	s32i.n a8, a8, 44	s32i.n a8, a8, 44
+?400834a0	00e886	3	excw	.byte 0x0
+400834a8	61343d	3	l32r a6, 0x40052978	l32r a6, 0x40052978
+?400834b0	72867f	3	excw	.byte 0x72
+400834b8	b9c6	2	s32i.n a11, a6, 48	s32i.n a11, a6, 48
+?400834c0	155322	3	excw	call4 0x400a59f4
+400834c8	494dbe	2	s32i.n a4, a13, 16	s32i.n a4, a13, 16
+400834d0	271224	3	beq a2, a2, 0x400834f8	beq a2, a2, 0x400834f8
+400834d8	ec7f	2	bnez.n a15, 0x40083503	bnez.n a15, 0x40083503
+?400834e0	52fea5	3	excw	s32ri a5, a14, 0x294
+400834e8	6ec362	1	.byte 0x6e	.byte 0x6e
+400834f0	2c3a96	2	movi.n a10, 35	movi.n a10, 35
+?400834f8	4d9e	2	excw	.byte 0x4d
+40083500	b735f4	3	bltu a5, a11, 0x400834f8	bltu a5, a11, 0x400834f8
+40083508	ee7781	1	.byte 0xee	.byte 0xee
+40083510	eaa2fa	2	add.n a10, a2, a14	add.n a10, a2, a14
+40083518	08e2	2	l32i.n a0, a2, 56	l32i.n a0, a2, 56
+40083520	9188cf	3	l32r a9, 0x40077340	l32r a9, 0x40077340
+?40083528	edd48b	2	excw	.byte 0xed
+40083530	bf38b3	1	.byte 0xbf	.byte 0xbf
+40083538	99cb	2	s32i.n a9, a11, 48	s32i.n a9, a11, 48
+?40083540	a49c0a	3	excw	.byte 0xa4
+40083548	4e9eee	1	.byte 0x4e	.byte 0x4e
+40083550	2e4674	1	.byte 0x2e	.byte 0x2e
+40083558	b9ae	2	s32i.n a11, a14, 40	s32i.n a11, a14, 40
+40083560	3c8d0d	2	movi.n a13, 56	movi.n a13, 56
+?40083568	f4bae5	3	excw	.byte 0xf4
+?40083570	547a26	3	excw	.byte 0x54
+40083578	181b	2	l32i.n a1, a11, 4	l32i.n a1, a11, 4
+?40083580	a41bf7	3	excw	.byte 0xa4
+40083588	abfab5	2	addi.n a15, a10, 10	addi.n a15, a10, 10
+40083590	41c861	3	l32r a4, 0x4005bcb0	l32r a4, 0x4005bcb0
+40083598	dc68	2	bnez.n a8, 0x400835b2	bnez.n a8, 0x400835b2
+400835a0	d02fa3	3	movltz a2, a15, a13	movltz a2, a15, a13
+400835a8	1297ca	3	l16si a1, a7, 0x194	l16si a1, a7, 0x194
+400835b0	b85c70	2	l32i.n a11, a12, 20	l32i.n a11, a12, 20
+400835b8	396b	2	s32i.n a3, a11, 24	s32i.n a3, a11, 24
+400835c0	904844	3	extui a4, a9, 8, 5	extui a4, a9, 8, 5
+?400835c8	b0acd9	3	excw	.byte 0xb0
+400835d0	37ca6e	3	bnall a10, a3, 0x40083642	bnall a10, a3, 0x40083642
+400835d8	c898	2	l32i.n a12, a8, 36	l32i.n a12, a8, 36
+400835e0	281bb5	2	l32i.n a2, a11, 4	l32i.n a2, a11, 4
+400835e8	1ef7ab	1	.byte 0x1e	.byte 0x1e
+400835f0	ff1fbd	1	.byte 0xff	.byte 0xff
+400835f8	59f5	2	s32i.n a5, a5, 60	s32i.n a5, a5, 60
+40083600	b0d081	3	src a13, a0, a11	src a13, a0, a11
+?40083608	2460cc	3	excw	.byte 0x24
+40083610	22dd3d	3	addmi a2, a13, 0x3d00	addmi a2, a13, 0x3d00
+?40083618	fd7a	2	excw	.byte 0xfd
+?40083620	7493d7	3	excw	.byte 0x74
+40083628	9eaca9	1	.byte 0x9e	.byte 0x9e
+?40083630	e4772e	3	excw	.byte 0xe4
+40083638	096e	2	s32i.n a0, a14, 24	s32i.n a0, a14, 24
+40083640	9b5b22	2	addi.n a5, a11, 9	addi.n a5, a11, 9
+40083648	fe2988	1	.byte 0xfe	.byte 0xfe
+40083650	89a467	2	s32i.n a8, a4, 40	s32i.n a8, a4, 40
+40083658	6b3d	2	addi.n a3, a13, 6	addi.n a3, a13, 6
+40083660	8fc5e9	1	.byte 0x8f	.byte 0x8f
+?40083668	33a8be	3	excw	.byte 0x33
+40083670	5c3bf8	2	movi.n a11, 83	movi.n a11, 83
+40083678	2c24	2	movi.n a4, 34	movi.n a4, 34
+40083680	cb58fb	2	addi.n a5, a8, 12	addi.n a5, a8, 12
+?40083688	90da9e	3	excw	.byte 0x90
+?40083690	30c239	3	excw	.byte 0x30
+40083698	aa21	2	add.n a2, a1, a10	add.n a2, a1, a10
+400836a0	616210	3	l32r a6, 0x40047828	l32r a6, 0x40047828
+400836a8	5b1090	2	addi.n a1, a0, 5	addi.n a1, a0, 5
+?400836b0	e4ce0f	3	excw	.byte 0xe4
+400836b8	e9e0	2	s32i.n a14, a0, 56	s32i.n a14, a0, 56
+400836c0	2eb915	1	.byte 0x2e	.byte 0x2e
+400836c8	9c0ce8	2	beqz.n a12, 0x400836dc	beqz.n a12, 0x400836dc
+400836d0	85b329	3	call0 0x400ad20c	call0 0x400ad20c
+400836d8	2a69	2	add.n a6, a9, a2	add.n a6, a9, a2
+400836e0	61f6d6	3	l32r a6, 0x400792b8	l32r a6, 0x400792b8
+?400836e8	2461e1	3	excw	.byte 0x24
+400836f0	8f6875	1	.byte 0x8f	.byte 0x8f
+400836f8	bbfc	2	addi.n a15, a12, 11	addi.n a15, a12, 11
+40083700	857955	3	call0 0x400d8e9c	call0 0x400d8e9c
+40083708	0b23c4	2	addi.n a2, a3, -1	addi.n a2, a3, -1
+?40083710	74f983	3	excw	.byte 0x74
+40083718	e9d5	2	s32i.n a14, a5, 52	s32i.n a14, a5, 52
+40083720	8eeef0	1	.byte 0x8e	.byte 0x8e
+40083728	7bbca8	2	addi.n a11, a12, 7	addi.n a11, a12, 7
+?40083730	e0ea39	3	excw	.byte 0xe0
+40083738	5812	2	l32i.n a5, a2, 4	l32i.n a5, a2, 4
+?40083740	b0bdf3	3	excw	wur a11, 189
+40083748	c62635	3	j 0x40090be7	j 0x40090be7
+40083750	5af39e	2	add.n a15, a3, a5	add.n a15, a3, a5
+40083758	6c19	2	movi.n a9, -31	movi.n a9, -31
+40083760	897f60	2	s32i.n a8, a15, 28	s32i.n a8, a15, 28
+40083768	e20502	3	l8ui a14, a5, 2	l8ui a14, a5, 2
+?40083770	353627	3	excw	call12 0x400aaad4
+40083778	a804	2	l32i.n a10, a4, 0	l32i.n a10, a4, 0
+40083780	563f0f	3	bnez a15, 0x40083877	bnez a15, 0x40083877
+40083788	e86177	2	l32i.n a14, a1, 24	l32i.n a14, a1, 24
+40083790	dc1aae	2	bnez.n a10, 0x400837a5	bnez.n a10, 0x400837a5
+40083798	3ca4	2	movi.n a4, 58	movi.n a4, 58
+?400837a0	9d2018	2	excw	.byte 0x9d
+400837a8	27cb71	3	bnall a11, a2, 0x4008381d	bnall a11, a2, 0x4008381d
+?400837b0	653ece	3	excw	call8 0x40051b98
+400837b8	eae1	2	add.n a14, a1, a14	add.n a14, a1, a14
+400837c0	ec6abe	2	bnez.n a10, 0x400837ea	bnez.n a10, 0x400837ea
+400837c8	3ff0fe	1	.byte 0x3f	.byte 0x3f
+?400837d0	423d22	3	excw	.byte 0x42
+400837d8	5a8d	2	add.n a8, a13, a5	add.n a8, a13, a5
+?400837e0	b4f09b	3	excw	.byte 0xb4
+400837e8	4eb015	1	.byte 0x4e	.byte 0x4e
+400837f0	3a40ef	2	add.n a4, a0, a3	add.n a4, a0, a3
+400837f8	6b6a	2	addi.n a6, a10, 6	addi.n a6, a10, 6
+40083800	57b090	3	bgeu a0, a5, 0x40083794	bgeu a0, a5, 0x40083794
+?40083808	64fc40	3	excw	.byte 0x64
+?40083810	9572e9	3	excw	call4 0x4006cf3c
+?40083818	ed15	2	excw	.byte 0xed
+40083820	8fc0c4	1	.byte 0x8f	.byte 0x8f
+?40083828	80a353	3	excw	max a10, a3, a8
+40083830	52d655	3	addmi a5, a6, 0x5500	addmi a5, a6, 0x5500
+40083838	dcee	2	bnez.n a14, 0x4008385a	bnez.n a14, 0x4008385a
+?40083840	530f05	3	excw	lsi f5, a15, 20
+40083848	c83602	2	l32i.n a12, a6, 12	l32i.n a12, a6, 12
+40083850	26a70c	3	beqi a7, 12, 0x40083860	beqi a7, 12, 0x40083860
+40083858	7c03	2	movi.n a3, -16	movi.n a3, -16
+?40083860	e077a8	3	excw	.byte 0xe0
+40083868	9bfd5e	2	addi.n a15, a13, 9	addi.n a15, a13, 9
+?40083870	20033e	3	excw	.byte 0x20
+40083878	b805	2	l32i.n a11, a5, 0	l32i.n a11, a5, 0
+40083880	a78aa7	3	bany a10, a10, 0x4008382b	bany a10, a10, 0x4008382b
+?40083888	902818	3	excw	lsxu f2, a8, a9
+40083890	e62d39	3	bgei a13, 2, 0x400838cd	bgei a13, 2, 0x400838cd
+40083898	bb3d	2	addi.n a3, a13, 11	addi.n a3, a13, 11
+400838a0	2ff0ee	1	.byte 0x2f	.byte 0x2f
+?400838a8	a39983	3	excw	.byte 0xa3
+400838b0	aac759	2	add.n a12, a7, a10	add.n a12, a7, a10
+400838b8	da7a	2	add.n a7, a10, a13	add.n a7, a10, a13
+?400838c0	15b2eb	3	excw	call4 0x4006f3e4
+400838c8	bb7c84	2	addi.n a7, a12, 11	addi.n a7, a12, 11
+400838d0	ac5ad9	2	beqz.n a10, 0x400838f9	beqz.n a10, 0x400838f9
+?400838d8	1d57	2	excw	.byte 0x1d
+400838e0	1aa97c	2	add.n a10, a9, a1	add.n a10, a9, a1
+400838e8	26f687	3	beqi a6, 0x100, 0x40083873	beqi a6, 0x100, 0x40083873
+?400838f0	b5516f	3	excw	call12 0x400f2e0c
+400838f8	0aa5	2	add.n a10, a5, a0	add.n a10, a5, a0
+40083900	310200	3	l32r a3, 0x40043908	l32r a3, 0x40043908
+?40083908	7d4a7b	2	excw	.byte 0x7d
+?40083910	d3b222	3	excw	.byte 0xd3
+40083918	0cfb	2	movi.n a11, 15	movi.n a11, 15
+40083920	015cce	3	l32r a0, 0x40077290	l32r a0, 0x40077290
+?40083928	f48d0e	3	excw	.byte 0xf4
+40083930	67f6dd	3	bbsi a6, 22, 0x40083911	bbsi a6, 22, 0x40083911
+?40083938	2d4a	2	excw	.byte 0x2d
+40083940	4291b0	3	l16si a4, a1, 0x160	l16si a4, a1, 0x160
+40083948	ba540f	2	add.n a5, a4, a11	add.n a5, a4, a11
+40083950	869795	3	j 0x40068fb2	j 0x40068fb2
+40083958	dc22	2	bnez.n a2, 0x4008396e	bnez.n a2, 0x4008396e
+40083960	0ad3e6	2	add.n a13, a3, a0	add.n a13, a3, a0
+40083968	7e7988	1	.byte 0x7e	.byte 0x7e
+?40083970	44594a	3	excw	mula.da.lh.ldinc m1, a9, m1, a4
+40083978	9c9c	2	beqz.n a12, 0x40083995	beqz.n a12, 0x40083995
+40083980	098af8	2	s32i.n a0, a10, 32	s32i.n a0, a10, 32
+?40083988	2da667	2	excw	.byte 0x2d
+?40083990	a409d2	3	excw	.byte 0xa4
+40083998	e83b	2	l32i.n a14, a11, 12	l32i.n a14, a11, 12
+?400839a0	95c3a7	3	excw	call4 0x4002b5dc
+400839a8	09bd37	2	s32i.n a0, a13, 44	s32i.n a0, a13, 44
+400839b0	4108f0	3	l32r a4, 0x4007f9d0	l32r a4, 0x4007f9d0
+?400839b8	5d82	2	excw	.byte 0x5d
+400839c0	a8c0f9	2	l32i.n a10, a0, 48	l32i.n a10, a0, 48
+400839c8	199042	2	s32i.n a1, a0, 36	s32i.n a1, a0, 36
+400839d0	c569cf	3	call0 0x40053070	call0 0x40053070
+400839d8	9bbc	2	addi.n a11, a12, 9	addi.n a11, a12, 9
+?400839e0	4d1aa3	2	excw	.byte 0x4d
+400839e8	6d0650	2	mov.n a6, a6	mov.n a6, a6
+400839f0	a892b0	2	l32i.n a10, a2, 36	l32i.n a10, a2, 36
+?400839f8	8d45	2	excw	.byte 0x8d
+?40083a00	e54ab1	3	excw	call8 0x40034eb0
+40083a08	7ae4c8	2	add.n a14, a4, a7	add.n a14, a4, a7
+?40083a10	9518e6	3	excw	call4 0x40069b9c
+40083a18	48dd	2	l32i.n a4, a13, 52	l32i.n a4, a13, 52
+40083a20	5b598a	2	addi.n a5, a9, 5	addi.n a5, a9, 5
+40083a28	bc65b8	2	beqz.n a5, 0x40083a62	beqz.n a5, 0x40083a62
+40083a30	eec79e	1	.byte 0xee	.byte 0xee
+40083a38	2c35	2	movi.n a5, 35	movi.n a5, 35
+40083a40	eb83d7	2	addi.n a8, a3, 14	addi.n a8, a3, 14
+40083a48	6babc3	2	addi.n a10, a11, 6	addi.n a10, a11, 6
+40083a50	fa3411	2	add.n a3, a4, a15	add.n a3, a4, a15
+40083a58	486c	2	l32i.n a4, a12, 24	l32i.n a4, a12, 24
+40083a60	3899e5	2	l32i.n a3, a9, 36	l32i.n a3, a9, 36
+40083a68	88bf03	2	l32i.n a8, a15, 44	l32i.n a8, a15, 44
+?40083a70	bd7e0f	2	excw	.byte 0xbd
+40083a78	4ae3	2	add.n a14, a3, a4	add.n a14, a3, a4
+?40083a80	ed85d6	2	excw	.byte 0xed
+40083a88	5b9c55	2	addi.n a9, a12, 5	addi.n a9, a12, 5
+40083a90	b9a4a3	2	s32i.n a11, a4, 40	s32i.n a11, a4, 40
+?40083a98	fd42	2	excw	.byte 0xfd
+?40083aa0	64fcc9	3	excw	.byte 0x64
+40083aa8	8f5ca5	1	.byte 0x8f	.byte 0x8f
+?40083ab0	940891	3	excw	.byte 0x94
+40083ab8	8b67	2	addi.n a6, a7, 8	addi.n a6, a7, 8
+?40083ac0	74994d	3	excw	.byte 0x74
+40083ac8	cd0690	2	mov.n a12, a6	mov.n a12, a6
+40083ad0	01b3b1	3	l32r a0, 0x4007019c	l32r a0, 0x4007019c
+40083ad8	4bbf	2	addi.n a11, a15, 4	addi.n a11, a15, 4
+?40083ae0	44b021	3	excw	.byte 0x44
+40083ae8	e175fc	3	l32r a14, 0x40082cbc	l32r a14, 0x40082cbc
+40083af0	7cc0c4	2	movi.n a0, -4	movi.n a0, -4
+40083af8	a9a4	2	s32i.n a10, a4, 40	s32i.n a10, a4, 40
+40083b00	5bbf5c	2	addi.n a11, a15, 5	addi.n a11, a15, 5
+?40083b08	3d9e89	2	excw	.byte 0x3d
+40083b10	4c16b1	2	movi.n a6, 65	movi.n a6, 65
+40083b18	391e	2	s32i.n a3, a14, 4	s32i.n a3, a14, 4
+40083b20	182054	2	l32i.n a1, a0, 8	l32i.n a1, a0, 8
+?40083b28	550e1f	3	excw	call4 0x400a2c10
+?40083b30	f40ba6	3	excw	.byte 0xf4
+40083b38	faa4	2	add.n a10, a4, a15	add.n a10, a4, a15
+?40083b40	14e1cc	3	excw	.byte 0x14
+40083b48	dfb897	1	.byte 0xdf	.byte 0xdf
+?40083b50	e5ed79	3	excw	call8 0x400fda30
+40083b58	7c96	2	movi.n a6, -7	movi.n a6, -7
+40083b60	a99756	2	s32i.n a10, a7, 36	s32i.n a10, a7, 36
+40083b68	576323	3	bbci a3, 5, 0x40083b8f	bbci a3, 5, 0x40083b8f
+40083b70	4a9049	2	add.n a9, a0, a4	add.n a9, a0, a4
+?40083b78	3dca	2	excw	.byte 0x3d
+?40083b80	343287	3	excw	.byte 0x34
+?40083b88	823970	3	excw	.byte 0x82
+40083b90	3ceb8c	2	movi.n a11, 62	movi.n a11, 62
+40083b98	6b16	2	addi.n a1, a6, 6	addi.n a1, a6, 6
+?40083ba0	151fa3	3	excw	call4 0x40026d94
+?40083ba8	540109	3	excw	.byte 0x54
+40083bb0	0b36aa	2	addi.n a3, a6, -1	addi.n a3, a6, -1
+40083bb8	b9e7	2	s32i.n a11, a7, 56	s32i.n a11, a7, 56
+40083bc0	c7393f	3	bltu a9, a12, 0x40083c03	bltu a9, a12, 0x40083c03
+40083bc8	91b095	3	l32r a9, 0x40069288	l32r a9, 0x40069288
+?40083bd0	fd5d4f	2	excw	.byte 0xfd
+40083bd8	4c5f	2	movi.n a15, 69	movi.n a15, 69
+?40083be0	153981	3	excw	call4 0x40004f74
+40083be8	6faa2a	1	.byte 0x6f	.byte 0x6f
+40083bf0	213d18	3	l32r a2, 0x40049ce4	l32r a2, 0x40049ce4
+40083bf8	7c63	2	movi.n a3, -10	movi.n a3, -10
+40083c00	66d7a5	3	bnei a7, 64, 0x40083ba9	bnei a7, 64, 0x40083ba9
+40083c08	d2d516	3	addmi a13, a5, 0x1600	addmi a13, a5, 0x1600
+?40083c10	945b9d	3	excw	.byte 0x94
+40083c18	d88f	2	l32i.n a13, a15, 32	l32i.n a13, a15, 32
+40083c20	eb521d	2	addi.n a5, a2, 14	addi.n a5, a2, 14
+40083c28	218fac	3	l32r a2, 0x4006ee64	l32r a2, 0x4006ee64
+40083c30	a88b80	2	l32i.n a10, a11, 32	l32i.n a10, a11, 32
+40083c38	1916	2	s32i.n a1, a6, 4	s32i.n a1, a6, 4
+40083c40	db7f3c	2	addi.n a7, a15, 13	addi.n a7, a15, 13
+40083c48	f19606	3	l32r a15, 0x400456a0	l32r a15, 0x400456a0
+40083c50	e965de	2	s32i.n a14, a5, 24	s32i.n a14, a5, 24
+40083c58	ccbe	2	bnez.n a14, 0x40083c67	bnez.n a14, 0x40083c67
+40083c60	8ea414	1	.byte 0x8e	.byte 0x8e
+?40083c68	13f076	3	excw	.byte 0x13
+40083c70	975e95	3	bbc a14, a9, 0x40083c09	bbc a14, a9, 0x40083c09
+40083c78	3b2f	2	addi.n a2, a15, 3	addi.n a2, a15, 3
+?40083c80	5548b3	3	excw	call4 0x40037108
+40083c88	ebd9e4	2	addi.n a13, a9, 14	addi.n a13, a9, 14
+40083c90	3f9d5d	1	.byte 0x3f	.byte 0x3f
+40083c98	4ba8	2	addi.n a10, a8, 4	addi.n a10, a8, 4
+?40083ca0	e3126b	3	excw	.byte 0xe3
+?40083ca8	95c826	3	excw	call4 0x400aa934
+?40083cb0	7d7ca2	2	excw	.byte 0x7d
+40083cb8	18c2	2	l32i.n a1, a2, 48	l32i.n a1, a2, 48
+40083cc0	ded774	1	.byte 0xde	.byte 0xde
+40083cc8	60f584	3	extui a15, a6, 5, 9	extui a15, a6, 5, 9
+?40083cd0	55171f	3	excw	call4 0x400a2e48
+?40083cd8	dd24	2	excw	.byte 0xdd
+?40083ce0	652f93	3	excw	call8 0x40016fd8
+40083ce8	ec8fb9	2	bnez.n a15, 0x40083d14	bnez.n a15, 0x40083d14
+40083cf0	8c34b2	2	beqz.n a4, 0x40083cf7	beqz.n a4, 0x40083cf7
+?40083cf8	1d6c	2	excw	.byte 0x1d
+40083d00	286fc3	2	l32i.n a2, a15, 24	l32i.n a2, a15, 24
+40083d08	7cf668	2	movi.n a6, -1	movi.n a6, -1
+40083d10	c8eaf5	2	l32i.n a12, a10, 56	l32i.n a12, a10, 56
+40083d18	990c	2	s32i.n a9, a12, 0	s32i.n a9, a12, 0
+40083d20	aa8666	2	add.n a8, a6, a10	add.n a8, a6, a10
+40083d28	e843d4	2	l32i.n a14, a3, 16	l32i.n a14, a3, 16
+?40083d30	2d549f	2	excw	.byte 0x2d
+?40083d38	edbf	2	excw	.byte 0xed
+40083d40	688338	2	l32i.n a6, a3, 32	l32i.n a6, a3, 32
+40083d48	e91a37	2	s32i.n a14, a10, 4	s32i.n a14, a10, 4
+?40083d50	b3d7f9	3	excw	.byte 0xb3
+40083d58	79b8	2	s32i.n a7, a8, 44	s32i.n a7, a8, 44
+?40083d60	533404	3	excw	.byte 0x53
+?40083d68	fd8245	2	excw	.byte 0xfd
+?40083d70	249a42	3	excw	.byte 0x24
+40083d78	7ca7	2	movi.n a7, -6	movi.n a7, -6
+?40083d80	838d5d	3	excw	lsiu f8, a13, 0x174
+?40083d88	73c468	3	excw	ssiu f7, a4, 0x1a0
+40083d90	16206e	3	beqz a0, 0x40084476	beqz a0, 0x40084476
+40083d98	3996	2	s32i.n a3, a6, 36	s32i.n a3, a6, 36
+40083da0	81c10a	3	l32r a8, 0x400468a4	l32r a8, 0x400468a4
+40083da8	cbf250	2	addi.n a15, a2, 12	addi.n a15, a2, 12
+40083db0	d9cd89	2	s32i.n a13, a13, 48	s32i.n a13, a13, 48
+40083db8	dc7c	2	bnez.n a12, 0x40083dd3	bnez.n a12, 0x40083dd3
+?40083dc0	3d1af0	2	excw	.byte 0x3d
+?40083dc8	7d9b20	2	excw	.byte 0x7d
+40083dd0	a2df98	3	addmi a10, a15, 0xffff9800	addmi a10, a15, 0xffff9800
+40083dd8	bc06	2	beqz.n a6, 0x40083e0c	beqz.n a6, 0x40083e0c
+?40083de0	8489bd	3	excw	.byte 0x84
+40083de8	9adb19	2	add.n a13, a11, a9	add.n a13, a11, a9
+40083df0	4ca575	2	movi.n a5, 74	movi.n a5, 74
+40083df8	eaf9	2	add.n a15, a9, a14	add.n a15, a9, a14
+?40083e00	73c2b2	3	excw	ssiu f7, a2, 0x2c8
+40083e08	06829c	3	j 0x4006b014	j 0x4006b014
+40083e10	08936c	2	l32i.n a0, a3, 36	l32i.n a0, a3, 36
+?40083e18	cd1d	2	excw	.byte 0xcd
+?40083e20	e58a15	3	excw	call8 0x400996d0
+?40083e28	8d6873	2	excw	.byte 0x8d
+40083e30	ea6727	2	add.n a6, a7, a14	add.n a6, a7, a14
+40083e38	7914	2	s32i.n a7, a4, 4	s32i.n a7, a4, 4
+40083e40	77b41d	3	bgeu a4, a7, 0x40083e61	bgeu a4, a7, 0x40083e61
+?40083e48	92f2d9	3	excw	s32ri a9, a2, 0x364
+40083e50	8f248b	1	.byte 0x8f	.byte 0x8f
+40083e58	18a8	2	l32i.n a1, a8, 40	l32i.n a1, a8, 40
+?40083e60	75a3bb	3	excw	call12 0x4003f898
+40083e68	87f200	3	bbsi a2, 24, 0x40083e6c	bbsi a2, 24, 0x40083e6c
+?40083e70	b4b84f	3	excw	.byte 0xb4
+40083e78	d8e0	2	l32i.n a13, a0, 56	l32i.n a13, a0, 56

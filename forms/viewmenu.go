@@ -141,6 +141,8 @@ func (c *MainForm) registerViewCommands() {
 		c.changeView(func(vs *config.ViewSettings) { vs.SyncScroll = !vs.SyncScroll })
 	})
 	sync.Checked = func() bool { return config.GetSettings().View.SyncScroll }
+	minimap := c.cmd("view.minimap", func() string { return t().MenuMinimap }, "", c.toggleMinimap)
+	minimap.Checked = func() bool { return c.tab() != nil && c.tab().mm != nil && c.tab().mm.w.IsVisible() }
 	c.cmd("view.zoomIn", func() string { return t().MenuZoomIn }, "Ctrl+=", func() { c.zoom(1) })
 	c.cmd("view.zoomOut", func() string { return t().MenuZoomOut }, "Ctrl+-", func() { c.zoom(-1) })
 	c.cmd("view.zoomReset", func() string { return t().MenuZoomReset }, "Ctrl+0", func() { c.zoom(0) })
@@ -159,7 +161,7 @@ func (c *MainForm) buildViewMenu(view *ui.ContextMenu) {
 	c.subMenu(view, func() string { return t().MenuOffsets },
 		"view.offsets16", "view.offsets10", "view.offsets8", "-", "view.relative", "view.setMark")
 	c.buildEncodingMenu(view)
-	c.addItems(view, "-", "view.split", "view.syncScroll", "-", "view.zoomIn", "view.zoomOut", "view.zoomReset")
+	c.addItems(view, "-", "view.split", "view.syncScroll", "view.minimap", "-", "view.zoomIn", "view.zoomOut", "view.zoomReset")
 }
 
 func (c *MainForm) zoom(step int) {

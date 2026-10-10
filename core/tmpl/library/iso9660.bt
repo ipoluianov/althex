@@ -1,0 +1,335 @@
+//! name: ISO 9660 image
+//! extensions: iso
+//! magic: 0x8001 "43 44 30 30 31"
+
+// ISO 9660 / ECMA-119 (CD and DVD images): the volume descriptors from
+// sector 16 - the primary one, supplementary ones (Joliet: UCS-2 names),
+// the boot record of El Torito with its boot catalog, the terminator - and
+// the records of the root directory with their system use entries (SUSP,
+// Rock Ridge). Numbers are kept both little- and big-endian; the
+// little-endian half is shown.
+
+LittleEndian();
+
+local int64 SECTOR = 2048;
+// Records of the root directory shown at most
+local int64 MAX_RECORDS = 2000;
+
+// ---- Numbers and dates ----
+
+struct BOTH16 {
+    uint16 le;
+    BigEndian();
+    uint16 be;
+    LittleEndian();
+} <read=Both16Read>;
+
+struct BOTH32 {
+    uint32 le;
+    BigEndian();
+    uint32 be;
+    LittleEndian();
+} <read=Both32Read>;
+
+string Both16Read(BOTH16 &v) { return Str("%u", v.le); }
+string Both32Read(BOTH32 &v) { return Str("%u", v.le); }
+
+// The date of a record: years from 1900, the offset from GMT in 15 minutes
+struct DATE7 {
+    uchar year, month, day, hour, minute, second;
+    char  gmtOffset;
+} <read=Date7Read>;
+
+string OffsetText(int q) {
+    return Str("%c%02d:%02d", q < 0 ? '-' : '+', Abs(q) * 15 / 60, Abs(q) * 15 % 60);
+}
+
+string Date7Read(DATE7 &d) {
+    if (d.year == 0 && d.month == 0)
+        return "";
+    return Str("%04d-%02d-%02d %02d:%02d:%02d ", 1900 + d.year, d.month, d.day,
+        d.hour, d.minute, d.second) + OffsetText(d.gmtOffset);
+}
+
+// The date of a volume descriptor: "YYYYMMDDHHMMSScc" and the offset
+struct DATE17 {
+    char digits[16];
+    char gmtOffset;
+} <read=Date17Read>;
+
+string Date17Read(DATE17 &d) {
+    local string s = ReadString(startof(d), 16);
+    if (Strlen(s) < 16 || SubStr(s, 0, 4) == "0000")
+        return "";
+    return SubStr(s, 0, 4) + "-" + SubStr(s, 4, 2) + "-" + SubStr(s, 6, 2) + " " +
+        SubStr(s, 8, 2) + ":" + SubStr(s, 10, 2) + ":" + SubStr(s, 12, 2) + " " + OffsetText(d.gmtOffset);
+}
+
+// ---- Directory records ----
+
+string FlagsComment(uchar &f) {
+    local string s = "";
+    if (f & 0x01) s += "hidden ";
+    if (f & 0x02) s += "directory ";
+    if (f & 0x04) s += "associated ";
+    if (f & 0x08) s += "record ";
+    if (f & 0x10) s += "protection ";
+    if (f & 0x80) s += "multi-extent (more parts follow)";
+    return s;
+}
+
+// A System Use Sharing Protocol entry: Rock Ridge NM, PX, TF, SL, CE...
+struct SUSP {
+    char  signature[2];
+    uchar length;
+    uchar version;
+    if (length > 4)
+        uchar data[length - 4];
+} <read=SuspRead>;
+
+string SuspRead(SUSP &e) {
+    local int64 p = startof(e);
+    local string sig = ReadString(p, 2);
+    local int n = ReadUByte(p + 2);
+    sig = SubStr(sig, 0, 2);
+    if (sig == "NM" && n > 5)
+        return "NM " + SubStr(ReadString(p + 5, n - 5), 0, n - 5);
+    if (sig == "PX" && n >= 12)
+        return Str("PX mode %o", ReadUInt(p + 4));
+    if (sig == "CE" && n >= 28)
+        return Str("CE block %u, offset %u, %u bytes", ReadUInt(p + 4), ReadUInt(p + 12), ReadUInt(p + 20));
+    if (sig == "SP")
+        return "SP (SUSP is used)";
+    return sig;
+}
+
+// A directory record; size is the room it has (its length, 34 in a volume
+// descriptor), so damaged lengths do not read past it
+struct DIRREC (int size) {
+    local int64 start = FTell();
+    uchar  length;
+    uchar  extAttrLength;
+    BOTH32 extent <comment="the first logical block">;
+    BOTH32 dataLength;
+    DATE7  date;
+    uchar  flags <format=hex, comment=FlagsComment>;
+    uchar  fileUnitSize <comment="interleaved files only">;
+    uchar  interleaveGap;
+    BOTH16 volumeSequenceNumber;
+    uchar  nameLength;
+    local int64 room = Min(length, size);
+    local int64 n = Min(nameLength, room - 33);
+    local int64 at;
+    if (n > 0)
+        char name[n];
+    if (n >= 0 && n % 2 == 0 && FTell() < start + room)
+        uchar padding;
+    // The system use area: SUSP entries while they fit
+    while (FTell() + 4 <= start + room && ReadUByte(FTell() + 2) >= 4 &&
+           FTell() + ReadUByte(FTell() + 2) <= start + room) {
+        // the position, not startof(systemUse): that is where systemUse[0] is
+        at = FTell();
+        SUSP systemUse;
+        if (ReadUByte(at) == 'S' && ReadUByte(at + 1) == 'T')
+            break;
+    }
+    if (FTell() < start + room)
+        uchar rest[start + room - FTell()];
+} <read=DirRecRead>;
+
+string DirRecRead(DIRREC &r) {
+    local int64 p = startof(r);
+    local int n = ReadUByte(p + 32);
+    local string name;
+    if (n == 1 && ReadUByte(p + 33) == 0)
+        name = ".";
+    else if (n == 1 && ReadUByte(p + 33) == 1)
+        name = "..";
+    else if (ReadUByte(p + 25) & 2)
+        name = SubStr(ReadString(p + 33, n), 0, n) + "/";
+    else
+        name = SubStr(ReadString(p + 33, n), 0, n);
+    return Str("%s at block %u, %u bytes", name, ReadUInt(p + 2), ReadUInt(p + 10));
+}
+
+// ---- Volume descriptors ----
+
+enum <uchar> VD_TYPE {
+    BOOT_RECORD = 0, PRIMARY = 1, SUPPLEMENTARY = 2, PARTITION = 3, TERMINATOR = 255
+};
+
+string EscapeComment(uchar &e[]) {
+    local int64 p = startof(e);
+    if (ReadUByte(p) == '%' && ReadUByte(p + 1) == '/') {
+        switch (ReadUByte(p + 2)) {
+        case '@': return "Joliet, UCS-2 level 1";
+        case 'C': return "Joliet, UCS-2 level 2";
+        case 'E': return "Joliet, UCS-2 level 3";
+        }
+    }
+    return "";
+}
+
+struct VD {
+    local int64 start = FTell();
+    VD_TYPE type;
+    char    standardId[5] <comment="CD001">;
+    uchar   version;
+    switch (type) {
+    case BOOT_RECORD:
+        char bootSystemId[32] <comment="EL TORITO SPECIFICATION for a bootable CD">;
+        char bootId[32];
+        if (ReadString(start + 7, 23) == "EL TORITO SPECIFICATION")
+            uint32 bootCatalog <comment="the block of the boot catalog">;
+        break;
+    case PRIMARY:
+    case SUPPLEMENTARY:
+        uchar  volumeFlags <comment="supplementary: bit 0 - escape sequences not registered">;
+        char   systemId[32];
+        char   volumeId[32] <comment="UCS-2 big-endian in a Joliet descriptor">;
+        uchar  unused2[8];
+        BOTH32 volumeSpaceSize <comment="in logical blocks">;
+        uchar  escapeSequences[32] <comment=EscapeComment>;
+        BOTH16 volumeSetSize;
+        BOTH16 volumeSequenceNumber;
+        BOTH16 logicalBlockSize;
+        BOTH32 pathTableSize;
+        uint32 typeLPathTable <comment="the block of the little-endian path table">;
+        uint32 optTypeLPathTable;
+        BigEndian();
+        uint32 typeMPathTable <comment="the block of the big-endian path table">;
+        uint32 optTypeMPathTable;
+        LittleEndian();
+        DIRREC rootDirectoryRecord(34) <open=true>;
+        FSeek(start + 190);
+        char   volumeSetId[128];
+        char   publisherId[128];
+        char   dataPreparerId[128];
+        char   applicationId[128];
+        char   copyrightFileId[37];
+        char   abstractFileId[37];
+        char   bibliographicFileId[37];
+        DATE17 creationDate;
+        DATE17 modificationDate;
+        DATE17 expirationDate;
+        DATE17 effectiveDate;
+        uchar  fileStructureVersion;
+        uchar  unused4;
+        uchar  applicationUse[512];
+        break;
+    }
+    if (FTell() < start + SECTOR)
+        uchar rest[start + SECTOR - FTell()];
+} <read=VDRead>;
+
+string VDRead(VD &v) {
+    local string t = EnumToString(v.type);
+    if (t == "")
+        t = Str("type %d", v.type);
+    return t;
+}
+
+// ---- El Torito ----
+
+struct BOOT_VALIDATION {
+    uchar  headerId <comment="1">;
+    uchar  platformId <comment="0 - x86, 1 - PowerPC, 2 - Mac, 0xEF - EFI">;
+    uint16 reserved;
+    char   idString[24];
+    uint16 checksum <format=hex>;
+    uchar  key55 <format=hex>;
+    uchar  keyAA <format=hex>;
+};
+
+struct BOOT_ENTRY {
+    uchar  bootIndicator <format=hex, comment="0x88 - bootable">;
+    uchar  bootMediaType <comment="0 - no emulation, 1-3 - floppies, 4 - hard disk">;
+    uint16 loadSegment <format=hex>;
+    uchar  systemType;
+    uchar  unused;
+    uint16 sectorCount <comment="512-byte sectors loaded">;
+    uint32 loadRBA <comment="the block of the boot image">;
+    uchar  unused2[20];
+};
+
+struct BOOT_SECTION_HEADER {
+    uchar  headerIndicator <format=hex, comment="0x90 - more follow, 0x91 - the last">;
+    uchar  platformId;
+    uint16 sectionEntries;
+    char   idString[28];
+};
+
+struct BOOT_CATALOG {
+    local int64 start = FTell();
+    local int64 i;
+    local uchar h;
+    BOOT_VALIDATION validation <open=true>;
+    BOOT_ENTRY initialEntry <open=true>;
+    for (i = 0; i < 62 && FTell() + 32 <= Min(start + SECTOR, FileSize()); i++) {
+        h = ReadUByte(FTell());
+        if (h == 0x90 || h == 0x91)
+            BOOT_SECTION_HEADER section;
+        else if (h == 0x88 || h == 0x00 && ReadUInt(FTell() + 8) != 0)
+            BOOT_ENTRY sectionEntry;
+        else
+            break;
+    }
+};
+
+// ---- The image ----
+
+if (FileSize() < 16 * SECTOR + SECTOR) {
+    Warning("no volume descriptors: the data has %d bytes", FileSize());
+    return;
+}
+
+uchar systemArea[16 * SECTOR] <comment="for booting from other media; often zeros or a partition table">;
+
+local int64 i;
+local int64 bs = SECTOR;
+local int64 rootBlock = -1, rootSize = 0;
+local int64 catalog = -1;
+local int64 p;
+for (i = 0; i < 64; i++) {
+    p = (16 + i) * SECTOR;
+    if (p + SECTOR > FileSize() || ReadString(p + 1, 5) != "CD001")
+        break;
+    VD volumeDescriptor;
+    if (ReadUByte(p) == PRIMARY && rootBlock < 0) {
+        local int64 b = ReadUShort(p + 128);
+        if (b == 512 || b == 1024 || b == 2048)
+            bs = b;
+        rootBlock = ReadUInt(p + 156 + 2);
+        rootSize = ReadUInt(p + 156 + 10);
+    }
+    if (ReadUByte(p) == BOOT_RECORD && ReadString(p + 7, 23) == "EL TORITO SPECIFICATION")
+        catalog = ReadUInt(p + 0x47);
+    if (ReadUByte(p) == TERMINATOR)
+        break;
+}
+
+if (catalog > 16 && catalog * SECTOR + 64 <= FileSize())
+    BOOT_CATALOG bootCatalog @ catalog * SECTOR;
+
+// The records of the root directory; a record does not cross a sector:
+// a zero length goes on in the next one
+struct ROOT_RECORDS (int64 start, int64 size) {
+    local int64 end = Min(start + size, FileSize());
+    local int64 n = 0;
+    local int len;
+    FSeek(start);
+    while (FTell() + 34 <= end && n < MAX_RECORDS) {
+        len = ReadUByte(FTell());
+        if (len == 0) {
+            FSeek((FTell() / SECTOR + 1) * SECTOR);
+            continue;
+        }
+        if (len < 34 || FTell() + len > end)
+            break;
+        DIRREC record(len);
+        n++;
+    }
+};
+
+if (rootBlock > 16 && rootBlock * bs + 34 <= FileSize())
+    ROOT_RECORDS rootDirectory(rootBlock * bs, Min(rootSize, 1024 * 1024));

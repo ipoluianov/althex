@@ -1,0 +1,161 @@
+//! name: MBR partition table
+//! extensions: mbr
+//! magic: 0x1FE "55 AA"
+//! priority: -1
+
+// Master Boot Record: the boot code, the disk signature of Windows NT and
+// later (the "modern" MBR, with the disk timestamp of Windows 95 in the
+// code), four partition entries and the signature 55 AA. The chain of
+// EBRs of an extended partition (05, 0F, 85) is followed, at most 128 of
+// them. 55 AA also ends the boot sectors of FAT and NTFS, hence the low
+// priority. Sectors of 512 bytes are assumed.
+
+LittleEndian();
+
+enum <uchar> MBR_STATUS { INACTIVE = 0x00, ACTIVE = 0x80 };
+
+enum <uchar> MBR_TYPE {
+    EMPTY = 0x00, FAT12 = 0x01, XENIX_ROOT = 0x02, XENIX_USR = 0x03,
+    FAT16_SMALL = 0x04, EXTENDED = 0x05, FAT16 = 0x06, NTFS_EXFAT = 0x07,
+    AIX = 0x08, AIX_BOOT = 0x09, OS2_BOOT_MANAGER = 0x0A, FAT32 = 0x0B,
+    FAT32_LBA = 0x0C, FAT16_LBA = 0x0E, EXTENDED_LBA = 0x0F,
+    HIDDEN_FAT12 = 0x11, COMPAQ_DIAG = 0x12, HIDDEN_FAT16_SMALL = 0x14,
+    HIDDEN_FAT16 = 0x16, HIDDEN_NTFS = 0x17, AST_SMARTSLEEP = 0x18,
+    HIDDEN_FAT32 = 0x1B, HIDDEN_FAT32_LBA = 0x1C, HIDDEN_FAT16_LBA = 0x1E,
+    NEC_DOS = 0x24, HIDDEN_NTFS_WINRE = 0x27, PLAN9 = 0x39, PREP_BOOT = 0x41,
+    WINDOWS_DYNAMIC = 0x42, QNX4 = 0x4D, QNX4_2 = 0x4E, QNX4_3 = 0x4F,
+    ONTRACK_DM = 0x50, CPM = 0x52, EZ_DRIVE = 0x55, GNU_HURD_SYSV = 0x63,
+    NETWARE_286 = 0x64, NETWARE_386 = 0x65, OLD_MINIX = 0x80, MINIX = 0x81,
+    LINUX_SWAP = 0x82, LINUX = 0x83, HIBERNATION = 0x84, LINUX_EXTENDED = 0x85,
+    NTFS_VOLUME_SET = 0x86, NTFS_VOLUME_SET2 = 0x87, LINUX_PLAINTEXT = 0x88,
+    LINUX_LVM = 0x8E, AMOEBA = 0x93, BSDOS = 0x9F, THINKPAD_HIBERNATION = 0xA0,
+    FREEBSD = 0xA5, OPENBSD = 0xA6, NEXTSTEP = 0xA7, DARWIN_UFS = 0xA8,
+    NETBSD = 0xA9, DARWIN_BOOT = 0xAB, HFS = 0xAF, BSDI_FS = 0xB7,
+    BSDI_SWAP = 0xB8, SOLARIS_BOOT = 0xBE, SOLARIS = 0xBF, NON_FS_DATA = 0xDA,
+    CPM_CTOS = 0xDB, DELL_UTILITY = 0xDE, BOOTIT = 0xDF, LINUX_XBOOTLDR = 0xEA,
+    BEOS = 0xEB, GPT_PROTECTIVE = 0xEE, EFI_SYSTEM = 0xEF, LINUX_PARISC_BOOT = 0xF0,
+    EBBR_PROTECTIVE = 0xF8, VMWARE_VMFS = 0xFB, VMWARE_VMKCORE = 0xFC,
+    LINUX_RAID = 0xFD, LANSTEP = 0xFE, BBT = 0xFF
+};
+
+// CHS: the head, then the sector in the low 6 bits with bits 8-9 of the
+// cylinder above it, then the low 8 bits of the cylinder
+struct CHS {
+    uchar head;
+    uchar sector : 6;
+    uchar cylinderHigh : 2;
+    uchar cylinderLow;
+} <read=ChsRead>;
+
+string ChsRead(CHS &c) {
+    return Str("C %d H %d S %d", c.cylinderHigh * 256 + c.cylinderLow, c.head, c.sector);
+}
+
+struct MBR_ENTRY {
+    MBR_STATUS status <comment="0x80 - active (bootable)">;
+    CHS        first <comment="ignored: the LBA is used">;
+    MBR_TYPE   type;
+    CHS        last <comment="ignored: the LBA is used">;
+    uint32     lba <comment="the first sector">;
+    uint32     sectors;
+} <read=EntryRead>;
+
+string SizeText(uint64 sectors) {
+    if (sectors >= 2097152)
+        return Str("%d GiB", sectors / 2097152);
+    if (sectors >= 2048)
+        return Str("%d MiB", sectors / 2048);
+    return Str("%d KiB", sectors / 2);
+}
+
+string EntryRead(MBR_ENTRY &e) {
+    if (e.type == 0)
+        return "empty";
+    local string t = EnumToString(e.type);
+    if (t == "")
+        t = Str("0x%02X", e.type);
+    return Str("%s%s, LBA %u, %u sectors (%s)", e.status == 0x80 ? "* " : "", t, e.lba, e.sectors, SizeText(e.sectors));
+}
+
+// The disk timestamp of Windows 95B-ME, inside the boot code
+struct DISK_TIMESTAMP {
+    uint16 zero;
+    uchar  drive <format=hex, comment="the original physical drive, 0x80...">;
+    uchar  seconds, minutes, hours;
+};
+
+local int modern = FileSize() >= 512 && ReadUShort(218) == 0 && ReadUByte(220) >= 0x80 &&
+    ReadUByte(221) < 60 && ReadUByte(222) < 60 && ReadUByte(223) < 24;
+
+struct MBR {
+    if (modern) {
+        uchar bootCode[218] <format=hex>;
+        DISK_TIMESTAMP timestamp;
+        uchar bootCode2[216] <format=hex>;
+    } else {
+        uchar bootCode[440] <format=hex>;
+    }
+    uint32    diskSignature <format=hex, comment="the disk signature of Windows NT and later">;
+    uint16    copyProtect <format=hex, comment="0x5A5A - copy-protected">;
+    MBR_ENTRY partition[4];
+    uint16    signature <format=hex, comment="55 AA, 0xAA55 as a number">;
+};
+
+// An EBR: the logical partition relative to the EBR, the next EBR
+// relative to the extended partition
+struct EBR {
+    uchar     bootCode[446] <format=hex, comment="usually zeros">;
+    MBR_ENTRY logical <comment="the LBA is relative to this EBR">;
+    MBR_ENTRY next <comment="the next EBR; the LBA is relative to the extended partition">;
+    MBR_ENTRY unused[2];
+    uint16    signature <format=hex>;
+};
+
+if (FileSize() < 512) {
+    Warning("less than one sector");
+    Exit(0);
+}
+
+MBR mbr <open=true>;
+
+// The first extended partition
+local int64 ext = -1, extSectors = 0;
+local int i, t;
+for (i = 0; i < 4 && ext < 0; i++) {
+    t = mbr.partition[i].type;
+    if ((t == 0x05 || t == 0x0F || t == 0x85) && mbr.partition[i].lba > 0) {
+        ext = mbr.partition[i].lba;
+        extSectors = mbr.partition[i].sectors;
+    }
+}
+
+// Follow the chain; it must go forward, which also stops a loop
+local int64 cur = ext, nextLba;
+local int n = 0;
+while (ext > 0 && n < 128) {
+    if (cur * 512 + 512 > FileSize()) {
+        Warning("the EBR at sector %d is beyond the end of the file", cur);
+        break;
+    }
+    EBR ebr @ (cur * 512);
+    n++;
+    if (ReadUShort(cur * 512 + 510) != 0xAA55) {
+        Warning("the EBR at sector %d has no signature 55 AA", cur);
+        break;
+    }
+    t = ReadUByte(cur * 512 + 446 + 16 + 4);
+    nextLba = ReadUInt(cur * 512 + 446 + 16 + 8);
+    if (t == 0 || nextLba == 0)
+        break;
+    if (ext + nextLba <= cur) {
+        Warning("the EBR chain goes back to sector %d; stopped", ext + nextLba);
+        break;
+    }
+    if (nextLba >= extSectors) {
+        Warning("the next EBR is outside the extended partition");
+        break;
+    }
+    cur = ext + nextLba;
+}
+if (n >= 128)
+    Warning("more than 128 logical partitions; the rest are not shown");

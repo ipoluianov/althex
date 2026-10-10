@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 	"unicode/utf16"
+
+	"github.com/ipoluianov/althex/internal/fuzzguard"
 )
 
 func utf8Enc(s string) ([]byte, error) { return []byte(s), nil }
@@ -97,6 +99,7 @@ func FuzzParseHex(f *testing.F) {
 		f.Add(s)
 	}
 	f.Fuzz(func(t *testing.T, s string) {
+		defer fuzzguard.Start(t.Name())()
 		p, err := ParseHex(s)
 		if err != nil {
 			if p.Len() != 0 {

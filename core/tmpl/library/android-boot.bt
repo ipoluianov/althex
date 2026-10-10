@@ -1,0 +1,115 @@
+//! name: Android boot image
+//! extensions: img
+//! magic: 0 "41 4E 44 52 4F 49 44 21"
+
+// Android boot.img (system/tools/mkbootimg, bootimg.h), header versions 0
+// to 4. v0-v2: a header with the load addresses and the page size, then
+// the kernel, the ramdisk, the second stage, the recovery DTBO (v1, v2)
+// and the DTB (v2), each from a page boundary. v3, v4: pages of 4096, no
+// addresses; v4 adds the boot signature after the ramdisk.
+
+LittleEndian();
+
+local int64 fsize = FileSize();
+
+// os_version: A.B.C in the high 21 bits, the patch year and month in the low 11
+string OsVersionRead(uint32 &v) {
+    local uint32 os = v >> 11;
+    local uint32 pl = v & 0x7FF;
+    if (v == 0)
+        return "0";
+    return Str("%d.%d.%d, patch %04d-%02d", os >> 14, (os >> 7) & 0x7F, os & 0x7F, 2000 + (pl >> 4), pl & 0xF);
+}
+
+struct BOOT_HEADER_V0 {
+    char   magic[8];
+    uint32 kernel_size;
+    uint32 kernel_addr <format=hex>;
+    uint32 ramdisk_size;
+    uint32 ramdisk_addr <format=hex>;
+    uint32 second_size;
+    uint32 second_addr <format=hex>;
+    uint32 tags_addr <format=hex>;
+    uint32 page_size;
+    uint32 header_version <comment="0 in old images (was dt_size)">;
+    uint32 os_version <read=OsVersionRead>;
+    char   name[16];
+    char   cmdline[512];
+    uint32 id[8] <format=hex, comment="SHA-1 of the sections">;
+    char   extra_cmdline[1024];
+    if (header_version >= 1 && header_version <= 2) {
+        uint32 recovery_dtbo_size;
+        uint64 recovery_dtbo_offset <format=hex>;
+        uint32 header_size;
+    }
+    if (header_version == 2) {
+        uint32 dtb_size;
+        uint64 dtb_addr <format=hex>;
+    }
+};
+
+struct BOOT_HEADER_V3 {
+    char   magic[8];
+    uint32 kernel_size;
+    uint32 ramdisk_size;
+    uint32 os_version <read=OsVersionRead>;
+    uint32 header_size;
+    uint32 reserved[4];
+    uint32 header_version;
+    char   cmdline[1536];
+    if (header_version >= 4)
+        uint32 signature_size;
+};
+
+local int64 pos;
+local int64 page;
+
+// A section of size bytes at pos; pos goes to the next page
+void Section(int64 size, int kind) {
+    if (size > 0 && pos + size <= fsize) {
+        FSeek(pos);
+        switch (kind) {
+        case 0: uchar kernel[size]; break;
+        case 1: uchar ramdisk[size]; break;
+        case 2: uchar second[size]; break;
+        case 3: uchar recovery_dtbo[size]; break;
+        case 4: uchar dtb[size]; break;
+        case 5: uchar boot_signature[size]; break;
+        }
+    }
+    pos += (size + page - 1) / page * page;
+}
+
+if (fsize < 1660) {
+    Warning("the header is cut");
+    Exit(0);
+}
+
+local uint32 version = ReadUInt(40);
+if (version >= 3 && version < 16) {
+    BOOT_HEADER_V3 header <open=true>;
+    page = 4096;
+    pos = page;
+    Section(header.kernel_size, 0);
+    Section(header.ramdisk_size, 1);
+    if (version >= 4)
+        Section(header.signature_size, 5);
+} else {
+    BOOT_HEADER_V0 header <open=true>;
+    page = header.page_size;
+    if (page < 512 || page > 131072) {
+        Warning("page size %d is not valid", page);
+        Exit(0);
+    }
+    pos = page;
+    Section(header.kernel_size, 0);
+    Section(header.ramdisk_size, 1);
+    Section(header.second_size, 2);
+    if (exists(header.recovery_dtbo_size) && header.recovery_dtbo_size > 0) {
+        if (header.recovery_dtbo_offset > 0 && header.recovery_dtbo_offset < fsize)
+            pos = header.recovery_dtbo_offset;
+        Section(header.recovery_dtbo_size, 3);
+    }
+    if (exists(header.dtb_size))
+        Section(header.dtb_size, 4);
+}

@@ -44,6 +44,27 @@ var (
 	errTestCrash = errors.New("test crash")
 )
 
+// ErrDeviceSize: a disk cannot be saved with bytes inserted or deleted
+var ErrDeviceSize = errors.New("a disk keeps its size: bytes can be overwritten, not inserted or deleted")
+
+// deviceSector is the unit disks are written in (4K covers 512-byte sectors too)
+const deviceSector = 4096
+
+// alignRanges widens the ranges to whole units within size, merged
+func alignRanges(rs []rng, unit, size int64) []rng {
+	var out []rng
+	for _, r := range rs {
+		start := r.off - r.off%unit
+		end := min((r.off+r.len+unit-1)/unit*unit, size)
+		if k := len(out) - 1; k >= 0 && start <= out[k].off+out[k].len {
+			out[k].len = max(out[k].len, end-out[k].off)
+			continue
+		}
+		out = append(out, rng{start, end - start})
+	}
+	return out
+}
+
 // rng is a range of the document
 type rng struct{ off, len int64 }
 
@@ -77,12 +98,48 @@ func (d *Document) saveLocked(opts SaveOptions) error {
 	if d.groupDeep > 0 {
 		return errors.New("an edit is in progress")
 	}
+	if target == d.path && d.file != nil && d.file.Device() {
+		// A disk is written in place only: it keeps its size, and the
+		// writes are whole sectors, as raw disks need
+		writes, ok := d.inPlaceWrites()
+		if !ok || d.hist.cur.root.bytes() != d.file.Size() {
+			return ErrDeviceSize
+		}
+		return d.saveInPlace(alignRanges(writes, deviceSector, d.file.Size()), opts)
+	}
 	if target == d.path && d.file != nil && !opts.Backup {
 		if writes, ok := d.inPlaceWrites(); ok {
 			return d.saveInPlace(writes, opts)
 		}
 	}
 	return d.saveRewrite(target, opts)
+}
+
+// Writes tells what saving to the file of the document would write now: the
+// ranges that differ from the file when it is saved in place (on a disk,
+// whole sectors), or rewrite - the whole file is written anew (bytes were
+// inserted or deleted in the middle; a disk then cannot be saved at all).
+// It is what writing to a disk is confirmed for (6.2).
+func (d *Document) Writes() (rs []Range, rewrite bool) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	if d.file == nil {
+		return nil, true
+	}
+	writes, ok := d.inPlaceWrites()
+	if !ok {
+		return nil, true
+	}
+	if d.file.Device() {
+		if d.hist.cur.root.bytes() != d.file.Size() {
+			return nil, true
+		}
+		writes = alignRanges(writes, deviceSector, d.file.Size())
+	}
+	for _, w := range writes {
+		rs = append(rs, Range{w.off, w.len})
+	}
+	return rs, false
 }
 
 // inPlaceWrites returns the ranges that differ from the file, if the

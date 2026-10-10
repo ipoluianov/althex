@@ -100,6 +100,20 @@ type Command struct {
 	Run  func()
 	// Checked shows a check mark at the menu item
 	Checked func() bool
+	// Enabled tells whether the command can run now (nil - always): the
+	// menu item is grayed out and the shortcut does nothing when not
+	Enabled func() bool
+	// Group is the name of the submenu the command is in (nil - none)
+	Group func() string
+}
+
+// paletteText is the name of the command in the palette: with its submenu,
+// as "Go" alone tells nothing there ("Copy as: Go")
+func (c *Command) paletteText() string {
+	if c.Group != nil {
+		return c.Group() + ": " + c.Text()
+	}
+	return c.Text()
 }
 
 // menuText is the text of the menu item: the name and the first shortcut
@@ -136,6 +150,7 @@ func (c *MainForm) runCommand(id string) {
 type menuCheck struct {
 	item    *ui.ContextMenuItem
 	checked func() bool
+	enabled func() bool
 }
 
 var checkIcon image.Image
@@ -148,8 +163,8 @@ func (c *MainForm) addItem(menu *ui.ContextMenu, id string) *ui.ContextMenuItem 
 	}
 	item := menu.AddItem(cmd.menuText(), func() { cmd.Run() })
 	item.SetTextFunc(cmd.menuText)
-	if cmd.Checked != nil {
-		c.menuChecks = append(c.menuChecks, menuCheck{item, cmd.Checked})
+	if cmd.Checked != nil || cmd.Enabled != nil {
+		c.menuChecks = append(c.menuChecks, menuCheck{item, cmd.Checked, cmd.Enabled})
 	}
 	return item
 }
@@ -169,6 +184,11 @@ func (c *MainForm) addItems(menu *ui.ContextMenu, ids ...string) {
 func (c *MainForm) subMenu(menu *ui.ContextMenu, text func() string, ids ...string) *ui.ContextMenu {
 	sub := ui.NewContextMenu(c)
 	c.addItems(sub, ids...)
+	for _, id := range ids {
+		if cmd := c.commands[id]; cmd != nil && cmd.Group == nil {
+			cmd.Group = text
+		}
+	}
 	item := menu.AddItemWithSubmenu(text(), sub)
 	item.SetTextFunc(text)
 	sub.SetOnShow(c.updateChecks)
@@ -181,10 +201,32 @@ func (c *MainForm) updateChecks() {
 		checkIcon = loadIcon16("check")
 	}
 	for _, mc := range c.menuChecks {
-		if mc.checked() {
-			mc.item.SetImage(checkIcon)
-		} else {
-			mc.item.SetImage(nil)
+		if mc.checked != nil {
+			if mc.checked() {
+				mc.item.SetImage(checkIcon)
+			} else {
+				mc.item.SetImage(nil)
+			}
+		}
+		if mc.enabled != nil {
+			mc.item.SetEnabled(mc.enabled())
+		}
+	}
+}
+
+// needDocument are the commands (by the start of their ids) that work on
+// the document open: off when there is none
+var needDocument = []string{"file.save", "file.close", "edit.", "nav.", "find.", "compare.", "patch.",
+	"export.", "copy.", "ops.", "template.", "view.split", "view.setMark", "view.relative"}
+
+// requireDocument makes the commands of needDocument enabled only with a document open
+func (c *MainForm) requireDocument() {
+	hasDoc := func() bool { return c.tab() != nil }
+	for id, cmd := range c.commands {
+		for _, prefix := range needDocument {
+			if strings.HasPrefix(id, prefix) && cmd.Enabled == nil {
+				cmd.Enabled = hasDoc
+			}
 		}
 	}
 }
@@ -193,7 +235,7 @@ func (c *MainForm) updateChecks() {
 func (c *MainForm) OnGlobalKeyDown(key ui.Key, mods ui.KeyModifiers) bool {
 	sc := Shortcut{Key: key, Ctrl: mods.Ctrl || mods.Cmd, Shift: mods.Shift, Alt: mods.Alt}
 	cmd := c.shortcuts[sc]
-	if cmd == nil {
+	if cmd == nil || cmd.Enabled != nil && !cmd.Enabled() {
 		return false
 	}
 	cmd.Run()

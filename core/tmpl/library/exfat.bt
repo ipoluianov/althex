@@ -1,0 +1,273 @@
+//! name: exFAT file system
+//! extensions: img, exfat
+//! priority: 1
+//! magic: 3 "45 58 46 41 54 20 20 20"
+
+// exFAT (Microsoft exFAT File System Specification): the main boot sector,
+// its checksum sector, the FAT and the entries of the root directory: the
+// allocation bitmap, the up-case table, the volume label and the entry sets
+// of files (file, stream extension, file names).
+
+LittleEndian();
+
+// Entries of the root directory shown at most, and its clusters followed
+local int64 MAX_ENTRIES = 4096;
+local int64 MAX_CLUSTERS = 256;
+
+// ---- Comments ----
+
+string ShiftComment(uchar &s) {
+    if (s > 30)
+        return "not valid";
+    return Str("%d bytes", 1 << s);
+}
+
+string SpcComment(uchar &s) {
+    if (s > 25)
+        return "not valid";
+    return Str("%d sectors", 1 << s);
+}
+
+string VolumeFlagsComment(uint16 &f) {
+    local string s = Str("ActiveFat %d", f & 1);
+    if (f & 2) s += ", VolumeDirty";
+    if (f & 4) s += ", MediaFailure";
+    if (f & 8) s += ", ClearToZero";
+    return s;
+}
+
+// A timestamp: a DOS date and time
+string TimestampText(uint32 ts) {
+    if (ts == 0)
+        return "";
+    return Str("%04d-%02d-%02d %02d:%02d:%02d", 1980 + (ts >> 25), (ts >> 21) & 15,
+        (ts >> 16) & 31, (ts >> 11) & 31, (ts >> 5) & 63, (ts & 31) * 2);
+}
+
+string TimestampComment(uint32 &ts) { return TimestampText(ts); }
+
+string UtcComment(uchar &u) {
+    local int m;
+    if ((u & 0x80) == 0)
+        return "no offset";
+    m = u & 0x7F;
+    if (m >= 0x40)
+        m -= 0x80;
+    return Str("UTC%c%02d:%02d", m < 0 ? '-' : '+', Abs(m) * 15 / 60, Abs(m) * 15 % 60);
+}
+
+string AttrComment(uint16 &a) {
+    local string s = "";
+    if (a & 0x01) s += "ReadOnly ";
+    if (a & 0x02) s += "Hidden ";
+    if (a & 0x04) s += "System ";
+    if (a & 0x10) s += "Directory ";
+    if (a & 0x20) s += "Archive ";
+    return s;
+}
+
+string StreamFlagsComment(uchar &f) {
+    local string s = "";
+    if (f & 1) s += "AllocationPossible ";
+    if (f & 2) s += "NoFatChain (contiguous)";
+    return s;
+}
+
+// ---- The boot sector ----
+
+struct BOOTSECTOR {
+    uchar  jumpBoot[3] <format=hex, comment="EB 76 90">;
+    char   fileSystemName[8];
+    uchar  mustBeZero[53] <comment="where the BPB of FAT is; zeros so FAT drivers leave the volume alone">;
+    uint64 partitionOffset <comment="in sectors; 0 - not known">;
+    uint64 volumeLength <comment="in sectors">;
+    uint32 fatOffset <comment="in sectors">;
+    uint32 fatLength <comment="in sectors">;
+    uint32 clusterHeapOffset <comment="in sectors">;
+    uint32 clusterCount;
+    uint32 firstClusterOfRootDirectory;
+    uint32 volumeSerialNumber <format=hex>;
+    uint16 fileSystemRevision <format=hex, comment="0x0100 - 1.00">;
+    uint16 volumeFlags <format=hex, comment=VolumeFlagsComment>;
+    uchar  bytesPerSectorShift <comment=ShiftComment>;
+    uchar  sectorsPerClusterShift <comment=SpcComment>;
+    uchar  numberOfFats;
+    uchar  driveSelect <format=hex>;
+    uchar  percentInUse <comment="0xFF - not known">;
+    uchar  reserved[7];
+    uchar  bootCode[390];
+    uint16 bootSignature <format=hex, comment="0xAA55">;
+};
+
+// The checksum of the boot region: sectors 0-10 without VolumeFlags and
+// PercentInUse
+uint32 BootChecksum(int64 bps) {
+    local uint32 sum = 0;
+    local int64 i;
+    for (i = 0; i < 11 * bps; i++) {
+        if (i == 106 || i == 107 || i == 112)
+            continue;
+        sum = ((sum & 1) ? 0x80000000 : 0) + (sum >> 1) + ReadUByte(i);
+    }
+    return sum;
+}
+
+// ---- Directory entries ----
+
+struct DIRENTRY {
+    local uchar t = ReadUByte(FTell());
+    uchar entryType <format=hex, comment="bit 7 - in use; 0 - the end of the directory">;
+    switch (t) {
+    case 0x81:
+        uchar  bitmapFlags <comment="bit 0 - the second FAT's bitmap">;
+        uchar  reserved[18];
+        uint32 firstCluster;
+        uint64 dataLength;
+        break;
+    case 0x82:
+        uchar  reserved1[3];
+        uint32 tableChecksum <format=hex>;
+        uchar  reserved2[12];
+        uint32 firstCluster;
+        uint64 dataLength;
+        break;
+    case 0x83:
+        uchar  characterCount;
+        uint16 volumeLabel[11] <format=hex>;
+        uchar  reserved[8];
+        break;
+    case 0x85:
+    case 0x05:
+        uchar  secondaryCount;
+        uint16 setChecksum <format=hex>;
+        uint16 fileAttributes <format=hex, comment=AttrComment>;
+        uint16 reserved1;
+        uint32 createTimestamp <format=hex, comment=TimestampComment>;
+        uint32 lastModifiedTimestamp <format=hex, comment=TimestampComment>;
+        uint32 lastAccessedTimestamp <format=hex, comment=TimestampComment>;
+        uchar  create10msIncrement;
+        uchar  lastModified10msIncrement;
+        uchar  createUtcOffset <format=hex, comment=UtcComment>;
+        uchar  lastModifiedUtcOffset <format=hex, comment=UtcComment>;
+        uchar  lastAccessedUtcOffset <format=hex, comment=UtcComment>;
+        uchar  reserved2[7];
+        break;
+    case 0xC0:
+    case 0x40:
+        uchar  generalSecondaryFlags <format=hex, comment=StreamFlagsComment>;
+        uchar  reserved1;
+        uchar  nameLength;
+        uint16 nameHash <format=hex>;
+        uint16 reserved2;
+        uint64 validDataLength;
+        uint32 reserved3;
+        uint32 firstCluster;
+        uint64 dataLength;
+        break;
+    case 0xC1:
+    case 0x41:
+        uchar  generalSecondaryFlags;
+        uint16 fileName[15] <format=hex>;
+        break;
+    case 0xA0:
+        uchar  secondaryCount;
+        uint16 setChecksum <format=hex>;
+        uint16 generalPrimaryFlags <format=hex>;
+        uchar  volumeGuid[16] <format=hex>;
+        uchar  reserved[10];
+        break;
+    default:
+        uchar  data[31];
+    }
+} <read=EntryRead>;
+
+string EntryRead(DIRENTRY &e) {
+    local int64 p = startof(e);
+    local uchar t = ReadUByte(p);
+    local string s;
+    switch (t) {
+    case 0x00: return "unused (the end)";
+    case 0x81: return Str("allocation bitmap: cluster %u, %u bytes", ReadUInt(p + 20), ReadUInt64(p + 24));
+    case 0x82: return Str("up-case table: cluster %u, %u bytes", ReadUInt(p + 20), ReadUInt64(p + 24));
+    case 0x83: return "volume label: " + ReadWString(p + 2, Min(ReadUByte(p + 1), 11));
+    case 0x85: return Str("file: %d secondary entries, ", ReadUByte(p + 1)) +
+                      TimestampText(ReadUInt(p + 12)) + ((ReadUShort(p + 4) & 0x10) ? ", directory" : "");
+    case 0xC0: return Str("stream: cluster %u, %u bytes", ReadUInt(p + 20), ReadUInt64(p + 24)) +
+                      ((ReadUByte(p + 1) & 2) ? ", contiguous" : "");
+    case 0xC1: return "name: " + ReadWString(p + 2, 15);
+    case 0xA0: return "volume GUID";
+    }
+    if (t < 0x80)
+        return Str("unused (0x%02X)", t);
+    return Str("type 0x%02X", t);
+}
+
+// The root directory: a chain of clusters, followed in the FAT
+struct ROOTDIR (int64 first, int64 heap, int64 clusSz, int64 fat, int64 clusters) {
+    local int64 c = first;
+    local int64 k = 0;
+    local int64 shown = 0;
+    local int64 off;
+    local int64 end;
+    local int done = 0;
+    local int64 at;
+    while (!done && k < MAX_CLUSTERS && c >= 2 && c - 2 < clusters) {
+        off = heap + (c - 2) * clusSz;
+        if (off + 32 > FileSize())
+            break;
+        FSeek(off);
+        end = Min(off + clusSz, FileSize());
+        while (FTell() + 32 <= end && shown < MAX_ENTRIES) {
+            // the position, not startof(entry): that is where entry[0] is
+            at = FTell();
+            DIRENTRY entry;
+            shown++;
+            if (ReadUByte(at) == 0) {
+                done = 1;
+                break;
+            }
+        }
+        if (shown >= MAX_ENTRIES || fat + c * 4 + 4 > FileSize())
+            break;
+        c = ReadUInt(fat + c * 4);
+        k++;
+    }
+};
+
+// ---- The volume ----
+
+if (FileSize() < 512) {
+    Warning("a boot sector has 512 bytes; the data has %d", FileSize());
+    if (FileSize() > 0)
+        uchar truncated[FileSize()];
+    return;
+}
+
+BOOTSECTOR bootSector <open=true>;
+
+local int64 bpsShift = bootSector.bytesPerSectorShift;
+local int64 spcShift = bootSector.sectorsPerClusterShift;
+if (bpsShift < 9 || bpsShift > 12 || spcShift > 25 - bpsShift) {
+    Warning("the sizes of sectors and clusters are not valid");
+    return;
+}
+local int64 bps = 1 << bpsShift;
+local int64 clusSz = bps << spcShift;
+
+if (12 * bps <= FileSize()) {
+    uint32 bootChecksum[bps / 4] @ 11 * bps <format=hex, comment="the checksum of sectors 0-10, repeated">;
+    local uint32 sum = BootChecksum(bps);
+    if (bootChecksum[0] != sum)
+        Warning("the boot checksum is 0x%08X, the sectors give 0x%08X", bootChecksum[0], sum);
+}
+if (24 * bps <= FileSize())
+    BOOTSECTOR backupBootSector @ 12 * bps;
+
+local int64 fatOff = bootSector.fatOffset * bps;
+if (fatOff + 8 <= FileSize() && bootSector.fatLength > 0)
+    uint32 fat[Min(bootSector.fatLength * bps, FileSize() - fatOff) / 4] @ fatOff
+        <format=hex, comment="the next cluster; 0xFFFFFFFF - the end, 0xFFFFFFF7 - bad">;
+
+local int64 heap = bootSector.clusterHeapOffset * bps;
+if (heap < FileSize())
+    ROOTDIR rootDirectory(bootSector.firstClusterOfRootDirectory, heap, clusSz, fatOff, bootSector.clusterCount);

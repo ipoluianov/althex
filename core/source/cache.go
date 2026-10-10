@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"io"
 	"sync"
+	"sync/atomic"
 )
 
 // PageSize is the unit the cache reads and keeps
@@ -28,6 +29,8 @@ type Cache struct {
 	loading map[int64]*load
 
 	sem chan struct{}
+	// bad is set once a page fails to be read: until then no byte is unreadable
+	bad atomic.Bool
 }
 
 type page struct {
@@ -142,6 +145,9 @@ func (c *Cache) TryReadAt(p []byte, off int64, onReady func()) bool {
 	return true
 }
 
+// HasBadPages tells whether a page has failed to be read
+func (c *Cache) HasBadPages() bool { return c.bad.Load() }
+
 // Readable tells whether the byte is not in a page that failed to be read;
 // a page not in the cache counts as readable
 func (c *Cache) Readable(off int64) bool {
@@ -221,6 +227,9 @@ func (c *Cache) loadPage(idx int64, l *load) *page {
 	}
 	pg.data = buf[:got]
 	pg.err = err
+	if err != nil {
+		c.bad.Store(true)
+	}
 
 	c.mu.Lock()
 	pg.elem = c.lru.PushFront(pg)

@@ -1,0 +1,150 @@
+//! name: El Torito boot catalog
+//! extensions: iso
+//! priority: -1
+//! magic: 0x8801 "43 44 30 30 31"
+
+// El Torito, the bootable CD: the boot record volume descriptor at sector
+// 17 (0x8800) of an ISO 9660 image points to the boot catalog: the
+// validation entry, the initial (default) entry, then sections (a header
+// and entries) for other platforms such as UEFI (0xEF). Each entry loads
+// a boot image at a sector of 2048 bytes.
+//
+// Its magic is that of ISO 9660 ("CD001" at 0x8801), so the ISO template
+// is chosen for an ISO image by default (this one has priority -1): choose
+// this template by hand to see the boot catalog.
+
+LittleEndian();
+
+local int64 fsize = FileSize();
+
+enum <uchar> PLATFORM { X86 = 0, POWERPC = 1, MAC = 2, UEFI = 0xEF };
+enum <uchar> BOOT_INDICATOR { NOT_BOOTABLE = 0, BOOTABLE = 0x88 };
+enum <uchar> HEADER_ID { SECTION_HEADER = 0x90, FINAL_SECTION_HEADER = 0x91 };
+
+struct BOOT_RECORD {
+    uchar  type <comment="0: boot record">;
+    char   id[5] <comment="CD001">;
+    uchar  version;
+    char   boot_system_id[32] <comment="EL TORITO SPECIFICATION">;
+    char   boot_id[32];
+    uint32 catalog_sector <comment="the sector of the boot catalog">;
+};
+
+string ChecksumComment(uint16 &c) {
+    local uint16 sum = 0;
+    local int i;
+    for (i = 0; i < 32; i += 2)
+        sum += ReadUShort(startof(c) - 28 + i);
+    if (sum == 0)
+        return "OK: the 16 words sum to 0";
+    return "bad: the 16 words do not sum to 0";
+}
+
+struct VALIDATION_ENTRY {
+    uchar    header_id <comment="1">;
+    PLATFORM platform;
+    uint16   reserved;
+    char     id[24];
+    uint16   checksum <format=hex, comment=ChecksumComment>;
+    uchar    key[2] <format=hex, comment="55 AA">;
+};
+
+string MediaComment(uchar &m) {
+    switch (m & 0x0F) {
+    case 0: return "no emulation";
+    case 1: return "1.2 MB floppy";
+    case 2: return "1.44 MB floppy";
+    case 3: return "2.88 MB floppy";
+    case 4: return "hard disk";
+    }
+    return "?";
+}
+
+struct BOOT_ENTRY {
+    BOOT_INDICATOR boot_indicator;
+    uchar  media_type <comment=MediaComment>;
+    uint16 load_segment <format=hex, comment="0 - 0x7C0">;
+    uchar  system_type;
+    uchar  unused;
+    uint16 sector_count <comment="virtual sectors of 512 bytes loaded">;
+    uint32 load_rba <comment="the sector of the image (2048 bytes)">;
+    uchar  selection_criteria_type;
+    uchar  selection_criteria[19];
+    // The image: its size is the sector count (a UEFI image often says 0
+    // or 1: then the FAT boot sector at its start tells the size)
+    local int64 at = load_rba * 2048;
+    local int64 n = sector_count * 512;
+    switch (media_type & 0x0F) {
+    case 1: n = 1228800; break;
+    case 2: n = 1474560; break;
+    case 3: n = 2949120; break;
+    }
+    if (at > 0 && at + 512 <= fsize && ReadUShort(at + 510) == 0xAA55 && ReadUShort(at + 11) == 512) {
+        local int64 total = ReadUShort(at + 0x13);
+        if (total == 0)
+            total = ReadUInt(at + 0x20);
+        if (total * 512 > n)
+            n = total * 512;
+    }
+    if (at > 0 && n > 0 && at + n <= fsize)
+        uchar image[n] @ at;
+} <read=EntryRead>;
+
+string EntryRead(BOOT_ENTRY &e) {
+    return Str("%s, %s, %d sectors at sector %d", EnumToString(e.boot_indicator),
+        MediaComment(e.media_type), e.sector_count, e.load_rba);
+}
+
+struct SECTION_HEADER {
+    HEADER_ID header_id;
+    PLATFORM  platform;
+    uint16    entries;
+    char      id[28];
+};
+
+struct EXTENSION_ENTRY {
+    uchar indicator <format=hex, comment="0x44">;
+    uchar flags <format=hex>;
+    uchar criteria[30];
+};
+
+// A section: its header, its entries, each maybe followed by extension
+// entries (0x44)
+struct SECTION(int64 limit) {
+    SECTION_HEADER header;
+    local int64 k;
+    for (k = 0; k < header.entries && FTell() + 32 <= limit; k++) {
+        BOOT_ENTRY entry;
+        while (FTell() + 32 <= limit && ReadUByte(FTell()) == 0x44)
+            EXTENSION_ENTRY extension;
+    }
+};
+
+struct BOOT_CATALOG {
+    local int64 limit = Min(FTell() + 2048, fsize);
+    local int last = 0;
+    VALIDATION_ENTRY validation_entry <open=true>;
+    BOOT_ENTRY default_entry <open=true>;
+    while (!last && FTell() + 32 <= limit) {
+        if (ReadUByte(FTell()) != 0x90 && ReadUByte(FTell()) != 0x91)
+            break;
+        last = ReadUByte(FTell()) == 0x91;
+        SECTION section(limit);
+    }
+};
+
+if (fsize < 0x8800 + 0x4B) {
+    Warning("no boot record: the file is smaller than 17 sectors");
+    Exit(0);
+}
+BOOT_RECORD boot_record @ 0x8800;
+if (boot_record.type != 0 || SubStr(boot_record.boot_system_id, 0, 23) != "EL TORITO SPECIFICATION") {
+    Warning("sector 17 is not an El Torito boot record");
+    Exit(0);
+}
+local int64 cat = boot_record.catalog_sector * 2048;
+if (cat + 64 > fsize) {
+    Warning("the boot catalog is out of the file");
+    Exit(0);
+}
+BOOT_CATALOG boot_catalog @ cat;

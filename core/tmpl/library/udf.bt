@@ -1,0 +1,788 @@
+//! name: UDF image
+//! extensions: udf
+//! magic: 0x8001 "42 45 41 30 31"
+
+// UDF, the Universal Disk Format of DVDs and Blu-ray discs (ECMA-167, OSTA
+// UDF 1.02-2.60): the volume recognition sequence at 32 KB (BEA01,
+// NSR02/NSR03, TEA01), the anchor volume descriptor pointer at sector 256,
+// the main and the reserve volume descriptor sequences (primary, partition,
+// logical volume with its partition maps, implementation use, unallocated
+// space, terminating descriptors), the logical volume integrity descriptor,
+// the file set descriptor, the file entry of the root directory and its
+// file identifiers. Each tag shows whether its checksum and CRC are right.
+//
+// Its magic is BEA01 at 0x8001: an image with only UDF. A hybrid image (UDF
+// and ISO 9660, most DVDs) has CD001 there and gets the ISO template:
+// choose this one by hand to see its UDF structures. The file set and the
+// root are found in physical and metadata partitions, not in virtual (VAT)
+// ones.
+
+LittleEndian();
+
+// Identifiers of the root directory shown at most
+local int64 MAX_FIDS = 2000;
+
+// ---- Basic types ----
+
+enum <uint16> TAG_ID {
+    SPARING_TABLE = 0, PRIMARY_VOLUME = 1, ANCHOR_POINTER = 2, VOLUME_POINTER = 3,
+    IMPLEMENTATION_USE = 4, PARTITION = 5, LOGICAL_VOLUME = 6, UNALLOCATED_SPACE = 7,
+    TERMINATING = 8, LOGICAL_VOLUME_INTEGRITY = 9,
+    FILE_SET = 256, FILE_IDENTIFIER = 257, ALLOCATION_EXTENT = 258, INDIRECT_ENTRY = 259,
+    TERMINAL_ENTRY = 260, FILE_ENTRY = 261, EXTENDED_ATTRIBUTE_HEADER = 262,
+    UNALLOCATED_SPACE_ENTRY = 263, SPACE_BITMAP = 264, PARTITION_INTEGRITY = 265,
+    EXTENDED_FILE_ENTRY = 266
+};
+
+string TagChecksumComment(uchar &c) {
+    local int64 p = startof(c) - 4;
+    local int64 i;
+    local int sum = 0;
+    for (i = 0; i < 16; i++)
+        if (i != 4)
+            sum += ReadUByte(p + i);
+    sum &= 0xFF;
+    if (sum == c)
+        return "OK";
+    return Str("wrong, the tag sums to 0x%02X", sum);
+}
+
+string TagCrcComment(uint16 &c) {
+    local int64 p = startof(c) - 8;
+    local int64 n = ReadUShort(p + 10);
+    if (p + 16 + n > FileSize())
+        return "the bytes it covers are beyond the end of the file";
+    local int64 want = Checksum("crc16-xmodem", p + 16, n);
+    if (want == c)
+        return "OK";
+    return Str("wrong, should be 0x%04X", want);
+}
+
+// The tag of a descriptor: what it is, its checksum, the CRC of the bytes
+// after it, the block it was written for
+struct TAG {
+    TAG_ID id;
+    uint16 descriptorVersion <comment="2 - NSR02, 3 - NSR03">;
+    uchar  checksum <format=hex, comment=TagChecksumComment>;
+    uchar  reserved;
+    uint16 serialNumber;
+    uint16 crc <format=hex, comment=TagCrcComment>;
+    uint16 crcLength;
+    uint32 location <comment="the sector, or the block in its partition">;
+} <read=TagRead>;
+
+string TagRead(TAG &t) {
+    local string s = EnumToString(t.id);
+    if (s == "")
+        s = Str("tag %u", t.id);
+    return s;
+}
+
+// OSTA compressed Unicode: 8 - a byte a character, 16 - UTF-16 big-endian
+string CS0(int64 p, int64 n) {
+    local int comp = ReadUByte(p);
+    local string s = "";
+    local int64 i;
+    if (n <= 1)
+        return "";
+    if (comp == 16 || comp == 255) {
+        for (i = 1; i + 1 < n; i += 2)
+            s += Str("%c", ReadUByte(p + i) << 8 | ReadUByte(p + i + 1));
+    } else {
+        for (i = 1; i < n; i++)
+            s += Str("%c", ReadUByte(p + i));
+    }
+    return s;
+}
+
+// A dstring: compressed Unicode; its length is in its last byte
+struct DSTRING (int64 size) {
+    uchar data[size];
+} <read=DStringRead>;
+
+string DStringRead(DSTRING &d) {
+    local int64 p = startof(d);
+    local int64 size = sizeof(d);
+    local int64 n = ReadUByte(p + size - 1);
+    if (n >= size)
+        n = size - 1;
+    return "\"" + CS0(p, n) + "\"";
+}
+
+struct CHARSPEC {
+    uchar characterSetType <comment="0 - CS0, the OSTA compressed Unicode">;
+    char  characterSetInfo[63];
+};
+
+// An entity identifier: "*OSTA UDF Compliant", "+NSR03"...; UDF ones have
+// the revision in their suffix
+struct REGID {
+    uchar flags;
+    char  identifier[23];
+    uchar identifierSuffix[8];
+} <read=RegidRead>;
+
+string RegidRead(REGID &r) {
+    local int64 p = startof(r);
+    local string id = ReadString(p + 1, 23);
+    if (ReadUByte(p + 1) == '*' && ReadUShort(p + 24) != 0 && ReadUShort(p + 24) < 0x1000)
+        return Str("%s (UDF %x.%02x)", id, ReadUByte(p + 25), ReadUByte(p + 24));
+    return id;
+}
+
+struct TIMESTAMP {
+    uint16 typeAndTimezone <format=hex, comment="type 1 - local time; the zone in minutes in 12 bits">;
+    int16  year;
+    uchar  month, day, hour, minute, second;
+    uchar  centiseconds, hundredsOfMicroseconds, microseconds;
+} <read=TimestampRead>;
+
+string TimestampRead(TIMESTAMP &t) {
+    local int tz = t.typeAndTimezone & 0xFFF;
+    local string zone = "";
+    if (t.year == 0 && t.month == 0)
+        return "";
+    if (tz >= 0x800)
+        tz -= 0x1000;
+    if ((t.typeAndTimezone >> 12) == 1 && tz != -2047)
+        zone = Str(" %c%02d:%02d", tz < 0 ? '-' : '+', Abs(tz) / 60, Abs(tz) % 60);
+    return Str("%04d-%02d-%02d %02d:%02d:%02d", t.year, t.month, t.day, t.hour, t.minute, t.second) + zone;
+}
+
+struct EXTENT_AD {
+    uint32 length <comment="bytes">;
+    uint32 location <comment="the sector">;
+} <read=ExtentRead>;
+
+string ExtentRead(EXTENT_AD &e) { return Str("%u bytes at sector %u", e.length, e.location); }
+
+struct LB_ADDR {
+    uint32 logicalBlockNumber;
+    uint16 partitionReferenceNumber <comment="the index of the partition map">;
+};
+
+string ExtentTypeComment(uint32 &l) {
+    switch (l >> 30) {
+    case 0: return Str("%u bytes, recorded", l & 0x3FFFFFFF);
+    case 1: return Str("%u bytes, allocated, not recorded (zeros)", l & 0x3FFFFFFF);
+    case 2: return Str("%u bytes, not allocated (zeros)", l & 0x3FFFFFFF);
+    }
+    return Str("%u bytes: the next extent of allocation descriptors", l & 0x3FFFFFFF);
+}
+
+struct LONG_AD {
+    uint32  extentLength <format=hex, comment=ExtentTypeComment>;
+    LB_ADDR extentLocation;
+    uchar   implementationUse[6];
+} <read=LongAdRead>;
+
+string LongAdRead(LONG_AD &a) {
+    return Str("%u bytes at block %u of partition %u", a.extentLength & 0x3FFFFFFF,
+        a.extentLocation.logicalBlockNumber, a.extentLocation.partitionReferenceNumber);
+}
+
+struct SHORT_AD {
+    uint32 extentLength <format=hex, comment=ExtentTypeComment>;
+    uint32 extentPosition <comment="the block in the partition of the entry">;
+} <read=ShortAdRead>;
+
+string ShortAdRead(SHORT_AD &a) { return Str("%u bytes at block %u", a.extentLength & 0x3FFFFFFF, a.extentPosition); }
+
+struct EXT_AD {
+    uint32  extentLength <format=hex, comment=ExtentTypeComment>;
+    uint32  recordedLength;
+    uint32  informationLength;
+    LB_ADDR extentLocation;
+    uchar   implementationUse[2];
+};
+
+// ---- The volume recognition sequence ----
+
+struct VRS_DESC {
+    uchar structureType;
+    char  standardIdentifier[5] <comment=VrsComment>;
+    uchar structureVersion;
+} <read=VrsRead>;
+
+string VrsComment(char &s[]) {
+    local string id = ReadString(startof(s), 5);
+    if (id == "BEA01") return "the beginning of the extended area";
+    if (id == "NSR02") return "ECMA-167 2nd edition: UDF 1.02-1.50";
+    if (id == "NSR03") return "ECMA-167 3rd edition: UDF 2.00+";
+    if (id == "TEA01") return "the end of the extended area";
+    if (id == "CD001") return "an ISO 9660 descriptor (see the ISO template)";
+    if (id == "BOOT2") return "a boot descriptor";
+    return "";
+}
+
+string VrsRead(VRS_DESC &v) { return ReadString(startof(v) + 1, 5); }
+
+// ---- Volume descriptors ----
+
+string AccessComment(uint32 &a) {
+    switch (a) {
+    case 1: return "read only";
+    case 2: return "write once";
+    case 3: return "rewritable (with sparing)";
+    case 4: return "overwritable";
+    }
+    return "";
+}
+
+// A partition map of a logical volume: type 1 - a physical partition;
+// type 2 - virtual (VAT), sparable or metadata, by its identifier
+struct PARTITION_MAP {
+    local int64 start = FTell();
+    uchar type;
+    uchar length;
+    local string id = "";
+    if (type == 1 && length >= 6) {
+        uint16 volumeSequenceNumber;
+        uint16 partitionNumber;
+    } else if (type == 2 && length >= 64) {
+        uchar  reserved[2];
+        REGID  partitionTypeIdentifier;
+        uint16 volumeSequenceNumber;
+        uint16 partitionNumber;
+        id = ReadString(start + 5, 23);
+        if (id == "*UDF Sparable Partition") {
+            uint16 packetLength <comment="blocks">;
+            uchar  numberOfSparingTables;
+            uchar  reserved2;
+            uint32 sizeOfEachSparingTable;
+            uint32 locationsOfSparingTables[Min(numberOfSparingTables, 4)] <comment="sectors">;
+        } else if (id == "*UDF Metadata Partition") {
+            uint32 metadataFileLocation <comment="the block in the physical partition">;
+            uint32 metadataMirrorFileLocation;
+            uint32 metadataBitmapFileLocation;
+            uint32 allocationUnitSize <comment="blocks">;
+            uint16 alignmentUnitSize <comment="blocks">;
+            uchar  flags <comment="bit 0 - the metadata is duplicated">;
+        }
+    }
+    if (length > 2 && FTell() < start + length)
+        uchar rest[start + length - FTell()];
+} <read=PartitionMapRead>;
+
+string PartitionMapRead(PARTITION_MAP &m) {
+    local int64 p = startof(m);
+    if (ReadUByte(p) == 1)
+        return Str("physical, partition %u", ReadUShort(p + 4));
+    if (ReadUByte(p) == 2) {
+        local string id = ReadString(p + 5, 23);
+        if (id == "*UDF Virtual Partition") return Str("virtual (VAT), partition %u", ReadUShort(p + 38));
+        if (id == "*UDF Sparable Partition") return Str("sparable, partition %u", ReadUShort(p + 38));
+        if (id == "*UDF Metadata Partition") return Str("metadata, partition %u", ReadUShort(p + 38));
+        return id;
+    }
+    return Str("type %u", ReadUByte(p));
+}
+
+enum <uchar> FILE_TYPE {
+    UNSPECIFIED = 0, UNALLOCATED_SPACE_ENTRY = 1, PARTITION_INTEGRITY_ENTRY = 2,
+    INDIRECT_ENTRY = 3, DIRECTORY = 4, FILE = 5, BLOCK_DEVICE = 6, CHARACTER_DEVICE = 7,
+    EXTENDED_ATTRIBUTES = 8, FIFO = 9, SOCKET = 10, TERMINAL_ENTRY = 11, SYMLINK = 12,
+    STREAM_DIRECTORY = 13, VAT = 248, REAL_TIME_FILE = 249, METADATA_FILE = 250,
+    METADATA_MIRROR_FILE = 251, METADATA_BITMAP_FILE = 252
+};
+
+string IcbFlagsComment(uint16 &f) {
+    local string s;
+    switch (f & 7) {
+    case 0: s = "short_ad"; break;
+    case 1: s = "long_ad"; break;
+    case 2: s = "ext_ad"; break;
+    case 3: s = "the data in the entry"; break;
+    default: s = "?"; break;
+    }
+    if (f & 0x40) s += ", setuid";
+    if (f & 0x80) s += ", setgid";
+    if (f & 0x100) s += ", sticky";
+    return s;
+}
+
+struct ICBTAG {
+    uint32    priorRecordedNumberOfDirectEntries;
+    uint16    strategyType <comment="4 - one entry, 4096 - an indirect entry may follow">;
+    uint16    strategyParameter;
+    uint16    maximumNumberOfEntries;
+    uchar     reserved;
+    FILE_TYPE fileType;
+    LB_ADDR   parentICBLocation;
+    uint16    flags <format=hex, comment=IcbFlagsComment>;
+};
+
+string PermComment(uint32 &p) {
+    local string s = "";
+    local int k, b;
+    for (k = 2; k >= 0; k--) {
+        b = (p >> (5 * k)) & 7;
+        s += (b & 4) ? "r" : "-";
+        s += (b & 2) ? "w" : "-";
+        s += (b & 1) ? "x" : "-";
+    }
+    return s;
+}
+
+string CharsComment(uchar &c) {
+    local string s = "";
+    if (c & 1) s += "hidden ";
+    if (c & 2) s += "directory ";
+    if (c & 4) s += "deleted ";
+    if (c & 8) s += "parent ";
+    if (c & 16) s += "metadata";
+    return s;
+}
+
+// A descriptor of size bytes: the tag, then what its identifier says
+struct DESCRIPTOR (int64 size) {
+    local int64 start = FTell();
+    local int id = ReadUShort(start);
+    local int64 i, n, lea, lad, adEnd;
+    TAG tag;
+    switch (id) {
+    case PRIMARY_VOLUME:
+        uint32    volumeDescriptorSequenceNumber;
+        uint32    primaryVolumeDescriptorNumber;
+        DSTRING   volumeIdentifier(32);
+        uint16    volumeSequenceNumber;
+        uint16    maximumVolumeSequenceNumber;
+        uint16    interchangeLevel;
+        uint16    maximumInterchangeLevel;
+        uint32    characterSetList;
+        uint32    maximumCharacterSetList;
+        DSTRING   volumeSetIdentifier(128);
+        CHARSPEC  descriptorCharacterSet;
+        CHARSPEC  explanatoryCharacterSet;
+        EXTENT_AD volumeAbstract;
+        EXTENT_AD volumeCopyrightNotice;
+        REGID     applicationIdentifier;
+        TIMESTAMP recordingDateAndTime;
+        REGID     implementationIdentifier;
+        uchar     implementationUse[64];
+        uint32    predecessorVolumeDescriptorSequenceLocation;
+        uint16    flags;
+        uchar     reserved[22];
+        break;
+    case ANCHOR_POINTER:
+        EXTENT_AD mainVolumeDescriptorSequence;
+        EXTENT_AD reserveVolumeDescriptorSequence;
+        break;
+    case VOLUME_POINTER:
+        uint32    volumeDescriptorSequenceNumber;
+        EXTENT_AD nextVolumeDescriptorSequence;
+        break;
+    case IMPLEMENTATION_USE:
+        uint32   volumeDescriptorSequenceNumber;
+        REGID    implementationIdentifier <comment="*UDF LV Info">;
+        CHARSPEC lviCharset;
+        DSTRING  logicalVolumeIdentifier(128);
+        DSTRING  lvInfo1(36);
+        DSTRING  lvInfo2(36);
+        DSTRING  lvInfo3(36);
+        REGID    implementationId;
+        uchar    implementationUse[128];
+        break;
+    case PARTITION:
+        uint32 volumeDescriptorSequenceNumber;
+        uint16 partitionFlags <comment="bit 0 - allocated">;
+        uint16 partitionNumber;
+        REGID  partitionContents <comment="+NSR02 or +NSR03">;
+        uchar  partitionContentsUse[128] <comment="the partition header: the space bitmaps and tables">;
+        uint32 accessType <comment=AccessComment>;
+        uint32 partitionStartingLocation <comment="the sector">;
+        uint32 partitionLength <comment="sectors">;
+        REGID  implementationIdentifier;
+        uchar  implementationUse[128];
+        break;
+    case LOGICAL_VOLUME:
+        uint32    volumeDescriptorSequenceNumber;
+        CHARSPEC  descriptorCharacterSet;
+        DSTRING   logicalVolumeIdentifier(128);
+        uint32    logicalBlockSize;
+        REGID     domainIdentifier <comment="*OSTA UDF Compliant, the UDF revision">;
+        LONG_AD   fileSetDescriptor <comment="where the file set descriptor is">;
+        uint32    mapTableLength;
+        uint32    numberOfPartitionMaps;
+        REGID     implementationIdentifier;
+        uchar     implementationUse[128];
+        EXTENT_AD integritySequenceExtent;
+        for (i = 0; i < numberOfPartitionMaps && i < 64 && FTell() + 2 <= start + size &&
+                    ReadUByte(FTell() + 1) >= 2 && FTell() + ReadUByte(FTell() + 1) <= start + size; i++)
+            PARTITION_MAP partitionMap;
+        break;
+    case UNALLOCATED_SPACE:
+        uint32 volumeDescriptorSequenceNumber;
+        uint32 numberOfAllocationDescriptors;
+        n = Min(numberOfAllocationDescriptors, (size - 24) / 8);
+        if (n > 0)
+            EXTENT_AD allocationDescriptors[n];
+        break;
+    case LOGICAL_VOLUME_INTEGRITY:
+        TIMESTAMP recordingDateAndTime;
+        uint32    integrityType <comment="0 - open (being written), 1 - closed">;
+        EXTENT_AD nextIntegrityExtent;
+        uint64    uniqueID <comment="the next unique ID of a file">;
+        uchar     reserved[24];
+        uint32    numberOfPartitions;
+        uint32    lengthOfImplementationUse;
+        n = Min(numberOfPartitions, (size - 80) / 8);
+        if (n > 0) {
+            uint32 freeSpaceTable[n] <comment="free blocks of each partition">;
+            uint32 sizeTable[n] <comment="blocks of each partition">;
+        }
+        if (lengthOfImplementationUse >= 46 && FTell() + 46 <= start + size) {
+            REGID  implementationID;
+            uint32 numberOfFiles;
+            uint32 numberOfDirectories;
+            uint16 minimumUDFReadRevision <format=hex>;
+            uint16 minimumUDFWriteRevision <format=hex>;
+            uint16 maximumUDFWriteRevision <format=hex>;
+        }
+        break;
+    case FILE_SET:
+        TIMESTAMP recordingDateAndTime;
+        uint16    interchangeLevel;
+        uint16    maximumInterchangeLevel;
+        uint32    characterSetList;
+        uint32    maximumCharacterSetList;
+        uint32    fileSetNumber;
+        uint32    fileSetDescriptorNumber;
+        CHARSPEC  logicalVolumeIdentifierCharacterSet;
+        DSTRING   logicalVolumeIdentifier(128);
+        CHARSPEC  fileSetCharacterSet;
+        DSTRING   fileSetIdentifier(32);
+        DSTRING   copyrightFileIdentifier(32);
+        DSTRING   abstractFileIdentifier(32);
+        LONG_AD   rootDirectoryICB;
+        REGID     domainIdentifier;
+        LONG_AD   nextExtent;
+        LONG_AD   systemStreamDirectoryICB;
+        uchar     reserved[32];
+        break;
+    case FILE_ENTRY:
+    case EXTENDED_FILE_ENTRY:
+        ICBTAG    icbTag;
+        uint32    uid;
+        uint32    gid;
+        uint32    permissions <format=hex, comment=PermComment>;
+        uint16    fileLinkCount;
+        uchar     recordFormat;
+        uchar     recordDisplayAttributes;
+        uint32    recordLength;
+        uint64    informationLength <comment="the size of the file">;
+        if (id == EXTENDED_FILE_ENTRY)
+            uint64 objectSize;
+        uint64    logicalBlocksRecorded;
+        TIMESTAMP accessTime;
+        TIMESTAMP modificationTime;
+        if (id == EXTENDED_FILE_ENTRY)
+            TIMESTAMP creationTime;
+        TIMESTAMP attributeTime;
+        uint32    checkpoint;
+        if (id == EXTENDED_FILE_ENTRY)
+            uint32 reserved;
+        LONG_AD   extendedAttributeICB;
+        if (id == EXTENDED_FILE_ENTRY)
+            LONG_AD streamDirectoryICB;
+        REGID     implementationIdentifier;
+        uint64    uniqueID;
+        uint32    lengthOfExtendedAttributes;
+        uint32    lengthOfAllocationDescriptors;
+        lea = Min(lengthOfExtendedAttributes, start + size - FTell());
+        if (lea > 0)
+            uchar extendedAttributes[lea];
+        lad = Min(lengthOfAllocationDescriptors, start + size - FTell());
+        adEnd = FTell() + lad;
+        switch (icbTag.flags & 7) {
+        case 0:
+            while (FTell() + 8 <= adEnd)
+                SHORT_AD allocationDescriptor;
+            break;
+        case 1:
+            while (FTell() + 16 <= adEnd)
+                LONG_AD allocationDescriptor;
+            break;
+        case 2:
+            while (FTell() + 20 <= adEnd)
+                EXT_AD allocationDescriptor;
+            break;
+        case 3:
+            if (lad > 0)
+                uchar embeddedData[lad];
+            break;
+        }
+        break;
+    case INDIRECT_ENTRY:
+        ICBTAG  icbTag;
+        LONG_AD indirectICB;
+        break;
+    case ALLOCATION_EXTENT:
+        uint32 previousAllocationExtentLocation;
+        uint32 lengthOfAllocationDescriptors;
+        break;
+    }
+    if (FTell() < start + size)
+        uchar rest[start + size - FTell()];
+} <read=DescriptorRead>;
+
+string DescriptorRead(DESCRIPTOR &d) {
+    local int64 p = startof(d);
+    local int id = ReadUShort(p);
+    local string s = EnumToString(d.tag.id);
+    if (s == "")
+        s = Str("tag %u", id);
+    if (id == LOGICAL_VOLUME || id == PRIMARY_VOLUME)
+        s += " " + DStringRead(id == LOGICAL_VOLUME ? d.logicalVolumeIdentifier : d.volumeIdentifier);
+    if (id == PARTITION)
+        s += Str(" %u: sectors %u-%u", ReadUShort(p + 22), ReadUInt(p + 188), ReadUInt(p + 188) + ReadUInt(p + 192) - 1);
+    return s;
+}
+
+// A tag that looks right: a known identifier and version, its checksum
+int TagOK(int64 p) {
+    local int64 i;
+    local int sum = 0;
+    if (p < 0 || p + 16 > FileSize())
+        return 0;
+    for (i = 0; i < 16; i++)
+        if (i != 4)
+            sum += ReadUByte(p + i);
+    return (sum & 0xFF) == ReadUByte(p + 4) && (ReadUShort(p + 2) == 2 || ReadUShort(p + 2) == 3);
+}
+
+// A volume descriptor sequence: a sector each, to the terminating one
+struct VDS (int64 count) {
+    local int64 i, p, id;
+    for (i = 0; i < count && i < 64; i++) {
+        p = FTell();
+        if (p + 512 > FileSize() || !TagOK(p))
+            break;
+        id = ReadUShort(p);
+        DESCRIPTOR descriptor(Min(SS, FileSize() - p));
+        if (id == TERMINATING)
+            break;
+    }
+};
+
+// A file identifier: the name of a file of a directory and its ICB
+struct FID {
+    local int64 start = FTell();
+    TAG     tag;
+    uint16  fileVersionNumber;
+    uchar   fileCharacteristics <format=hex, comment=CharsComment>;
+    uchar   lengthOfFileIdentifier;
+    LONG_AD icb;
+    uint16  lengthOfImplementationUse;
+    if (lengthOfImplementationUse > 0)
+        uchar implementationUse[lengthOfImplementationUse];
+    if (lengthOfFileIdentifier > 0)
+        uchar fileIdentifier[lengthOfFileIdentifier];
+    local int64 end = (FTell() - start + 3) / 4 * 4 + start;
+    if (FTell() < end && end <= FileSize())
+        uchar padding[end - FTell()];
+} <read=FidRead>;
+
+string FidRead(FID &f) {
+    local int64 p = startof(f);
+    local int c = ReadUByte(p + 18);
+    local string name = CS0(p + 38 + ReadUShort(p + 36), ReadUByte(p + 19));
+    if (c & 8)
+        return "(parent)";
+    if (c & 2)
+        name += "/";
+    if (c & 4)
+        name += " (deleted)";
+    return name;
+}
+
+// The file identifiers of a directory of size bytes at start
+struct FIDS (int64 start, int64 size) {
+    local int64 end = Min(start + size, FileSize());
+    local int64 n = 0;
+    local int64 room;
+    FSeek(start);
+    while (FTell() + 38 <= end && n < MAX_FIDS && ReadUShort(FTell()) == FILE_IDENTIFIER && TagOK(FTell())) {
+        room = 38 + ReadUShort(FTell() + 36) + ReadUByte(FTell() + 19);
+        if (FTell() + room > end)
+            break;
+        FID fid;
+        n++;
+    }
+};
+
+// ---- The image ----
+
+// The sector size: where the anchor at sector 256 is
+int IsAnchor(int64 ss) {
+    return TagOK(256 * ss) && ReadUShort(256 * ss) == ANCHOR_POINTER && ReadUInt(256 * ss + 12) == 256;
+}
+
+local int64 SS = 0;
+if (IsAnchor(2048))
+    SS = 2048;
+else if (IsAnchor(512))
+    SS = 512;
+else if (IsAnchor(4096))
+    SS = 4096;
+
+local int64 i, p;
+local int64 step = 2048;
+if (SS > 2048)
+    step = SS;
+for (i = 0; i < 64; i++) {
+    p = 32768 + i * step;
+    if (p + 7 > FileSize())
+        break;
+    local string vid = ReadString(p + 1, 5);
+    if (vid != "BEA01" && vid != "NSR02" && vid != "NSR03" && vid != "TEA01" &&
+        vid != "CD001" && vid != "BOOT2" && vid != "CDW02")
+        break;
+    VRS_DESC vrs @ p;
+}
+
+if (SS == 0) {
+    Warning("no anchor volume descriptor pointer at sector 256");
+    return;
+}
+
+DESCRIPTOR anchor(512) @ 256 * SS;
+
+local int64 mainLoc = ReadUInt(256 * SS + 20), mainLen = ReadUInt(256 * SS + 16);
+local int64 resLoc = ReadUInt(256 * SS + 28), resLen = ReadUInt(256 * SS + 24);
+if (mainLoc * SS < FileSize())
+    VDS mainSequence(mainLen / SS) @ mainLoc * SS;
+if (resLoc != mainLoc && resLoc * SS < FileSize())
+    VDS reserveSequence(resLen / SS) @ resLoc * SS;
+
+// What the file set needs from the main sequence (else the reserve one):
+// the logical volume and the start of each partition
+local int64 lvd = -1;
+local int64 pstart[16];
+local int64 havePart[16];
+local int64 seqLoc, seqLen, k, id, num;
+for (k = 0; k < 2; k++) {
+    seqLoc = k == 0 ? mainLoc : resLoc;
+    seqLen = k == 0 ? mainLen : resLen;
+    for (i = 0; i < seqLen / SS && i < 64; i++) {
+        p = (seqLoc + i) * SS;
+        if (p + 512 > FileSize() || !TagOK(p))
+            break;
+        id = ReadUShort(p);
+        if (id == LOGICAL_VOLUME && lvd < 0)
+            lvd = p;
+        if (id == PARTITION) {
+            num = ReadUShort(p + 22);
+            if (num < 16 && !havePart[num]) {
+                havePart[num] = 1;
+                pstart[num] = ReadUInt(p + 188);
+            }
+        }
+        if (id == TERMINATING)
+            break;
+    }
+}
+
+if (lvd < 0) {
+    Warning("no logical volume descriptor");
+    return;
+}
+
+if (ReadUInt(lvd + 432) > 0 && ReadUInt(lvd + 436) * SS + 512 <= FileSize() && TagOK(ReadUInt(lvd + 436) * SS))
+    DESCRIPTOR integrity(Min(SS, ReadUInt(lvd + 432))) @ ReadUInt(lvd + 436) * SS;
+
+// The partition maps: the kind of each (1 - physical, 3 - metadata,
+// 2 - another), the partition and, for metadata, the metadata file
+local int64 mapKind[8];
+local int64 mapNum[8];
+local int64 mapMeta[8];
+local int64 nmaps = Min(ReadUInt(lvd + 268), 8);
+local int64 mp = lvd + 440;
+for (i = 0; i < nmaps && mp + 2 <= lvd + SS; i++) {
+    if (ReadUByte(mp) == 1) {
+        mapKind[i] = 1;
+        mapNum[i] = ReadUShort(mp + 4);
+    } else if (ReadUByte(mp) == 2) {
+        mapKind[i] = 2;
+        mapNum[i] = ReadUShort(mp + 38);
+        if (ReadString(mp + 5, 23) == "*UDF Metadata Partition") {
+            mapKind[i] = 3;
+            mapMeta[i] = ReadUInt(mp + 40);
+        }
+    }
+    if (ReadUByte(mp + 1) < 2)
+        break;
+    mp += ReadUByte(mp + 1);
+}
+
+// Where a block of a partition (by its map) is in the image; -1 unknown.
+// A block of a metadata partition goes through the short_ad of the
+// metadata file.
+int64 MapBlock(int64 ref, int64 block) {
+    local int64 n, fe, hdr, ad, adEnd, len, off;
+    if (ref < 0 || ref >= nmaps || mapNum[ref] >= 16 || !havePart[mapNum[ref]])
+        return -1;
+    n = mapNum[ref];
+    if (mapKind[ref] == 1)
+        return (pstart[n] + block) * SS;
+    if (mapKind[ref] != 3)
+        return -1;
+    fe = (pstart[n] + mapMeta[ref]) * SS;
+    if (!TagOK(fe))
+        return -1;
+    hdr = ReadUShort(fe) == EXTENDED_FILE_ENTRY ? 216 : 176;
+    if (fe + hdr > FileSize())
+        return -1;
+    ad = fe + hdr + ReadUInt(fe + hdr - 8);
+    adEnd = Min(ad + ReadUInt(fe + hdr - 4), fe + SS);
+    off = block * SS;
+    for (; ad + 8 <= adEnd; ad += 8) {
+        len = ReadUInt(ad) & 0x3FFFFFFF;
+        if (len == 0)
+            break;
+        if (off < len)
+            return (pstart[n] + ReadUInt(ad + 4)) * SS + off;
+        off -= len;
+    }
+    return -1;
+}
+
+for (i = 0; i < nmaps; i++)
+    if (mapKind[i] == 3 && MapBlock(i, 0) >= 0)
+        DESCRIPTOR metadataFile(SS) @ (pstart[mapNum[i]] + mapMeta[i]) * SS;
+
+local int64 fsdRef = ReadUShort(lvd + 256);
+local int64 fsd = MapBlock(fsdRef, ReadUInt(lvd + 252));
+if (fsd < 0 || fsd + 512 > FileSize() || !TagOK(fsd)) {
+    Warning("the file set descriptor is not found (in a virtual partition, or damaged)");
+    return;
+}
+DESCRIPTOR fileSet(Min(SS, FileSize() - fsd)) @ fsd;
+
+local int64 rootRef = ReadUShort(fsd + 408);
+local int64 root = MapBlock(rootRef, ReadUInt(fsd + 404));
+if (root < 0 || root + 176 > FileSize() || !TagOK(root))
+    return;
+DESCRIPTOR rootEntry(Min(SS, FileSize() - root)) @ root;
+
+// The identifiers of the root directory: its first extent (short_ad, in
+// the partition of the entry) or the data in the entry
+local int64 rhdr = ReadUShort(root) == EXTENDED_FILE_ENTRY ? 216 : 176;
+local int64 rad = root + rhdr + ReadUInt(root + rhdr - 8);
+local int64 rsize = ReadUInt64(root + 56);
+local int64 rdir = -1;
+switch (ReadUShort(root + 34) & 7) {
+case 0:
+    rdir = MapBlock(rootRef, ReadUInt(rad + 4));
+    rsize = Min(rsize, ReadUInt(rad) & 0x3FFFFFFF);
+    break;
+case 1:
+    rdir = MapBlock(ReadUShort(rad + 8), ReadUInt(rad + 4));
+    rsize = Min(rsize, ReadUInt(rad) & 0x3FFFFFFF);
+    break;
+case 3:
+    rdir = rad;
+    break;
+}
+if (rdir >= 0 && rdir < FileSize())
+    FIDS rootDirectory(rdir, Min(rsize, 1024 * 1024));

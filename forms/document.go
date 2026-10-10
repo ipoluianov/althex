@@ -12,7 +12,6 @@ import (
 
 	"github.com/ipoluianov/althex/app"
 	"github.com/ipoluianov/althex/config"
-	"github.com/ipoluianov/althex/core/diff"
 	"github.com/ipoluianov/althex/core/doc"
 	"github.com/ipoluianov/althex/forms/hexview"
 	"github.com/ipoluianov/nui/ui"
@@ -65,7 +64,13 @@ func (c *MainForm) OpenFile(path string) {
 		return
 	}
 	_ = config.AddRecentFile(path)
+	// Not writable (no permission, locked by another program): opened
+	// read-only, and told (SRC-2)
+	if err := d.WriteDenied(); err != nil {
+		ui.ShowToast(c, T().OpenedReadOnly(filepath.Base(path), writeDeniedReason(err)), ui.ToastInfo)
+	}
 	c.detectTemplate(c.addTab(d))
+	c.offerDiskImage(path)
 }
 
 // newDocument makes an empty document (SRC-5)
@@ -127,7 +132,13 @@ func (c *MainForm) onView(t *Tab, v *hexview.View) {
 func (c *MainForm) addTab(d *doc.Document) *Tab {
 	t := newTab(d, c.viewOptions(), c.onView)
 	t.syncScroll = config.GetSettings().View.SyncScroll
-	d.Subscribe(func() { c.updateTabs() })
+	d.Subscribe(func() {
+		c.updateTabs()
+		// The history panel follows the edits while it is shown
+		if c.pageShown(c.pages.history) && t == c.tab() {
+			c.history.refresh()
+		}
+	})
 	c.tabs = append(c.tabs, t)
 	c.selectTab(len(c.tabs) - 1)
 	return t
@@ -141,7 +152,7 @@ func (c *MainForm) selectTab(i int) {
 	c.cur = i
 	c.area.RemoveAllWidgets()
 	t := c.tabs[i]
-	c.area.AddWidget(0, 0, t.box)
+	c.area.AddWidget(0, 0, t.widget(c))
 	t.view().Focus()
 	c.updateTabs()
 	c.updateStatus()
@@ -228,11 +239,11 @@ func (c *MainForm) dropTab(i int) {
 	}
 	t := c.tabs[i]
 	c.tabs = append(c.tabs[:i], c.tabs[i+1:]...)
+	c.dropComparesOf(t)
 	t.close()
 	if len(c.tabs) == 0 {
 		c.cur = 0
-		c.area.RemoveAllWidgets()
-		c.area.AddWidget(0, 0, c.lblHint)
+		c.showWelcome()
 		c.updateTabs()
 		c.updateStatus()
 		if f := c.Form(); f != nil {
@@ -277,6 +288,15 @@ func (c *MainForm) save(t *Tab, saveAs bool, then func()) {
 }
 
 func (c *MainForm) saveTo(t *Tab, path string, then func()) {
+	// Writing a disk is asked about twice, with the device named (6.2)
+	if t.doc.IsDevice() && path == "" && !t.deviceConfirmed {
+		c.confirmDeviceSave(t.doc, func() {
+			t.deviceConfirmed = true
+			c.saveTo(t, path, then)
+			t.deviceConfirmed = false
+		})
+		return
+	}
 	d := t.doc
 	form := c.Form()
 	c.saving = true
@@ -284,10 +304,13 @@ func (c *MainForm) saveTo(t *Tab, path string, then func()) {
 		v.SetBusy(true)
 	}
 	c.status.SetInfo(T().Saving(0))
+	// Canceled by the link of the status bar: the file stays as it was (6.1)
+	ctx, endTask := c.status.startTask()
 	var lastShown atomic.Int64
 	opts := doc.SaveOptions{
 		Path:   path,
 		Backup: config.GetSettings().Backup,
+		Cancel: func() bool { return ctx.Err() != nil },
 		Progress: func(done, total int64) {
 			// Shown at most ten times a second
 			now := time.Now().UnixMilli()
@@ -302,14 +325,25 @@ func (c *MainForm) saveTo(t *Tab, path string, then func()) {
 	go func() {
 		err := d.Save(opts)
 		form.Invoke(func() {
+			endTask()
 			c.saving = false
 			for _, v := range t.views {
 				v.SetBusy(false)
 			}
 			c.updateTabs()
 			c.updateStatus()
+			if errors.Is(err, doc.ErrCanceled) {
+				ui.ShowToast(c, T().Canceled, ui.ToastInfo)
+				if t.onSaveError != nil {
+					t.onSaveError(err)
+				}
+				return
+			}
 			if err != nil {
 				ui.ShowMessageBox(c, T().Error, T().SaveFailed(err.Error()))
+				if t.onSaveError != nil {
+					t.onSaveError(err)
+				}
 				return
 			}
 			_ = config.AddRecentFile(d.Path())
@@ -359,12 +393,12 @@ func (c *MainForm) updateStatus() {
 	if d.ReadOnly() {
 		parts = append(parts, t.ReadOnly)
 	}
-	if tb := c.tab(); tb != nil && tb.cmp != nil && tb.cmp.ranges != nil {
-		s := diff.Summarize(tb.cmp.ranges)
-		parts = append(parts, t.DiffStatus(tb.cmp.cur+1, s.Ranges))
+	if tb := c.tab(); tb != nil && tb.cmp != nil && tb.cmp.done {
+		parts = append(parts, t.DiffStatus(tb.cmp.cur+1, tb.cmp.count()))
 	}
 	c.status.SetInfo(strings.Join(parts, "   ·   "))
 	c.side.refresh()
+	c.syncListing()
 }
 
 // formatSize writes a number of bytes with the thousands set apart: 1 234 567
@@ -414,7 +448,13 @@ func (c *MainForm) checkDocuments() {
 		}
 		fileSeen[d] = true
 		path := d.Path()
-		ui.ShowQuestionMessageBoxYesNo(c, app.DisplayName, T().FileChangedAsk(filepath.Base(path)), func() {
+		// With edits not saved, the question says that reloading loses
+		// them; No keeps the document as it is
+		ask := T().FileChangedAsk(filepath.Base(path))
+		if d.Modified() {
+			ask = T().FileChangedAskEdited(filepath.Base(path))
+		}
+		ui.ShowQuestionMessageBoxYesNo(c, app.DisplayName, ask, func() {
 			if i := c.indexOf(t); i >= 0 {
 				c.dropTab(i)
 			}
@@ -479,11 +519,49 @@ func (c *MainForm) exportBookmarks() {
 			if err != nil || path == "" {
 				return
 			}
-			bs, _ := json.MarshalIndent(t.bookmarks, "", "  ")
-			if err := os.WriteFile(path, bs, 0644); err != nil {
+			if err := os.WriteFile(path, encodeBookmarks(t.bookmarks), 0644); err != nil {
 				ui.ShowMessageBox(c, T().Error, err.Error())
 			}
 		})
+}
+
+// bookmarksFile is the format of exported bookmarks; Version 1. The first
+// format was the bare list, which is read too.
+type bookmarksFile struct {
+	Version   int
+	Bookmarks []Bookmark
+}
+
+func encodeBookmarks(list []Bookmark) []byte {
+	bs, _ := json.MarshalIndent(bookmarksFile{Version: 1, Bookmarks: list}, "", "  ")
+	return bs
+}
+
+// decodeBookmarks reads exported bookmarks; the ones outside a document of
+// the size are cut to it or left out, a wrong color gets the first one
+func decodeBookmarks(bs []byte, size int64) ([]Bookmark, error) {
+	var list []Bookmark
+	if err := json.Unmarshal(bs, &list); err != nil {
+		var f bookmarksFile
+		if err2 := json.Unmarshal(bs, &f); err2 != nil {
+			return nil, err2
+		}
+		list = f.Bookmarks
+	}
+	out := list[:0]
+	for _, b := range list {
+		if b.Off < 0 || b.Off >= max(size, 1) {
+			continue
+		}
+		b.Len = min(max(b.Len, 0), size-b.Off)
+		if c, ok := parseColor(b.Color); ok {
+			b.Color = c
+		} else {
+			b.Color = bookmarkColors[0]
+		}
+		out = append(out, b)
+	}
+	return out, nil
 }
 
 // importBookmarks adds the bookmarks of a JSON file to the current document
@@ -500,7 +578,7 @@ func (c *MainForm) importBookmarks() {
 			bs, err := os.ReadFile(paths[0])
 			var list []Bookmark
 			if err == nil {
-				err = json.Unmarshal(bs, &list)
+				list, err = decodeBookmarks(bs, t.doc.Size())
 			}
 			if err != nil {
 				ui.ShowMessageBox(c, T().Error, err.Error())
@@ -509,4 +587,13 @@ func (c *MainForm) importBookmarks() {
 			t.bookmarks = append(t.bookmarks, list...)
 			c.update()
 		})
+}
+
+// writeDeniedReason is why a file cannot be written, without its name
+func writeDeniedReason(err error) string {
+	var pe *os.PathError
+	if errors.As(err, &pe) {
+		return pe.Err.Error()
+	}
+	return err.Error()
 }

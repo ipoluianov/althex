@@ -1,0 +1,172 @@
+//! name: VMDK disk image
+//! priority: 1
+//! extensions: vmdk
+//! magic: 0 "4B 44 4D 56"
+//! magic: 0 "23 20 44 69 73 6B 20 44 65 73 63 72 69 70 74 6F 72 46 69 6C 65"
+
+// VMware Virtual Disk (Virtual Disk Format 5.0). A sparse extent starts
+// with a header ("KDMV"), has the descriptor text in it, a grain directory
+// of grain tables, and grains of data. A stream-optimized extent has
+// compressed grains, each after a marker, and the grain tables, the
+// directory and a copy of the header (the footer, in force) at the end. A
+// descriptor file is only text naming the extents. Little-endian; offsets
+// and sizes in sectors of 512 bytes.
+
+LittleEndian();
+
+// Fields to show at most
+local int64 MAX_GRAIN_TABLES = 256;
+local int64 MAX_MARKERS = 10000;
+local int64 MAX_TEXT = 1048576;
+
+enum <uint32> VMDK_MARKER_TYPE {
+    MARKER_EOS = 0,
+    MARKER_GT = 1,
+    MARKER_GD = 2,
+    MARKER_FOOTER = 3
+};
+
+enum <uint16> VMDK_COMPRESSION { COMPRESSION_NONE = 0, COMPRESSION_DEFLATE = 1 };
+
+struct VMDK_HEADER {
+    char   magic[4] <comment="KDMV">;
+    uint32 version;
+    uint32 validNewLineTest : 1;
+    uint32 redundantGrainTable : 1;
+    uint32 zeroedGrainGTE : 1 <comment="a grain table entry of 1 - a grain of zeros">;
+    uint32 reserved : 13;
+    uint32 compressedGrains : 1;
+    uint32 markers : 1;
+    uint32 reserved2 : 14;
+    uint64 capacity <comment="sectors">;
+    uint64 grainSize <comment="sectors">;
+    uint64 descriptorOffset <comment="sectors">;
+    uint64 descriptorSize <comment="sectors">;
+    uint32 numGTEsPerGT;
+    uint64 rgdOffset <comment="the redundant grain directory, sectors">;
+    uint64 gdOffset <comment="sectors; all ones - in the footer">;
+    uint64 overHead <comment="sectors before the first grain">;
+    uchar  uncleanShutdown;
+    char   singleEndLineChar <comment="0A">;
+    char   nonEndLineChar <comment="20">;
+    char   doubleEndLineChar1 <comment="0D">;
+    char   doubleEndLineChar2 <comment="0A">;
+    VMDK_COMPRESSION compressAlgorithm;
+    uchar  pad[433];
+};
+
+string HeaderRead(VMDK_HEADER &h) {
+    return Str("version %d, %d sectors, grains of %d", h.version, h.capacity, h.grainSize);
+}
+
+struct VMDK_GRAIN_TABLE(int64 n) {
+    uint32 entry[n] <comment="the sector of each grain; 0 - not stored, 1 - zeros">;
+};
+
+// A marker of a stream-optimized extent: a compressed grain, or metadata
+struct VMDK_MARKER {
+    uint64 value <comment="the sector of the disk of the grain, or the sectors of metadata">;
+    uint32 size <comment="the size of the compressed grain; 0 - a metadata marker">;
+    if (size != 0) {
+        if (size <= FileSize() - FTell())
+            uchar compressedGrain[size] <comment="zlib">;
+    } else if (FileSize() - FTell() >= 500) {
+        VMDK_MARKER_TYPE type;
+        uchar pad[496];
+    }
+};
+
+string MarkerRead(VMDK_MARKER &m) {
+    if (m.size != 0)
+        return Str("grain at sector %d, %d bytes", m.value, m.size);
+    if (exists(m.type))
+        return Str("%s, %d sectors", EnumToString(m.type), m.value);
+    return "";
+}
+
+// The text from off up to the zero byte, at most n bytes
+void Text(int64 off, int64 n) {
+    n = Min(Min(n, FileSize() - off), MAX_TEXT);
+    if (n <= 0)
+        return;
+    local int64 z = FindHex("00", off, off + n);
+    if (z >= 0)
+        n = z - off;
+    if (n > 0)
+        char descriptor[n] @ off;
+}
+
+local int64 size = FileSize();
+local int64 ALL_ONES = 0xFFFFFFFFFFFFFFFF;
+
+if (size >= 512 && ReadUInt(0) == 0x564D444B) {
+    VMDK_HEADER header <read=HeaderRead, open=true>;
+    local int64 capacity = header.capacity;
+    local int64 grain = header.grainSize;
+    local int64 gtes = header.numGTEsPerGT;
+    local int64 gd = header.gdOffset;
+    local int64 rgd = header.rgdOffset;
+
+    // Stream-optimized: the header in force is the footer
+    if (gd == ALL_ONES && size >= 1536 && ReadUInt(size - 1024) == 0x564D444B) {
+        VMDK_MARKER footerMarker @ size - 1536 <read=MarkerRead>;
+        VMDK_HEADER footer @ size - 1024 <read=HeaderRead>;
+        capacity = footer.capacity;
+        grain = footer.grainSize;
+        gtes = footer.numGTEsPerGT;
+        gd = footer.gdOffset;
+        rgd = footer.rgdOffset;
+    }
+
+    if (header.descriptorOffset > 0 && header.descriptorOffset < size / 512)
+        Text(header.descriptorOffset * 512, header.descriptorSize * 512);
+
+    // The grain directory and the grain tables it points to
+    if (grain > 0 && gtes > 0 && capacity >= 0) {
+        local int64 gdN = ((capacity + grain - 1) / grain + gtes - 1) / gtes;
+        if (gd > 0 && gd < size / 512) {
+            local int64 n = Min(gdN, (size - gd * 512) / 4);
+            if (n > 0)
+                uint32 grainDirectory[n] @ gd * 512 <comment="the sector of each grain table; 0 - none">;
+            if (rgd > 0 && rgd < size / 512 && header.redundantGrainTable) {
+                local int64 rn = Min(gdN, (size - rgd * 512) / 4);
+                if (rn > 0)
+                    uint32 redundantGrainDirectory[rn] @ rgd * 512;
+            }
+            local int64 i;
+            local int64 shown = 0;
+            local int64 at;
+            if (gtes <= 65536) {
+                for (i = 0; i < n && shown < MAX_GRAIN_TABLES; i++) {
+                    at = ReadUInt(gd * 512 + i * 4) * 512;
+                    if (at == 0 || at > size - gtes * 4)
+                        continue;
+                    VMDK_GRAIN_TABLE grainTable(gtes) @ at;
+                    shown++;
+                }
+            }
+        }
+    }
+
+    // The markers of a stream-optimized extent, from the first grain
+    if (header.compressedGrains && header.markers && header.overHead > 0 && header.overHead < size / 512) {
+        local int64 pos = header.overHead * 512;
+        local int64 count = 0;
+        while (pos <= size - 12 && count < MAX_MARKERS) {
+            VMDK_MARKER marker @ pos <read=MarkerRead>;
+            count++;
+            if (marker[count - 1].size != 0) {
+                pos = (pos + 12 + marker[count - 1].size + 511) / 512 * 512;
+            } else {
+                if (!exists(marker[count - 1].type) || marker[count - 1].type == MARKER_EOS)
+                    break;
+                if (marker[count - 1].value > (size - pos) / 512)
+                    break;
+                pos += 512 + marker[count - 1].value * 512;
+            }
+        }
+    }
+} else {
+    // A descriptor file
+    Text(0, size);
+}

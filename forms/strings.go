@@ -14,179 +14,299 @@ type Strings struct {
 	Error string
 
 	// Menus
-	MenuFile            string
-	MenuOpen            string
-	MenuSave            string
-	MenuSaveAs          string
-	MenuClose           string
-	MenuRecent          string
-	MenuExit            string
-	MenuEdit            string
-	MenuUndo            string
-	MenuRedo            string
-	MenuCut             string
-	MenuCopy            string
-	MenuPaste           string
-	MenuSelectAll       string
-	MenuInsertMode      string
-	MenuReadOnly        string
-	MenuView            string
-	MenuGoTo            string
-	MenuZoomIn          string
-	MenuZoomOut         string
-	MenuZoomReset       string
-	MenuNew             string
-	MenuNewMore         string
-	MenuNewSize         string
-	MenuNewClipboard    string
-	MenuCloseAll        string
-	MenuNavigate        string
-	MenuBack            string
-	MenuForward         string
-	MenuToggleBookmark  string
-	MenuNextBookmark    string
-	MenuPrevBookmark    string
-	MenuExportBookmarks string
-	MenuImportBookmarks string
-	MenuNextTab         string
-	MenuPrevTab         string
-	MenuBytesPerRow     string
-	MenuFitWidth        string
-	MenuGroup           string
-	MenuMode            string
-	MenuOffsets         string
-	MenuRelativeOffsets string
-	MenuSetMark         string
-	MenuEncoding        string
-	MenuSplit           string
-	MenuSyncScroll      string
-	ModeHex             string
-	ModeBin             string
-	ModeOct             string
-	ModeDec             string
-	SizeLabel           string
-	MenuPanels          string
-	PageInspector       string
-	BigEndian           string
-	ColType             string
-	ColValue            string
-	PageBookmarks       string
-	PageHashes          string
-	ColName             string
-	ColOffset           string
-	ColLength           string
-	ColComment          string
-	ColAlgorithm        string
-	Remove              string
-	Range               string
-	RangeSelection      string
-	RangeDocument       string
-	CustomCRC           string
-	Calculate           string
-	Cancel              string
-	StatsLine           func(off, n int64, entropy, seconds float64) string
-	Working             func(percent int) string
-	BytesLabel          string
-	BytesBad            string
-	BitsLabel           string
-	BitsBad             string
-	MenuFill            string
-	OpAdd               string
-	OpSub               string
-	OpShl               string
-	OpShr               string
-	OpRol               string
-	OpRor               string
-	OpSwap              func(width int) string
-	OpReverse           string
-	CopyHex             string
-	CopyHexPlain        string
-	CopyEscaped         string
-	ImportArray         string
-	MenuCopyAs          string
-	MenuBitOps          string
-	MenuImport          string
-	MenuExport          string
-	ImportedAt          func(base uint64) string
-	AddressLabel        string
-	FillKind            string
-	FillPattern         string
-	FillRandom          string
-	FillIncrement       string
-	FillValue           string
-	FillStart           string
-	FillStep            string
-	FillWidth           string
-	FillInsert          string
-	MenuPalette         string
-	ColCommand          string
-	ColShortcut         string
-	PageSearch          string
-	MenuSearch          string
-	MenuFind            string
-	MenuReplace         string
-	FindHex             string
-	FindText            string
-	ReplaceWith         string
-	IgnoreCase          string
-	AllDocuments        string
-	FindNext            string
-	FindPrev            string
-	FindAll             string
-	Replace             string
-	ReplaceAll          string
-	Strings             string
-	Export              string
-	ColDocument         string
-	ColFound            string
-	NothingToFind       string
-	NotFound            string
-	Wrapped             string
-	ClearMarks          string
-	FoundCount          func(n int, more bool, seconds float64) string
-	ReplacedCount       func(n int) string
-	MenuCompareMenu     string
-	MenuCompare         string
-	MenuCompareShifts   string
-	MenuNextDiff        string
-	MenuPrevDiff        string
-	MenuCompareReport   string
-	MenuMakePatch       string
-	MenuApplyPatch      string
-	CompareSaveFirst    string
-	NoMoreDiffs         string
-	PatchNoFile         string
-	PatchSaved          string
-	PatchUnknown        string
-	Comparing           func(percent int) string
-	CompareSummary      func(ranges int, changed, inserted, deleted int64, seconds float64) string
-	DiffStatus          func(cur, total int) string
-	ColorRules          string
-	ColorRulesHint      string
-	PageStructure       string
-	PageConsole         string
-	MenuApplyTemplate   string
-	Apply               string
-	ColSize             string
-	RunFunction         string
-	AutoTemplate        string
-	NoTemplate          string
-	NoTemplateApplied   string
-	ChecksumPrefix      string
-	Evaluate            string
-	Clear               string
-	ConsoleHint         string
-	NoDocument          string
-	MoreElements        func(n int64) string
-	TemplateError       func(name, err string) string
-	TemplateWrites      func(name string) string
-	TemplateRunning     func(name string) string
-	TemplateDone        func(name string, fields int, seconds float64) string
-	MenuOptions         string
-	MenuSettings        string
-	MenuHelp            string
-	MenuDocs            string
-	MenuAbout           string
+	MenuFile             string
+	MenuOpen             string
+	MenuSave             string
+	MenuSaveAs           string
+	MenuClose            string
+	MenuRecent           string
+	MenuExit             string
+	MenuEdit             string
+	MenuUndo             string
+	MenuRedo             string
+	MenuCut              string
+	MenuCopy             string
+	MenuPaste            string
+	MenuSelectAll        string
+	MenuInsertMode       string
+	MenuReadOnly         string
+	MenuView             string
+	MenuGoTo             string
+	MenuZoomIn           string
+	MenuZoomOut          string
+	MenuZoomReset        string
+	MenuNew              string
+	MenuNewMore          string
+	MenuNewSize          string
+	MenuNewClipboard     string
+	MenuCloseAll         string
+	MenuNavigate         string
+	MenuBack             string
+	MenuForward          string
+	MenuToggleBookmark   string
+	MenuNextBookmark     string
+	MenuPrevBookmark     string
+	MenuExportBookmarks  string
+	MenuImportBookmarks  string
+	MenuNextTab          string
+	MenuPrevTab          string
+	MenuBytesPerRow      string
+	MenuFitWidth         string
+	MenuGroup            string
+	MenuMode             string
+	MenuOffsets          string
+	MenuRelativeOffsets  string
+	MenuSetMark          string
+	MenuEncoding         string
+	MenuSplit            string
+	MenuSyncScroll       string
+	ModeHex              string
+	ModeBin              string
+	ModeOct              string
+	ModeDec              string
+	SizeLabel            string
+	MenuPanels           string
+	PageInspector        string
+	BigEndian            string
+	ColType              string
+	ColValue             string
+	PageBookmarks        string
+	PageHashes           string
+	ColName              string
+	ColOffset            string
+	ColLength            string
+	ColComment           string
+	ColAlgorithm         string
+	Remove               string
+	Range                string
+	RangeSelection       string
+	RangeDocument        string
+	CustomCRC            string
+	Calculate            string
+	Cancel               string
+	StatsLine            func(off, n int64, entropy, seconds float64) string
+	Working              func(percent int) string
+	BytesLabel           string
+	BytesBad             string
+	BitsLabel            string
+	BitsBad              string
+	MenuFill             string
+	OpAdd                string
+	OpSub                string
+	OpShl                string
+	OpShr                string
+	OpRol                string
+	OpRor                string
+	OpSwap               func(width int) string
+	OpReverse            string
+	CopyHex              string
+	CopyHexPlain         string
+	CopyEscaped          string
+	ImportArray          string
+	MenuCopyAs           string
+	MenuBitOps           string
+	MenuImport           string
+	MenuExport           string
+	ImportedAt           func(base uint64) string
+	AddressLabel         string
+	FillKind             string
+	FillPattern          string
+	FillRandom           string
+	FillIncrement        string
+	FillValue            string
+	FillStart            string
+	FillStep             string
+	FillWidth            string
+	FillInsert           string
+	MenuPalette          string
+	ColCommand           string
+	ColShortcut          string
+	PageSearch           string
+	MenuSearch           string
+	MenuFind             string
+	MenuReplace          string
+	FindHex              string
+	FindText             string
+	ReplaceWith          string
+	IgnoreCase           string
+	AllDocuments         string
+	FindNext             string
+	FindPrev             string
+	FindAll              string
+	Replace              string
+	ReplaceAll           string
+	Strings              string
+	Export               string
+	ColDocument          string
+	ColFound             string
+	NothingToFind        string
+	NotFound             string
+	Wrapped              string
+	ClearMarks           string
+	FoundCount           func(n int, more bool, seconds float64) string
+	ReplacedCount        func(n int) string
+	MenuCompareMenu      string
+	MenuCompare          string
+	MenuCompareShifts    string
+	MenuNextDiff         string
+	MenuPrevDiff         string
+	MenuCompareReport    string
+	MenuMakePatch        string
+	MenuApplyPatch       string
+	CompareSaveFirst     string
+	NoMoreDiffs          string
+	PatchNoFile          string
+	PatchSaved           string
+	PatchUnknown         string
+	Comparing            func(percent int) string
+	CompareSummary       func(ranges int, changed, inserted, deleted int64, seconds float64) string
+	DiffStatus           func(cur, total int) string
+	ColorRules           string
+	ColorRulesHint       string
+	PageStructure        string
+	PageConsole          string
+	MenuApplyTemplate    string
+	Apply                string
+	ColSize              string
+	RunFunction          string
+	AutoTemplate         string
+	NoTemplate           string
+	NoTemplateApplied    string
+	ChecksumPrefix       string
+	Evaluate             string
+	Clear                string
+	ConsoleHint          string
+	NoDocument           string
+	MoreElements         func(n int64) string
+	TemplateError        func(name, err string) string
+	TemplateWrites       func(name string) string
+	TemplateRunning      func(name string) string
+	TemplateDone         func(name string, fields int, seconds float64) string
+	MenuOpenDisk         string
+	PageDisk             string
+	PageFiles            string
+	PageBoot             string
+	PageDisasm           string
+	ColModel             string
+	ColPath              string
+	ColProblem           string
+	ColModified          string
+	ColCompression       string
+	ColAddress           string
+	ColBytes             string
+	ColInstruction       string
+	DiskReadOnlyNote     string
+	DiskWriteTitle       string
+	DiskWriteEdits       string
+	DiskWriteSave        string
+	OpenPartition        string
+	ShowFiles            string
+	BootCode             string
+	Refresh              string
+	NoPartitionTable     string
+	ChoosePartition      string
+	NoFileSystemShown    string
+	GoToBytes            string
+	Extract              string
+	OpenAsDocument       string
+	NoExtents            string
+	NoBootImage          string
+	LoadAddress          string
+	FromCaret            string
+	OpenDiskInside       func(name, format string) string
+	DiskNeedsRights      func(path string) string
+	DiskWriteAsk1        func(path, what string) string
+	DiskWriteAsk2        func(path string) string
+	PartitionInfo        func(scheme string, parts, issues int) string
+	NoFileSystem         func(name string) string
+	ExtentsCount         func(n int) string
+	Extracted            func(n int) string
+	PageFirmware         string
+	PageFunctions        string
+	FirmwareHint         string
+	Device               string
+	Architecture         string
+	NoDevice             string
+	Detect               string
+	Analyze              string
+	ExportAsm            string
+	DecodeSelection      string
+	NothingDetected      string
+	Analyzing            string
+	SelectConfig         string
+	AnalyzeFirst         string
+	Rename               string
+	CommentTitle         string
+	ColCallers           string
+	ColFunction          string
+	ReferencesTo         string
+	AnalysisDone         func(insts, funcs int) string
+	MenuExternal         string
+	ExtStartFailed       func(err string) string
+	ExtAskTitle          func(client string) string
+	ExtUnknownClient     string
+	ExtAskOpen           func(path string) string
+	ExtAskSave           func(name string) string
+	ExtAskEdits          func(name, why, list string) string
+	ExtOverwrite         func(n int, off int64) string
+	ExtInsert            func(n int, off int64) string
+	ExtDelete            func(n, off int64) string
+	ExtMoreEdits         func(n, total int) string
+	ExtUndoKind          func(client string) string
+	ExtApplied           func(client string) string
+	ExtApply             string
+	ExtDecline           string
+	ExtAPI               string
+	ExtHTTP              string
+	ExtPort              string
+	ExtToken             string
+	ExtNewToken          string
+	ExtCopyToken         string
+	ExtTrust             string
+	ExtHint              string
+	ExtRunning           func(where string) string
+	ExtBadPort           string
+	ExtShortToken        string
+	Copied               string
+	PageHistory          string
+	ColEdit              string
+	ColTime              string
+	HistoryGoTo          string
+	HistoryOriginal      string
+	ColColor             string
+	BadColor             string
+	Canceled             string
+	OpenedReadOnly       func(name, reason string) string
+	FileChangedAskEdited func(name string) string
+	DiskWriteRanges      func(n int, total int64, list string, more int) string
+	MenuCompareOpen      string
+	CompareWith          func(name string) string
+	CompareShiftsOne     string
+	CompareAddFiles      string
+	CompareChooseOne     string
+	CompareTooMany       func(n int) string
+	CompareSummaryN      func(ranges int, bytes int64, seconds float64) string
+	MenuMinimap          string
+	MemoryMap            string
+	CallTreeOf           string
+	CallTreeCallers      string
+	CallTreeCallees      string
+	CallCycle            string
+	ExportCallGraph      string
+	AddrNotInImage       string
+	OpenDecompressed     string
+	ExtractDecompressed  string
+	FindHintHex          string
+	FindHintText         string
+	FindHintNumber       string
+	MinLengthLabel       string
+	MatchOf              func(i, n int, more bool) string
+	GoToHint             string
+	MenuOptions          string
+	MenuSettings         string
+	MenuHelp             string
+	MenuDocs             string
+	MenuAbout            string
 
 	// The main window
 	DropHint   string // shown when no file is open
@@ -256,6 +376,16 @@ type Strings struct {
 var languages = []struct{ tag, name string }{
 	{"en", "English"},
 	{"ru", "Русский"},
+	{"pl", "Polski"},
+	{"sr", "Српски"},
+	{"de", "Deutsch"},
+	{"fr", "Français"},
+	{"es", "Español"},
+	{"it", "Italiano"},
+	{"pt", "Português"},
+	{"zh", "中文"},
+	{"ja", "日本語"},
+	{"ko", "한국어"},
 }
 
 var en = Strings{
@@ -443,6 +573,160 @@ var en = Strings{
 	TemplateDone: func(name string, fields int, seconds float64) string {
 		return fmt.Sprintf("%s: %d fields, %.2f s", name, fields, seconds)
 	},
+	MenuOpenDisk:      "Open a disk...",
+	PageDisk:          "Disk",
+	PageFiles:         "Files",
+	PageBoot:          "Boot image",
+	PageDisasm:        "Disassembly",
+	ColModel:          "Model",
+	ColPath:           "Path",
+	ColProblem:        "Problem",
+	ColModified:       "Modified",
+	ColCompression:    "Compression",
+	ColAddress:        "Address",
+	ColBytes:          "Bytes",
+	ColInstruction:    "Instruction",
+	DiskReadOnlyNote:  "Disks open read-only; writing to them is asked about twice",
+	DiskWriteTitle:    "Writing to a disk",
+	DiskWriteEdits:    "allow editing",
+	DiskWriteSave:     "write the changed sectors",
+	OpenPartition:     "Open",
+	ShowFiles:         "Files",
+	BootCode:          "Boot code",
+	Refresh:           "Refresh",
+	NoPartitionTable:  "No partition table",
+	ChoosePartition:   "Choose a partition",
+	NoFileSystemShown: "Choose a partition on the Disk page and press Files",
+	GoToBytes:         "Go to the bytes",
+	Extract:           "Extract...",
+	OpenAsDocument:    "Open",
+	NoExtents:         "The bytes of the file are not stored as runs",
+	NoBootImage:       "Not a boot image of a known format",
+	LoadAddress:       "at",
+	FromCaret:         "From the caret",
+	OpenDiskInside: func(name, format string) string {
+		return name + " is a disk image (" + format + "). Open the disk inside it as well?"
+	},
+	DiskNeedsRights: func(path string) string {
+		return "No access to " + path + ". Reading disks needs administrator rights: run AltHex as an administrator (on Linux: as root, or add yourself to the disk group)."
+	},
+	DiskWriteAsk1: func(path, what string) string {
+		return "You are about to " + what + " on the disk " + path + ". A mistake can destroy the data of the whole disk. Continue?"
+	},
+	DiskWriteAsk2: func(path string) string { return "Are you sure? The changes go to " + path + " directly." },
+	PartitionInfo: func(scheme string, parts, issues int) string {
+		return fmt.Sprintf("%s: %d partitions, %d problems", scheme, parts, issues)
+	},
+	NoFileSystem:    func(name string) string { return "No known file system in " + name },
+	ExtentsCount:    func(n int) string { return fmt.Sprintf("The file is in %d runs", n) },
+	Extracted:       func(n int) string { return fmt.Sprintf("Extracted: %d", n) },
+	PageFirmware:    "Firmware",
+	PageFunctions:   "Functions",
+	FirmwareHint:    "Choose the device, or press Detect; then Analyze",
+	Device:          "Device:",
+	Architecture:    "Architecture:",
+	NoDevice:        "(no device)",
+	Detect:          "Detect",
+	Analyze:         "Analyze",
+	ExportAsm:       "Export .s...",
+	DecodeSelection: "Decode the selection",
+	NothingDetected: "the architecture is not recognized",
+	Analyzing:       "Analyzing...",
+	SelectConfig:    "Select the bytes of the configuration area",
+	AnalyzeFirst:    "Analyze the firmware first",
+	Rename:          "Rename",
+	CommentTitle:    "Comment",
+	ColCallers:      "Callers",
+	ColFunction:     "Function",
+	ReferencesTo:    "References to the line chosen in the listing:",
+	AnalysisDone: func(insts, funcs int) string {
+		return fmt.Sprintf("Instructions: %d, functions: %d. In the listing: N - rename, ; - comment, C - code here, Enter - go to", insts, funcs)
+	},
+	MenuExternal:     "External interfaces...",
+	ExtStartFailed:   func(err string) string { return "The external interface did not start: " + err },
+	ExtAskTitle:      func(client string) string { return "Request of " + client },
+	ExtUnknownClient: "a program",
+	ExtAskOpen:       func(path string) string { return "Open the file\n" + path + "?" },
+	ExtAskSave:       func(name string) string { return "Save " + name + " to its file?" },
+	ExtAskEdits: func(name, why, list string) string {
+		s := "Change " + name + ":\n\n" + list
+		if why != "" {
+			s += "\nWhy: " + why + "\n"
+		}
+		return s + "\nThe edits will be one undo step and are not saved to the file."
+	},
+	ExtOverwrite:    func(n int, off int64) string { return fmt.Sprintf("write %d bytes at 0x%X", n, off) },
+	ExtInsert:       func(n int, off int64) string { return fmt.Sprintf("insert %d bytes at 0x%X", n, off) },
+	ExtDelete:       func(n, off int64) string { return fmt.Sprintf("delete %d bytes at 0x%X", n, off) },
+	ExtMoreEdits:    func(n, total int) string { return fmt.Sprintf("... and %d edits more (%d bytes in all)", n, total) },
+	ExtUndoKind:     func(client string) string { return "edits of " + client },
+	ExtApplied:      func(client string) string { return "Edits of " + client + " applied" },
+	ExtApply:        "Apply",
+	ExtDecline:      "Decline",
+	ExtAPI:          "Local API (JSON-RPC) for programs and \"althex mcp\"",
+	ExtHTTP:         "MCP over HTTP for AI agents (127.0.0.1 only)",
+	ExtPort:         "Port",
+	ExtToken:        "Token",
+	ExtNewToken:     "New",
+	ExtCopyToken:    "Copy",
+	ExtTrust:        "Apply the edits of clients without asking (not recommended)",
+	ExtHint:         "Only local connections are taken. An AI agent can also start \"althex mcp\" (stdio):\nit works with the documents of this window when the local API is on.\nOver HTTP the agent sends \"Authorization: Bearer <token>\" to http://127.0.0.1:<port>/mcp.",
+	ExtRunning:      func(where string) string { return "Running: " + where },
+	ExtBadPort:      "The port is a number from 1 to 65535",
+	ExtShortToken:   "The token must be at least 16 characters",
+	Copied:          "Copied",
+	PageHistory:     "History",
+	ColEdit:         "Edit",
+	ColTime:         "Time",
+	HistoryGoTo:     "Go to this state",
+	HistoryOriginal: "As opened",
+	ColColor:        "Color",
+	BadColor:        "A color is written as #rrggbb",
+	Canceled:        "Canceled",
+	OpenedReadOnly: func(name, reason string) string {
+		return "Cannot write " + name + " (" + reason + "). It is opened read-only: save it under another name to keep the edits."
+	},
+	FileChangedAskEdited: func(name string) string {
+		return name + " was changed by another program.\n\nThe document has edits that are not saved: reloading it loses them. Reload it? No keeps the document with your edits."
+	},
+	DiskWriteRanges: func(n int, total int64, list string, more int) string {
+		s := fmt.Sprintf("\n\nTo be written: %d ranges, %d bytes: %s", n, total, list)
+		if more > 0 {
+			s += fmt.Sprintf(" and %d more", more)
+		}
+		return s
+	},
+	MenuCompareOpen:  "Compare with open documents...",
+	CompareWith:      func(name string) string { return "Compare " + name + " with:" },
+	CompareShiftsOne: "With shifts (one document only)",
+	CompareAddFiles:  "Add files...",
+	CompareChooseOne: "Choose at least one document",
+	CompareTooMany:   func(n int) string { return fmt.Sprintf("At most %d documents are compared at once", n) },
+	CompareSummaryN: func(ranges int, bytes int64, seconds float64) string {
+		return fmt.Sprintf("Differences: %d ranges, %d bytes, %.2f s", ranges, bytes, seconds)
+	},
+	MenuMinimap:         "Minimap",
+	MemoryMap:           "Memory map of the device:",
+	CallTreeOf:          "Call tree of the function chosen:",
+	CallTreeCallers:     "Callers",
+	CallTreeCallees:     "Callees",
+	CallCycle:           "(recursion)",
+	ExportCallGraph:     "Export call graph",
+	AddrNotInImage:      "The address is not in the image",
+	OpenDecompressed:    "Open decompressed",
+	ExtractDecompressed: "Extract decompressed",
+	FindHintHex:         "Bytes in hex: 4D 5A ?? 50",
+	FindHintText:        "Text to find",
+	FindHintNumber:      "A number: 1234, -5, 0x1F, 1.5",
+	MinLengthLabel:      "min.",
+	MatchOf: func(i, n int, more bool) string {
+		s := fmt.Sprintf("Match %d of %d", i, n)
+		if more {
+			s += "+"
+		}
+		return s
+	},
+	GoToHint:     "0x1F, 1F, 1Fh, 31 (decimal), +16, 0x400 + 3*512",
 	MenuOptions:  "Options",
 	MenuSettings: "Settings...",
 	MenuHelp:     "Help",
@@ -702,6 +986,168 @@ var ru = Strings{
 	TemplateDone: func(name string, fields int, seconds float64) string {
 		return fmt.Sprintf("%s: полей %d, %.2f с", name, fields, seconds)
 	},
+	MenuOpenDisk:      "Открыть диск...",
+	PageDisk:          "Диск",
+	PageFiles:         "Файлы",
+	PageBoot:          "Загрузочный образ",
+	PageDisasm:        "Дизассемблер",
+	ColModel:          "Модель",
+	ColPath:           "Путь",
+	ColProblem:        "Проблема",
+	ColModified:       "Изменён",
+	ColCompression:    "Сжатие",
+	ColAddress:        "Адрес",
+	ColBytes:          "Байты",
+	ColInstruction:    "Инструкция",
+	DiskReadOnlyNote:  "Диски открываются только для чтения; запись на них подтверждается дважды",
+	DiskWriteTitle:    "Запись на диск",
+	DiskWriteEdits:    "разрешить правку",
+	DiskWriteSave:     "записать изменённые сектора",
+	OpenPartition:     "Открыть",
+	ShowFiles:         "Файлы",
+	BootCode:          "Загрузочный код",
+	Refresh:           "Обновить",
+	NoPartitionTable:  "Таблицы разделов нет",
+	ChoosePartition:   "Выберите раздел",
+	NoFileSystemShown: "Выберите раздел на странице «Диск» и нажмите «Файлы»",
+	GoToBytes:         "К байтам",
+	Extract:           "Извлечь...",
+	OpenAsDocument:    "Открыть",
+	NoExtents:         "Байты файла хранятся не отрезками",
+	NoBootImage:       "Не загрузочный образ известного формата",
+	LoadAddress:       "адрес",
+	FromCaret:         "От каретки",
+	OpenDiskInside: func(name, format string) string {
+		return name + " — образ диска (" + format + "). Открыть также диск внутри него?"
+	},
+	DiskNeedsRights: func(path string) string {
+		return "Нет доступа к " + path + ". Для чтения дисков нужны права администратора: запустите AltHex от имени администратора (в Linux — от root или добавьте себя в группу disk)."
+	},
+	DiskWriteAsk1: func(path, what string) string {
+		return "Сейчас будет: " + what + " — на диске " + path + ". Ошибка может уничтожить данные всего диска. Продолжить?"
+	},
+	DiskWriteAsk2: func(path string) string {
+		return "Вы уверены? Изменения пойдут прямо на " + path + "."
+	},
+	PartitionInfo: func(scheme string, parts, issues int) string {
+		return fmt.Sprintf("%s: разделов %d, проблем %d", scheme, parts, issues)
+	},
+	NoFileSystem: func(name string) string {
+		return "В " + name + " нет известной файловой системы"
+	},
+	ExtentsCount:    func(n int) string { return fmt.Sprintf("Файл лежит в %d отрезках", n) },
+	Extracted:       func(n int) string { return fmt.Sprintf("Извлечено: %d", n) },
+	PageFirmware:    "Прошивка",
+	PageFunctions:   "Функции",
+	FirmwareHint:    "Выберите устройство или нажмите «Определить»; затем «Анализ»",
+	Device:          "Устройство:",
+	Architecture:    "Архитектура:",
+	NoDevice:        "(без устройства)",
+	Detect:          "Определить",
+	Analyze:         "Анализ",
+	ExportAsm:       "Экспорт .s...",
+	DecodeSelection: "Расшифровать выделение",
+	NothingDetected: "архитектура не распознана",
+	Analyzing:       "Анализ...",
+	SelectConfig:    "Выделите байты конфигурационной области",
+	AnalyzeFirst:    "Сначала выполните анализ прошивки",
+	Rename:          "Переименовать",
+	CommentTitle:    "Комментарий",
+	ColCallers:      "Вызывающих",
+	ColFunction:     "Функция",
+	ReferencesTo:    "Ссылки на строку, выбранную в листинге:",
+	AnalysisDone: func(insts, funcs int) string {
+		return fmt.Sprintf("Инструкций: %d, функций: %d. В листинге: N — переименовать, ; — комментарий, C — здесь код, Enter — перейти", insts, funcs)
+	},
+	MenuExternal:     "Внешние интерфейсы...",
+	ExtStartFailed:   func(err string) string { return "Внешний интерфейс не запустился: " + err },
+	ExtAskTitle:      func(client string) string { return "Запрос " + client },
+	ExtUnknownClient: "программы",
+	ExtAskOpen:       func(path string) string { return "Открыть файл\n" + path + "?" },
+	ExtAskSave:       func(name string) string { return "Сохранить " + name + " в файл?" },
+	ExtAskEdits: func(name, why, list string) string {
+		s := "Изменить " + name + ":\n\n" + list
+		if why != "" {
+			s += "\nЗачем: " + why + "\n"
+		}
+		return s + "\nПравки станут одним шагом отмены и не сохраняются в файл."
+	},
+	ExtOverwrite: func(n int, off int64) string { return fmt.Sprintf("записать %d байт по 0x%X", n, off) },
+	ExtInsert:    func(n int, off int64) string { return fmt.Sprintf("вставить %d байт по 0x%X", n, off) },
+	ExtDelete:    func(n, off int64) string { return fmt.Sprintf("удалить %d байт по 0x%X", n, off) },
+	ExtMoreEdits: func(n, total int) string {
+		return fmt.Sprintf("... и ещё %d правок (всего %d байт)", n, total)
+	},
+	ExtUndoKind:     func(client string) string { return "правки " + client },
+	ExtApplied:      func(client string) string { return "Правки " + client + " применены" },
+	ExtApply:        "Применить",
+	ExtDecline:      "Отклонить",
+	ExtAPI:          "Локальный API (JSON-RPC) для программ и \"althex mcp\"",
+	ExtHTTP:         "MCP по HTTP для ИИ-агентов (только 127.0.0.1)",
+	ExtPort:         "Порт",
+	ExtToken:        "Токен",
+	ExtNewToken:     "Новый",
+	ExtCopyToken:    "Копировать",
+	ExtTrust:        "Применять правки клиентов без вопроса (не рекомендуется)",
+	ExtHint:         "Принимаются только локальные подключения. ИИ-агент может запустить и \"althex mcp\" (stdio):\nпри включённом локальном API он работает с документами этого окна.\nПо HTTP агент передаёт \"Authorization: Bearer <токен>\" на http://127.0.0.1:<порт>/mcp.",
+	ExtRunning:      func(where string) string { return "Работает: " + where },
+	ExtBadPort:      "Порт — число от 1 до 65535",
+	ExtShortToken:   "Токен должен быть не короче 16 символов",
+	Copied:          "Скопировано",
+	PageHistory:     "История",
+	ColEdit:         "Правка",
+	ColTime:         "Время",
+	HistoryGoTo:     "Перейти к этому состоянию",
+	HistoryOriginal: "Как при открытии",
+	ColColor:        "Цвет",
+	BadColor:        "Цвет записывается как #rrggbb",
+	Canceled:        "Отменено",
+	OpenedReadOnly: func(name, reason string) string {
+		return "Нельзя записать " + name + " (" + reason + "). Файл открыт только для чтения: чтобы сохранить правки, сохраните его под другим именем."
+	},
+	FileChangedAskEdited: func(name string) string {
+		return name + " изменён другой программой.\n\nВ документе есть несохранённые правки: при перезагрузке они пропадут. Перезагрузить? «Нет» оставит документ с вашими правками."
+	},
+	DiskWriteRanges: func(n int, total int64, list string, more int) string {
+		s := fmt.Sprintf("\n\nБудет записано: диапазонов %d, байт %d: %s", n, total, list)
+		if more > 0 {
+			s += fmt.Sprintf(" и ещё %d", more)
+		}
+		return s
+	},
+	MenuCompareOpen:  "Сравнить с открытыми документами...",
+	CompareWith:      func(name string) string { return "Сравнить " + name + " с:" },
+	CompareShiftsOne: "Со сдвигами (только один документ)",
+	CompareAddFiles:  "Добавить файлы...",
+	CompareChooseOne: "Выберите хотя бы один документ",
+	CompareTooMany: func(n int) string {
+		return fmt.Sprintf("Одновременно сравнивается не более %d документов", n)
+	},
+	CompareSummaryN: func(ranges int, bytes int64, seconds float64) string {
+		return fmt.Sprintf("Отличия: диапазонов %d, байт %d, %.2f с", ranges, bytes, seconds)
+	},
+	MenuMinimap:         "Миникарта",
+	MemoryMap:           "Карта памяти устройства:",
+	CallTreeOf:          "Дерево вызовов выбранной функции:",
+	CallTreeCallers:     "Кто вызывает",
+	CallTreeCallees:     "Что вызывает",
+	CallCycle:           "(рекурсия)",
+	ExportCallGraph:     "Экспорт графа вызовов",
+	AddrNotInImage:      "Адреса нет в образе",
+	OpenDecompressed:    "Открыть распакованным",
+	ExtractDecompressed: "Извлечь распакованным",
+	FindHintHex:         "Байты в hex: 4D 5A ?? 50",
+	FindHintText:        "Искомый текст",
+	FindHintNumber:      "Число: 1234, -5, 0x1F, 1.5",
+	MinLengthLabel:      "мин.",
+	MatchOf: func(i, n int, more bool) string {
+		s := fmt.Sprintf("Совпадение %d из %d", i, n)
+		if more {
+			s += "+"
+		}
+		return s
+	},
+	GoToHint:     "0x1F, 1F, 1Fh, 31 (десятичное), +16, 0x400 + 3*512",
 	MenuOptions:  "Параметры",
 	MenuSettings: "Настройки...",
 	MenuHelp:     "Справка",
@@ -773,7 +1219,8 @@ var ru = Strings{
 }
 
 var catalog = i18n.NewCatalog(en, map[string]Strings{
-	"ru": ru,
+	"ru": ru, "pl": pl, "sr": sr, "de": de, "fr": fr, "es": es,
+	"it": it, "pt": pt, "zh": zh, "ja": ja, "ko": ko,
 })
 
 // T returns the texts in the language of the application

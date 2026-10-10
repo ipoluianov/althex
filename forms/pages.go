@@ -23,8 +23,20 @@ func (c *MainForm) addPages() {
 	c.pages.console = c.side.add(func() string { return T().PageConsole }, c.console)
 	c.pages.bookmarks = c.side.add(func() string { return T().PageBookmarks }, newBookmarksPage(c))
 	c.pages.hashes = c.side.add(func() string { return T().PageHashes }, newHashesPage(c))
+	c.history = newHistoryPage(c)
+	c.pages.history = c.side.add(func() string { return T().PageHistory }, c.history)
 	c.search = newSearchPage(c)
 	c.pages.search = c.side.add(func() string { return T().PageSearch }, c.search)
+	c.pages.disk = c.side.add(func() string { return T().PageDisk }, newDiskPage(c))
+	c.files = newFilesPage(c)
+	c.pages.files = c.side.add(func() string { return T().PageFiles }, c.files)
+	c.pages.boot = c.side.add(func() string { return T().PageBoot }, newBootPage(c))
+	c.disasm = newDisasmPage(c)
+	c.pages.disasm = c.side.add(func() string { return T().PageDisasm }, c.disasm)
+	c.firmware = newFirmwarePage(c)
+	c.pages.firmware = c.side.add(func() string { return T().PageFirmware }, c.firmware)
+	c.functions = newFunctionsPage(c)
+	c.pages.functions = c.side.add(func() string { return T().PageFunctions }, c.functions)
 }
 
 func (c *MainForm) registerPageCommands() {
@@ -33,6 +45,22 @@ func (c *MainForm) registerPageCommands() {
 		Checked = func() bool { return c.pageShown(c.pages.structure) }
 	c.cmd("panel.console", func() string { return t().PageConsole }, "Ctrl+`", func() { c.togglePage(c.pages.console) }).
 		Checked = func() bool { return c.pageShown(c.pages.console) }
+	for _, pg := range []struct {
+		id   string
+		text func() string
+		page *int
+	}{
+		{"panel.history", func() string { return t().PageHistory }, &c.pages.history},
+		{"panel.disk", func() string { return t().PageDisk }, &c.pages.disk},
+		{"panel.files", func() string { return t().PageFiles }, &c.pages.files},
+		{"panel.boot", func() string { return t().PageBoot }, &c.pages.boot},
+		{"panel.disasm", func() string { return t().PageDisasm }, &c.pages.disasm},
+		{"panel.firmware", func() string { return t().PageFirmware }, &c.pages.firmware},
+		{"panel.functions", func() string { return t().PageFunctions }, &c.pages.functions},
+	} {
+		page := pg.page
+		c.cmd(pg.id, pg.text, "", func() { c.togglePage(*page) }).Checked = func() bool { return c.pageShown(*page) }
+	}
 	c.cmd("template.apply", func() string { return t().MenuApplyTemplate }, "F5", func() {
 		c.side.SetVisible(true)
 		c.side.show(c.pages.structure)
@@ -71,7 +99,8 @@ func (c *MainForm) showSearch() {
 
 // pageCommandIDs are the commands of the Panels menu
 func (c *MainForm) pageCommandIDs() []string {
-	return []string{"panel.inspector", "panel.structure", "panel.console", "panel.bookmarks", "panel.hashes"}
+	return []string{"panel.inspector", "panel.structure", "panel.console", "panel.bookmarks", "panel.hashes", "panel.history", "-",
+		"panel.disk", "panel.files", "panel.boot", "panel.disasm", "-", "panel.firmware", "panel.functions"}
 }
 
 // findCommandIDs are the commands of the Search menu
@@ -97,13 +126,14 @@ func newBookmarksPage(c *MainForm) *BookmarksPage {
 	p.SetPanelPadding(0)
 	p.c = c
 	p.table = ui.NewTable()
-	p.table.SetColumnCount(4)
-	for i, name := range []string{T().ColName, T().ColOffset, T().ColLength, T().ColComment} {
+	p.table.SetColumnCount(5)
+	for i, name := range []string{T().ColName, T().ColOffset, T().ColLength, T().ColColor, T().ColComment} {
 		p.table.SetColumnName(i, name)
 	}
 	p.table.SetColumnWidth(0, 120)
 	p.table.SetColumnWidth(1, 100)
 	p.table.SetColumnWidth(2, 70)
+	p.table.SetColumnWidth(3, 80)
 	p.table.SetStretchLastColumn(true)
 	p.table.SetXExpandable(true)
 	p.table.SetYExpandable(true)
@@ -119,9 +149,14 @@ func newBookmarksPage(c *MainForm) *BookmarksPage {
 	remove := ui.NewButton("")
 	remove.SetTextFunc(func() string { return T().Remove })
 	remove.SetOnClick(p.remove)
+	// The next of the offered colors; any color is typed in its cell (F2)
+	color := ui.NewButton("")
+	color.SetTextFunc(func() string { return T().ColColor })
+	color.SetOnClick(p.nextColor)
 	buttons.AddWidget(0, 0, add)
 	buttons.AddWidget(0, 1, remove)
-	buttons.AddWidget(0, 2, ui.NewHSpacer())
+	buttons.AddWidget(0, 2, color)
+	buttons.AddWidget(0, 3, ui.NewHSpacer())
 	p.AddWidget(1, 0, buttons)
 	return &p
 }
@@ -139,10 +174,12 @@ func (p *BookmarksPage) refresh() {
 		p.table.SetCellText2(i, 0, b.Name)
 		p.table.SetCellText2(i, 1, fmt.Sprintf("%X", b.Off))
 		p.table.SetCellText2(i, 2, strconv.FormatInt(b.Len, 10))
-		p.table.SetCellText2(i, 3, b.Comment)
+		p.table.SetCellText2(i, 3, b.Color)
+		p.table.SetCellText2(i, 4, b.Comment)
 		p.table.SetCellColor(i, 0, bookmarkColor(b.Color))
-		for col := 0; col < 4; col++ {
-			editable := col == 0 || col == 3
+		p.table.SetCellColor(i, 3, bookmarkColor(b.Color))
+		for col := 0; col < 5; col++ {
+			editable := col == 0 || col == 3 || col == 4
 			p.table.SetCellEditTriggerF2(i, col, editable)
 			p.table.SetCellEditTriggerEnter(i, col, false)
 			p.table.SetCellEditTriggerDoubleClick(i, col, false)
@@ -187,11 +224,54 @@ func (p *BookmarksPage) cellChanged(row, col int, text string, data interface{})
 	case 0:
 		t.bookmarks[row].Name = text
 	case 3:
+		c, ok := parseColor(text)
+		if !ok {
+			ui.ShowToast(p.c, T().BadColor, ui.ToastError)
+			return false
+		}
+		t.bookmarks[row].Color = c
+		p.refresh()
+		p.c.update()
+	case 4:
 		t.bookmarks[row].Comment = text
 	default:
 		return false
 	}
 	return true
+}
+
+// nextColor gives the selected bookmark the next of the offered colors
+func (p *BookmarksPage) nextColor() {
+	i := p.selected()
+	if i < 0 {
+		return
+	}
+	t := p.c.tab()
+	next := 0
+	for k, c := range bookmarkColors {
+		if strings.EqualFold(c, t.bookmarks[i].Color) {
+			next = (k + 1) % len(bookmarkColors)
+		}
+	}
+	t.bookmarks[i].Color = bookmarkColors[next]
+	p.refresh()
+	p.table.SetCurrentCell2(i, 0)
+	p.c.update()
+}
+
+// parseColor reads "#rrggbb" (also without #, or #rgb)
+func parseColor(s string) (string, bool) {
+	s = strings.TrimPrefix(strings.TrimSpace(s), "#")
+	if len(s) == 3 {
+		s = string([]byte{s[0], s[0], s[1], s[1], s[2], s[2]})
+	}
+	if len(s) != 6 {
+		return "", false
+	}
+	if _, err := strconv.ParseUint(s, 16, 32); err != nil {
+		return "", false
+	}
+	return "#" + strings.ToLower(s), true
 }
 
 // ---- Hashes and statistics (ANL-7, ANL-8) ----
@@ -210,7 +290,7 @@ type HashesPage struct {
 	progress *ui.ProgressBar
 	results  *ui.Table
 	lblStats *ui.Label
-	histo    *ui.Space
+	histo    *ui.Widget
 
 	cancel context.CancelFunc
 	stats  *checksum.Stats
@@ -292,11 +372,16 @@ func newHashesPage(c *MainForm) *HashesPage {
 	p.results.SetStretchLastColumn(true)
 	p.results.SetXExpandable(true)
 	p.results.SetYExpandable(true)
+	// It gives up its height first: the stats and the histogram below it
+	// stay in a short window
+	p.results.SetMinHeight(60)
 	p.AddWidget(4, 0, p.results)
 
 	p.lblStats = ui.NewLabel("")
 	p.AddWidget(5, 0, p.lblStats)
-	p.histo = ui.NewSpace()
+	// A plain widget: a Space keeps the size of SetSize only
+	p.histo = &ui.Widget{}
+	p.histo.InitWidget()
 	p.histo.SetMinHeight(80)
 	p.histo.SetMaxHeight(80)
 	p.histo.SetXExpandable(true)
@@ -324,45 +409,7 @@ func (p *HashesPage) saveTicked() {
 
 // parseCRC reads a CRC in the notation of the CRC catalogue:
 // "width=16 poly=0x1021 init=0xffff refin=false refout=false xorout=0x0000"
-func parseCRC(s string) (checksum.CRCParams, error) {
-	p := checksum.CRCParams{Name: "CRC (" + strings.TrimSpace(s) + ")"}
-	seen := false
-	for _, f := range strings.Fields(s) {
-		k, v, ok := strings.Cut(strings.ToLower(f), "=")
-		if !ok {
-			return p, fmt.Errorf("%q: name=value expected", f)
-		}
-		num := func() (uint64, error) { return strconv.ParseUint(v, 0, 64) }
-		var err error
-		var n uint64
-		switch k {
-		case "width":
-			n, err = num()
-			p.Width = int(n)
-			seen = true
-		case "poly":
-			p.Poly, err = num()
-		case "init":
-			p.Init, err = num()
-		case "xorout":
-			p.XorOut, err = num()
-		case "refin":
-			p.RefIn, err = strconv.ParseBool(v)
-		case "refout":
-			p.RefOut, err = strconv.ParseBool(v)
-		case "check", "residue", "name":
-		default:
-			return p, fmt.Errorf("%q: unknown parameter", k)
-		}
-		if err != nil {
-			return p, fmt.Errorf("%s: %v", k, err)
-		}
-	}
-	if !seen || p.Width < 1 || p.Width > 64 {
-		return p, fmt.Errorf("width=1..64 expected")
-	}
-	return p, nil
-}
+func parseCRC(s string) (checksum.CRCParams, error) { return checksum.ParseCRC(s) }
 
 // run starts computing, or cancels it
 func (p *HashesPage) run() {
@@ -443,7 +490,7 @@ func (p *HashesPage) run() {
 				p.progress.SetValue(0)
 				return
 			}
-			p.progress.SetValue(100)
+			p.progress.SetValue(0)
 			p.show(algs, sums, &stats, off, n, took)
 		})
 	}()

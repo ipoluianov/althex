@@ -1,0 +1,143 @@
+//! name: Linux kernel bzImage
+//! extensions: bzimage, vmlinuz, zimage
+//! magic: 0x202 "48 64 72 53"
+
+// The x86 Linux kernel image (Documentation/arch/x86/boot.rst): the old
+// boot sector, the setup header at 0x1F1 ("HdrS" at 0x202; the fields of
+// each boot protocol version), the rest of the real-mode setup code, then
+// the protected-mode kernel at (setup_sects + 1) * 512 with the compressed
+// payload at payload_offset (protocol 2.08 and later).
+
+LittleEndian();
+
+local int64 fsize = FileSize();
+
+string VersionRead(uint16 &v) {
+    return Str("%d.%02d", v >> 8, v & 0xFF);
+}
+
+string LoadflagsComment(uchar &f) {
+    local string s = "";
+    if (f & 0x01) s += "LOADED_HIGH ";
+    if (f & 0x02) s += "KASLR_FLAG ";
+    if (f & 0x20) s += "QUIET_FLAG ";
+    if (f & 0x40) s += "KEEP_SEGMENTS ";
+    if (f & 0x80) s += "CAN_USE_HEAP ";
+    return s;
+}
+
+string XloadflagsComment(uint16 &f) {
+    local string s = "";
+    if (f & 0x01) s += "XLF_KERNEL_64 ";
+    if (f & 0x02) s += "XLF_CAN_BE_LOADED_ABOVE_4G ";
+    if (f & 0x04) s += "XLF_EFI_HANDOVER_32 ";
+    if (f & 0x08) s += "XLF_EFI_HANDOVER_64 ";
+    if (f & 0x10) s += "XLF_EFI_KEXEC ";
+    if (f & 0x20) s += "XLF_5LEVEL ";
+    if (f & 0x40) s += "XLF_5LEVEL_ENABLED ";
+    return s;
+}
+
+string KernelVersionComment(uint16 &v) {
+    if (v == 0 || v + 0x200 >= fsize)
+        return "";
+    return ReadString(v + 0x200, 128);
+}
+
+enum <uchar> LOADER_TYPE {
+    LILO = 0x0, LOADLIN = 0x1, BOOTSECT_LOADER = 0x2, SYSLINUX = 0x3,
+    ETHERBOOT = 0x4, ELILO = 0x5, GRUB_LEGACY = 0x7, U_BOOT = 0x8, XEN = 0x9,
+    GUJIN = 0xA, QEMU = 0xB, ARCSBOOT = 0xC, KEXEC = 0xD, EXTENDED = 0xE,
+    UNDEFINED = 0xFF
+};
+
+struct SETUP_HEADER(int version) {
+    uchar  setup_sects <comment="0 means 4">;
+    uint16 root_flags;
+    uint32 syssize <comment="the size of the protected-mode code in 16-byte units">;
+    uint16 ram_size <comment="obsolete">;
+    uint16 vid_mode;
+    uint16 root_dev <format=hex>;
+    uint16 boot_flag <format=hex, comment="0xAA55">;
+    uint16 jump <format=hex>;
+    char   header[4] <comment="HdrS">;
+    uint16 version <format=hex, read=VersionRead>;
+    uint32 realmode_swtch <format=hex>;
+    uint16 start_sys_seg <format=hex>;
+    uint16 kernel_version <format=hex, comment=KernelVersionComment>;
+    uchar  type_of_loader <format=hex>;
+    uchar  loadflags <format=hex, comment=LoadflagsComment>;
+    uint16 setup_move_size <format=hex>;
+    uint32 code32_start <format=hex>;
+    uint32 ramdisk_image <format=hex>;
+    uint32 ramdisk_size;
+    uint32 bootsect_kludge <format=hex>;
+    if (version >= 0x0201) {
+        uint16 heap_end_ptr <format=hex>;
+        uchar  ext_loader_ver;
+        uchar  ext_loader_type;
+    }
+    if (version >= 0x0202)
+        uint32 cmd_line_ptr <format=hex>;
+    if (version >= 0x0203)
+        uint32 initrd_addr_max <format=hex>;
+    if (version >= 0x0205) {
+        uint32 kernel_alignment <format=hex>;
+        uchar  relocatable_kernel;
+    }
+    if (version >= 0x0206) {
+        uchar  min_alignment <comment="a power of two">;
+        uint16 xloadflags <format=hex, comment=XloadflagsComment>;
+        uint32 cmdline_size <comment="the longest command line without the zero">;
+    }
+    if (version >= 0x0207) {
+        uint32 hardware_subarch;
+        uint64 hardware_subarch_data <format=hex>;
+    }
+    if (version >= 0x0208) {
+        uint32 payload_offset <format=hex, comment="from the protected-mode code">;
+        uint32 payload_length;
+    }
+    if (version >= 0x0209)
+        uint64 setup_data <format=hex>;
+    if (version >= 0x020A) {
+        uint64 pref_address <format=hex>;
+        uint32 init_size;
+    }
+    if (version >= 0x020B)
+        uint32 handover_offset <format=hex>;
+    if (version >= 0x020F)
+        uint32 kernel_info_offset <format=hex>;
+};
+
+if (fsize < 0x270) {
+    Warning("the setup header is cut");
+    Exit(0);
+}
+
+local int version = ReadUShort(0x206);
+uchar boot_sector[0x1F1] <comment="the old boot sector: only says to use a boot loader">;
+SETUP_HEADER setup_header(version) <open=true>;
+
+local int64 sects = setup_header.setup_sects;
+if (sects == 0)
+    sects = 4;
+local int64 pm = (sects + 1) * 512;
+if (pm > fsize) {
+    Warning("the setup code is cut");
+    Exit(0);
+}
+if (FTell() < pm)
+    uchar setup_code[pm - FTell()];
+
+FSeek(pm);
+if (exists(setup_header.payload_offset) && setup_header.payload_length > 0 &&
+    pm + setup_header.payload_offset + setup_header.payload_length <= fsize) {
+    if (setup_header.payload_offset > 0)
+        uchar decompressor[setup_header.payload_offset] <comment="the head of the protected-mode code">;
+    uchar payload[setup_header.payload_length] <comment="the compressed kernel (gzip 1F 8B, zstd 28 B5 2F FD, xz FD 37 7A 58 5A, lz4 02 21 4C 18...)">;
+    if (FTell() < fsize)
+        uchar kernel_rest[fsize - FTell()];
+} else if (pm < fsize) {
+    uchar kernel[fsize - pm] <comment="the protected-mode code">;
+}

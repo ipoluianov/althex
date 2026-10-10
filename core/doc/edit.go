@@ -284,7 +284,7 @@ func (d *Document) gotoLocked(n *HistNode) error {
 	d.hist.cur.sealed = true
 	d.hist.cur = n
 	n.sealed = true
-	d.journal.logGoto(n)
+	d.journal.logGoto(n, n == d.hist.saved)
 	d.publish()
 	return nil
 }

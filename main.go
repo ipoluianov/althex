@@ -1,9 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/ipoluianov/althex/app"
 	"github.com/ipoluianov/althex/cli"
@@ -58,6 +61,13 @@ func main() {
 	mainForm := forms.NewMainForm()
 	form.Panel().SetPanelPadding(0)
 	form.Panel().AddWidget(0, 0, mainForm)
+	// The time of the first paint, for scripts/startup-time.sh (PERF-1)
+	if os.Getenv("ALTHEX_TRACE_START") != "" {
+		var once sync.Once
+		mainForm.SetOnPostPaint(func(*ui.Canvas) {
+			once.Do(func() { fmt.Fprintf(os.Stderr, "althex: first paint %d\n", time.Now().UnixNano()) })
+		})
+	}
 	form.SetMenuBar(mainForm.BuildMenuBar())
 	mainForm.UpdateTitle()
 	maximized := mainForm.RestoreWindowState(form)
@@ -80,6 +90,7 @@ func main() {
 		form.SetAlwaysOnTop(config.GetSettings().AlwaysOnTop)
 		// Edits left by a crash first; the files of the command line then
 		mainForm.RecoverJournals(func() { mainForm.OpenFiles(files) })
+		mainForm.StartExternal()
 		if install.HasArg(install.InstalledArg) {
 			mainForm.ShowInstalled()
 		}

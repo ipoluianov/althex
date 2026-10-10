@@ -42,6 +42,11 @@ func TestEvalOffset(t *testing.T) {
 		{"size", 5000, true},
 		{"size+1", 0, false},
 		{"-200", 0, false},
+		// Hex as the view shows it, without 0x
+		{"8A3", 0x8A3, true},
+		{"fa", 0xFA, true},
+		{"1000", 1000, true}, // digits only: decimal
+		{"8A3G", 0, false},
 	} {
 		got, err := evalOffset(c.s, 100, 5000)
 		if (err == nil) != c.ok || (c.ok && got != c.want) {
@@ -73,5 +78,45 @@ func TestCompareMapOffset(t *testing.T) {
 	}
 	if got := cmp.mapOffset(12, true); got != 16 {
 		t.Fatalf("B 12 -> A %d", got)
+	}
+}
+
+// NAV-2: bookmarks go out and come back; the old format (a bare list) is
+// read; what does not fit the document is cut or left out
+func TestBookmarksExportImport(t *testing.T) {
+	list := []Bookmark{
+		{Name: "header", Off: 0, Len: 16, Color: "#3f9e5a", Comment: "magic"},
+		{Name: "tail", Off: 90, Len: 50, Color: "nope"},
+		{Name: "outside", Off: 500, Len: 1, Color: "#ABC"},
+	}
+	got, err := decodeBookmarks(encodeBookmarks(list), 100)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 2 || got[0] != list[0] || got[1].Len != 10 || got[1].Color != bookmarkColors[0] {
+		t.Errorf("round trip: %+v", got)
+	}
+	old, err := decodeBookmarks([]byte(`[{"Name": "a", "Off": 4, "Len": 2, "Color": "#ABC"}]`), 100)
+	if err != nil || len(old) != 1 || old[0].Color != "#aabbcc" {
+		t.Errorf("old format: %+v %v", old, err)
+	}
+	if _, err := decodeBookmarks([]byte(`{bad`), 100); err == nil {
+		t.Error("want an error")
+	}
+	for in, want := range map[string]string{"#FF8800": "#ff8800", "0a0b0c": "#0a0b0c", "#abc": "#aabbcc", "#12345": "", "#zzzzzz": ""} {
+		if got, ok := parseColor(in); got != want || ok != (want != "") {
+			t.Errorf("parseColor(%q) = %q, %v", in, got, ok)
+		}
+	}
+}
+
+// A field chosen in the structure tree selects its bytes and the caret goes
+// past them: the tree must stay on that field, not the next one
+func TestSyncOffset(t *testing.T) {
+	if got := syncOffset(0x14, 0x12, 2); got != 0x12 {
+		t.Errorf("with a selection: %#x", got)
+	}
+	if got := syncOffset(0x14, 0x14, 0); got != 0x14 {
+		t.Errorf("without one: %#x", got)
 	}
 }

@@ -586,6 +586,12 @@ func (in *interp) member(pos Pos, x Value, name string) Value {
 	if c := x.n.child(name); c != nil {
 		return Value{k: kNode, n: c}
 	}
+	// A repeated field by its bare name: the field of the last one read
+	if x.n.repeat && len(x.n.children) > 0 {
+		if c := x.n.children[len(x.n.children)-1].child(name); c != nil {
+			return Value{k: kNode, n: c}
+		}
+	}
 	in.fail(pos, "%s has no field %s", x.n.Name, name)
 	return Value{}
 }
@@ -791,18 +797,14 @@ func (r *reader) readZStringMax(off int64, wide, big bool, maxBytes int) (string
 
 // constEval computes a constant expression at compile time (enum values)
 func constEval(x cexpr) (v Value, err error) {
+	// No data: the functions that read it fail as past its end, not on nil
+	empty := strings.NewReader("")
 	in := &interp{ctx: context.Background(), prog: &Program{consts: map[string]Value{}, funcs: map[string]*funcInfo{}},
-		maxSteps: 1000, maxNodes: 0, env: &Env{}}
+		maxSteps: 1000, maxNodes: 0, env: &Env{Data: empty}, res: &Result{data: empty},
+		rd: &reader{data: empty, bufOff: -1}}
 	in.global = &scope{}
 	in.sc = in.global
-	defer func() {
-		if r := recover(); r != nil {
-			re, ok := r.(runError)
-			if !ok {
-				panic(r)
-			}
-			err = re.err
-		}
-	}()
-	return x(in), nil
+	// Exit() gives no value: not a number
+	err = in.run(func() { v = x(in) })
+	return v, err
 }

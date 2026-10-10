@@ -1,0 +1,263 @@
+//! name: GPT partition table
+//! extensions: gpt
+//! magic: 0x200 "45 46 49 20 50 41 52 54"
+//! priority: 1
+
+// GUID Partition Table (UEFI 2.10, chapter 5): the protective MBR, the
+// header at LBA 1, the partition entries, and the backup entries and
+// header at the end of the disk. The CRC32 of the headers and of the
+// entries are checked in the comments of their fields. Sectors of 512
+// bytes are assumed: the magic finds the header at 512 only (for 4096,
+// the "EFI PART" is at 4096 and the template does not match).
+
+LittleEndian();
+
+local int SECTOR = 512;
+local int MAX_ENTRIES = 1024;
+
+// ---- GUIDs ----
+
+// The first three fields are little-endian, as Windows shows them
+struct GUID {
+    uint32 data1 <format=hex>;
+    uint16 data2 <format=hex>;
+    uint16 data3 <format=hex>;
+    uchar  data4[8] <format=hex>;
+} <read=GuidRead>;
+
+string GuidText(int64 p) {
+    return Str("%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
+        ReadUInt(p), ReadUShort(p + 4), ReadUShort(p + 6),
+        ReadUByte(p + 8), ReadUByte(p + 9), ReadUByte(p + 10), ReadUByte(p + 11),
+        ReadUByte(p + 12), ReadUByte(p + 13), ReadUByte(p + 14), ReadUByte(p + 15));
+}
+
+string GuidRead(GUID &g) {
+    return GuidText(startof(g));
+}
+
+// The names of the common partition types
+string GptTypeName(string g) {
+    if (g == "00000000-0000-0000-0000-000000000000") return "unused";
+    if (g == "C12A7328-F81F-11D2-BA4B-00A0C93EC93B") return "EFI System";
+    if (g == "21686148-6449-6E6F-744E-656564454649") return "BIOS boot";
+    if (g == "024DEE41-33E7-11D3-9D69-0008C781F39F") return "MBR partition scheme";
+    if (g == "E3C9E316-0B5C-4DB8-817D-F92DF00215AE") return "Microsoft reserved";
+    if (g == "EBD0A0A2-B9E5-4433-87C0-68B6B72699C7") return "Microsoft basic data";
+    if (g == "5808C8AA-7E8F-42E0-85D2-E1E90434CFB3") return "Microsoft LDM metadata";
+    if (g == "AF9B60A0-1431-4F62-BC68-3311714A69AD") return "Microsoft LDM data";
+    if (g == "DE94BBA4-06D1-4D40-A16A-BFD50179D6AC") return "Windows recovery environment";
+    if (g == "0FC63DAF-8483-4772-8E79-3D69D8477DE4") return "Linux filesystem";
+    if (g == "0657FD6D-A4AB-43C4-84E5-0933C84B4F4F") return "Linux swap";
+    if (g == "E6D6D379-F507-44C2-A23C-238F2A3DF928") return "Linux LVM";
+    if (g == "A19D880F-05FC-4D3B-A006-743F0F84911E") return "Linux RAID";
+    if (g == "4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709") return "Linux root (x86-64)";
+    if (g == "44479540-F297-41B2-9AF7-D131D5F0458A") return "Linux root (x86)";
+    if (g == "B921B045-1DF0-41C3-AF44-4C6F280D3FAE") return "Linux root (ARM-64)";
+    if (g == "933AC7E1-2EB4-4F13-B844-0E14E2AEF915") return "Linux home";
+    if (g == "3B8F8425-20E0-4F3B-907F-1A25A76F98E8") return "Linux server data";
+    if (g == "8484680C-9521-48C6-9C11-B0720656F69E") return "Linux /usr (x86-64)";
+    if (g == "BC13C2FF-59E6-4262-A352-B275FD6F7172") return "Linux extended boot";
+    if (g == "CA7D7CCB-63ED-4C53-861C-1742536059CC") return "Linux LUKS";
+    if (g == "516E7CB6-6ECF-11D6-8FF8-00022D09712B") return "FreeBSD UFS";
+    if (g == "516E7CB5-6ECF-11D6-8FF8-00022D09712B") return "FreeBSD swap";
+    if (g == "516E7CBA-6ECF-11D6-8FF8-00022D09712B") return "FreeBSD ZFS";
+    if (g == "83BD6B9D-7F41-11DC-BE0B-001560B84F0F") return "FreeBSD boot";
+    if (g == "48465300-0000-11AA-AA11-00306543ECAC") return "Apple HFS/HFS+";
+    if (g == "7C3457EF-0000-11AA-AA11-00306543ECAC") return "Apple APFS";
+    if (g == "426F6F74-0000-11AA-AA11-00306543ECAC") return "Apple boot";
+    if (g == "FE3A2A5D-4F32-41A7-B725-ACCC3285A309") return "ChromeOS kernel";
+    if (g == "3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC") return "ChromeOS root fs";
+    if (g == "2568845D-2332-4675-BC39-8FA5A4748D15") return "Android bootloader";
+    if (g == "49A4D17F-93A3-45C1-A0DE-F50B2EBE2599") return "Android boot";
+    if (g == "38F428E6-D326-425D-9140-6E0EA133647C") return "Android system";
+    if (g == "DC76DDA9-5AC1-491C-AF42-A82591580C0D") return "Android data";
+    if (g == "6A85CF4D-1DD2-11B2-99A6-080020736631") return "Solaris root";
+    if (g == "AA31E02A-400F-11DB-9590-000C2911D1B8") return "VMware VMFS";
+    return "";
+}
+
+string TypeComment(GUID &g) {
+    return GptTypeName(GuidText(startof(g)));
+}
+
+// ---- CRC32 ----
+
+// The CRC32 of a header with its CRC field (at 16) taken as zero
+uint32 HeaderCrc(int64 off, int64 size) {
+    local uint32 crc = 0xFFFFFFFF;
+    local int64 i;
+    local int k;
+    for (i = 0; i < size; i++) {
+        if (i < 16 || i >= 20)
+            crc ^= ReadUByte(off + i);
+        for (k = 0; k < 8; k++) {
+            if (crc & 1)
+                crc = (crc >> 1) ^ 0xEDB88320;
+            else
+                crc = crc >> 1;
+        }
+    }
+    return crc ^ 0xFFFFFFFF;
+}
+
+string HeaderCrcComment(uint32 &c) {
+    local int64 h = startof(c) - 16;
+    local int64 size = ReadUInt(h + 12);
+    if (size < 92 || size > SECTOR)
+        return "the header size is wrong";
+    local uint32 want = HeaderCrc(h, size);
+    if (want == c)
+        return "OK";
+    return Str("wrong, should be 0x%08X", want);
+}
+
+string EntriesCrcComment(uint32 &c) {
+    local int64 h = startof(c) - 88;
+    local int64 off = ReadUInt64(h + 72) * SECTOR;
+    local int64 size = ReadUInt(h + 80) * ReadUInt(h + 84);
+    if (off < 0 || size > 64 * 1024 * 1024 || off + size > FileSize())
+        return "the entries are beyond the end of the file";
+    local uint32 want = Checksum("crc32", off, size);
+    if (want == c)
+        return "OK";
+    return Str("wrong, should be 0x%08X", want);
+}
+
+// ---- The structures ----
+
+enum <uchar> MBR_TYPE {
+    EMPTY = 0x00, FAT12 = 0x01, FAT16 = 0x06, NTFS_EXFAT = 0x07, FAT32 = 0x0B,
+    FAT32_LBA = 0x0C, FAT16_LBA = 0x0E, EXTENDED_LBA = 0x0F, LINUX_SWAP = 0x82,
+    LINUX = 0x83, HFS = 0xAF, GPT_PROTECTIVE = 0xEE, EFI_SYSTEM = 0xEF
+};
+
+struct MBR_ENTRY {
+    uchar    status <format=hex, comment="0x80 - active">;
+    uchar    firstCHS[3] <format=hex>;
+    MBR_TYPE type <comment="0xEE - protective; others make a hybrid MBR">;
+    uchar    lastCHS[3] <format=hex>;
+    uint32   lba;
+    uint32   sectors;
+};
+
+struct PROTECTIVE_MBR {
+    uchar     bootCode[440] <format=hex>;
+    uint32    diskSignature <format=hex>;
+    uint16    copyProtect <format=hex>;
+    MBR_ENTRY partition[4];
+    uint16    signature <format=hex, comment="55 AA">;
+};
+
+struct GPT_HEADER {
+    char   signature[8] <comment="EFI PART">;
+    uint32 revision <format=hex, comment="0x00010000 - 1.0">;
+    uint32 headerSize <comment="92">;
+    uint32 headerCRC32 <format=hex, comment=HeaderCrcComment>;
+    uint32 reserved;
+    uint64 myLBA <comment="where this header is">;
+    uint64 alternateLBA <comment="where the other header is">;
+    uint64 firstUsableLBA;
+    uint64 lastUsableLBA;
+    GUID   diskGUID;
+    uint64 partitionEntryLBA;
+    uint32 numberOfPartitionEntries;
+    uint32 sizeOfPartitionEntry <comment="128 or 128 * 2^n">;
+    uint32 partitionEntryArrayCRC32 <format=hex, comment=EntriesCrcComment>;
+    if (headerSize >= 92 && headerSize <= SECTOR)
+        uchar reserved2[SECTOR - 92] <format=hex>;
+};
+
+string AttrsComment(uint64 &a) {
+    local string s = "";
+    if (a & 1) s += "required ";
+    if (a & 2) s += "no-block-io ";
+    if (a & 4) s += "legacy-BIOS-bootable ";
+    if (a >> 60 & 1) s += "read-only ";
+    if (a >> 62 & 1) s += "hidden ";
+    if (a >> 63 & 1) s += "no-drive-letter ";
+    return s + "(bits 0-2, 48-63 by type)";
+}
+
+struct GPT_ENTRY(int64 size) {
+    GUID   typeGUID <comment=TypeComment>;
+    GUID   uniqueGUID;
+    uint64 firstLBA;
+    uint64 lastLBA <comment="inclusive">;
+    uint64 attributes <format=hex, comment=AttrsComment>;
+    uint16 name[36] <comment="UTF-16LE">;
+    if (size > 128)
+        uchar extra[size - 128];
+} <read=EntryRead>;
+
+string EntryRead(GPT_ENTRY &e) {
+    local int64 p = startof(e);
+    local string t = GuidText(p);
+    if (t == "00000000-0000-0000-0000-000000000000")
+        return "unused";
+    local string n = GptTypeName(t);
+    if (n == "")
+        n = t;
+    return Str("\"%s\" %s, LBA %d-%d", ReadWString(p + 56, 36), n, e.firstLBA, e.lastLBA);
+}
+
+struct GPT_ENTRIES(int64 n, int64 size) {
+    local int64 base = FTell();
+    local int64 i;
+    for (i = 0; i < n; i++) {
+        FSeek(base + i * size);
+        GPT_ENTRY entry(size);
+    }
+};
+
+// Places the entries of a header, as many as fit in the file
+void Entries(int64 lba, int64 n, int64 size, int backup) {
+    local int64 off = lba * SECTOR;
+    if (size < 128 || size % 128 != 0 || size > 4096 || off < 0 || off >= FileSize()) {
+        Warning("the partition entries of the %s header cannot be read", backup ? "backup" : "primary");
+        return;
+    }
+    if (n > MAX_ENTRIES) {
+        Warning("%d partition entries, only %d shown", n, MAX_ENTRIES);
+        n = MAX_ENTRIES;
+    }
+    if (n > (FileSize() - off) / size) {
+        Warning("the partition entries go beyond the end of the file");
+        n = (FileSize() - off) / size;
+    }
+    if (n <= 0)
+        return;
+    if (backup)
+        GPT_ENTRIES backupEntries(n, size) @ off;
+    else
+        GPT_ENTRIES entries(n, size) @ off;
+}
+
+// ---- The disk ----
+
+if (FileSize() < 2 * SECTOR) {
+    Warning("less than two sectors");
+    Exit(0);
+}
+
+PROTECTIVE_MBR protectiveMBR;
+FSeek(SECTOR);
+GPT_HEADER header <open=true>;
+Entries(header.partitionEntryLBA, header.numberOfPartitionEntries, header.sizeOfPartitionEntry, 0);
+
+// The backup header: where the primary says, else in the last sector
+local int64 sig = 0x5452415020494645; // "EFI PART"
+local int64 bOff = -1;
+local int64 alt = header.alternateLBA;
+if (alt > 1 && alt < FileSize() / SECTOR && ReadInt64(alt * SECTOR) == sig)
+    bOff = alt * SECTOR;
+else if (ReadInt64(FileSize() / SECTOR * SECTOR - SECTOR) == sig)
+    bOff = FileSize() / SECTOR * SECTOR - SECTOR;
+if (bOff > SECTOR) {
+    GPT_HEADER backupHeader @ bOff;
+    if (backupHeader.partitionEntryLBA != header.partitionEntryLBA)
+        Entries(backupHeader.partitionEntryLBA, backupHeader.numberOfPartitionEntries,
+            backupHeader.sizeOfPartitionEntry, 1);
+} else {
+    Warning("no backup GPT header (at LBA %d or in the last sector)", alt);
+}

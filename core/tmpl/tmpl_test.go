@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/ipoluianov/althex/internal/fuzzguard"
 )
 
 // mem is data in memory that can be written, for the tests
@@ -365,6 +367,7 @@ func FuzzCompile(f *testing.F) {
 	f.Add(`struct A { uint32 x; if (x) uchar d[x]; } a; while(!FEof()) uchar b;`)
 	f.Add(`enum <uchar> E { A, B = 3 } e; local int i; for (i=0;i<3;i++) Printf("%d", i);`)
 	f.Fuzz(func(t *testing.T, src string) {
+		defer fuzzguard.Start(t.Name())()
 		p, err := Compile("fuzz", src)
 		if err != nil {
 			return
@@ -441,5 +444,42 @@ func TestFixesFromTemplates3(t *testing.T) {
 	}
 	if res.Output[0] != "2 efgh" {
 		t.Fatalf("output %q", res.Output)
+	}
+}
+
+func TestRepeatedBareName(t *testing.T) {
+	res := mustRun(t, `
+		struct S { uchar v; };
+		local int i;
+		for (i = 0; i < 3; i++) { S s; Printf("%d", s.v); }
+	`, []byte{7, 8, 9})
+	if strings.Join(res.Output, ",") != "7,8,9" {
+		t.Fatalf("%q", res.Output)
+	}
+}
+
+// A template nested too deep is an error, not a stack overflow, which a
+// program cannot recover from (the chains of operators too: a left-deep tree)
+func TestNestingLimit(t *testing.T) {
+	n := 100_000
+	for _, src := range []string{
+		"local int x = " + strings.Repeat("(", n) + "1" + strings.Repeat(")", n) + ";",
+		"local int x = " + strings.Repeat("-", n) + "1;",
+		"local int x = 1" + strings.Repeat("+1", n) + ";",
+		"local int x = 1" + strings.Repeat("?1:1", n) + ";",
+		"local int x; x" + strings.Repeat("=x", n) + ";",
+		strings.Repeat("{", n),
+		strings.Repeat("if (1) ", n) + ";",
+		"struct A { " + strings.Repeat("struct B { ", n),
+		"local int x[" + strings.Repeat("x[", n),
+	} {
+		if _, err := Compile("deep", src); err == nil || !strings.Contains(err.Error(), "nested too deep") {
+			t.Errorf("%.20s...: %v", src, err)
+		}
+	}
+	// Deep enough for real templates
+	src := "local int x = " + strings.Repeat("(", 100) + "1" + strings.Repeat("+1", 100) + strings.Repeat(")", 100) + ";"
+	if _, err := Compile("deep", src); err != nil {
+		t.Fatal(err)
 	}
 }

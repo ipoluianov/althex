@@ -32,6 +32,8 @@ BUNDLE="$STAGE/${DISPLAY_NAME}.app"
 mkdir -p "$BUNDLE/Contents/MacOS" "$BUNDLE/Contents/Resources"
 cp "$BIN" "$BUNDLE/Contents/MacOS/$APP"
 chmod 755 "$BUNDLE/Contents/MacOS/$APP"
+# The licences of what is built in ask for their notices to go with the binary
+cp "$(dirname "$0")/../app/notices.txt" "$BUNDLE/Contents/Resources/NOTICES.txt"
 
 cat > "$BUNDLE/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>

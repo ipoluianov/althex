@@ -116,10 +116,17 @@ func elemTypeName(arr string) string {
 
 // child returns the field of a struct by name, for the program
 func (n *Node) child(name string) *Node {
-	if n.fields == nil {
-		return nil
+	if c := n.fields[name]; c != nil {
+		return c
 	}
-	return n.fields[name]
+	// A field renamed by <name="..."> is known by its name in the tree too,
+	// so the path of a node finds it again
+	for _, c := range n.children {
+		if c.Name == name {
+			return c
+		}
+	}
+	return nil
 }
 
 // add adds a field; one with the name of another makes them a list (a
@@ -282,8 +289,11 @@ func (n *Node) Find(path string) *Node {
 		if cur == nil {
 			return nil
 		}
-		if idx == 0 && cur.Kind != NodeArray && cur.Kind != NodeList {
-			continue // a field declared once is its own element 0
+		if idx >= 0 && cur.Kind != NodeArray && cur.Kind != NodeList {
+			if idx == 0 {
+				continue // a field declared once is its own element 0
+			}
+			return nil
 		}
 		if idx >= 0 {
 			cur = cur.Child(int64(idx))

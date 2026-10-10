@@ -2,7 +2,6 @@ package forms
 
 import (
 	"image/color"
-	"path/filepath"
 	"sort"
 
 	"github.com/ipoluianov/althex/core/doc"
@@ -24,11 +23,18 @@ const navHistoryMax = 200
 
 // Tab is an open document with its views
 type Tab struct {
-	doc   *doc.Document
-	views []*hexview.View // two when split (VIEW-7)
-	cur   int             // the view with the focus
-	box   *ui.Panel       // what the tab shows: a view or a splitter of two
-	split *ui.Splitter
+	doc *doc.Document
+	// apiID is the id the external clients know the document by
+	apiID string
+	// The last edits from outside, drawn while the document is as they left it
+	extMarks []hexview.Highlight
+	extSnap  *doc.Snapshot
+	// onSaveError tells a client that asked to save that it failed
+	onSaveError func(error)
+	views       []*hexview.View // two when split (VIEW-7)
+	cur         int             // the view with the focus
+	box         *ui.Panel       // what the tab shows: a view or a splitter of two
+	split       *ui.Splitter
 	// syncScroll scrolls the views of a split together
 	syncScroll bool
 	syncing    bool
@@ -41,6 +47,17 @@ type Tab struct {
 	cmp *Compare
 	// tmpl: the template applied to the document
 	tmpl *TemplateState
+	// fw: the analysis of the firmware of the document, with its listing
+	fw *Firmware
+	// syncingListing: the listing moves the caret of the hex view now
+	syncingListing bool
+	// deviceConfirmed: writing the disk was confirmed for the save running
+	deviceConfirmed bool
+	// diskIssues are the problems of the partition table, framed
+	diskIssues []hexview.Highlight
+	// frame holds the box and the minimap next to it (see widget)
+	frame *ui.Panel
+	mm    *tabMap
 }
 
 func newTab(d *doc.Document, opts hexview.Options, onView func(t *Tab, v *hexview.View)) *Tab {
@@ -89,18 +106,18 @@ func (t *Tab) view() *hexview.View { return t.views[t.cur] }
 // name is the file name of the document, or "Untitled"
 func (t *Tab) name() string {
 	name := T().Untitled
-	if p := t.doc.Path(); p != "" {
-		name = filepath.Base(p)
+	if n := t.doc.Name(); n != "" {
+		name = n
 	}
 	if t.cmp != nil {
-		name += " ↔ " + filepath.Base(t.cmp.docB.Path())
+		name += " — " + t.cmp.names()
 	}
 	return name
 }
 
 // setSplit shows the document in two views one above the other, or in one
 func (t *Tab) setSplit(on bool, onView func(t *Tab, v *hexview.View)) {
-	if t.cmp != nil || on == (len(t.views) == 2) {
+	if t.cmp != nil || t.fw != nil || on == (len(t.views) == 2) {
 		return
 	}
 	first := t.views[0]
@@ -131,9 +148,12 @@ func (t *Tab) close() {
 	for _, v := range t.views {
 		v.Close()
 	}
+	if t.mm != nil {
+		t.mm.w.Close()
+	}
 	t.doc.Close()
 	if t.cmp != nil {
-		t.cmp.docB.Close()
+		t.cmp.close()
 	}
 }
 
@@ -183,10 +203,15 @@ func (t *Tab) highlights(from, to int64) []hexview.Highlight {
 		}
 	}
 	hs = append(hs, t.templateMarks(from, to)...)
+	for _, is := range t.diskIssues {
+		if is.Off < to && is.Off+is.Len > from {
+			hs = append(hs, is)
+		}
+	}
 	if t.marks != nil {
 		hs = append(hs, t.marks(from, to)...)
 	}
-	return hs
+	return append(hs, t.externalMarks(from, to)...)
 }
 
 // bookmarkColors are offered for new bookmarks in turn

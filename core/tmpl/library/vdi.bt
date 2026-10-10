@@ -1,0 +1,84 @@
+//! name: VDI disk image
+//! priority: 1
+//! extensions: vdi
+//! magic: 64 "7F 10 DA BE"
+
+// VirtualBox Disk Image: a text line, the signature, the header (version
+// 1.1), the block map and the blocks. Each entry of the map is the index
+// of the block in the data area, or FFFFFFFF (not allocated) / FFFFFFFE
+// (zeros). Little-endian.
+
+LittleEndian();
+
+// Block map entries shown, at most
+local int64 MAX_BLOCK_MAP = 16777216;
+
+enum <uint32> VDI_IMAGE_TYPE {
+    VDI_NORMAL = 1,
+    VDI_FIXED = 2,
+    VDI_UNDO = 3,
+    VDI_DIFF = 4
+};
+
+struct VDI_UUID {
+    uint32 data1 <format=hex>;
+    uint16 data2 <format=hex>;
+    uint16 data3 <format=hex>;
+    uchar  data4[8] <format=hex>;
+};
+
+string UuidRead(VDI_UUID &u) {
+    return Str("%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x", u.data1, u.data2, u.data3,
+        u.data4[0], u.data4[1], u.data4[2], u.data4[3], u.data4[4], u.data4[5], u.data4[6], u.data4[7]);
+}
+
+struct VDI_GEOMETRY {
+    uint32 cylinders;
+    uint32 heads;
+    uint32 sectors;
+    uint32 sectorSize;
+};
+
+struct VDI_HEADER {
+    char   text[64] <comment="<<< Oracle VM VirtualBox Disk Image >>>">;
+    uint32 signature <format=hex, comment="BEDA107F">;
+    uint16 versionMinor;
+    uint16 versionMajor;
+    uint32 headerSize <comment="the size of the header after this field">;
+    VDI_IMAGE_TYPE imageType;
+    uint32 imageFlags <format=hex>;
+    char   description[256];
+    uint32 offsetBlocks <format=hex, comment="the block map">;
+    uint32 offsetData <format=hex, comment="the first block">;
+    VDI_GEOMETRY legacyGeometry;
+    uint32 unused1;
+    uint64 diskSize;
+    uint32 blockSize;
+    uint32 blockExtraData <comment="bytes before the data of each block">;
+    uint32 blocksInImage;
+    uint32 blocksAllocated;
+    VDI_UUID uuidCreate <read=UuidRead>;
+    VDI_UUID uuidModify <read=UuidRead>;
+    VDI_UUID uuidLinkage <read=UuidRead, comment="the parent of a differencing image">;
+    VDI_UUID uuidParentModify <read=UuidRead>;
+    if (headerSize >= 0x190 && FileSize() >= 0x1D8)
+        VDI_GEOMETRY lchsGeometry;
+};
+
+string HeaderRead(VDI_HEADER &h) {
+    return Str("%s, %d bytes, %d blocks of %d", EnumToString(h.imageType), h.diskSize, h.blocksInImage, h.blockSize);
+}
+
+local int64 size = FileSize();
+if (size >= 0x1C8 + 16) {
+    VDI_HEADER header <read=HeaderRead, open=true>;
+    local int64 mapOff = header.offsetBlocks;
+    if (mapOff > 0 && mapOff < size && header.blocksInImage > 0) {
+        local int64 n = Min(Min(header.blocksInImage, (size - mapOff) / 4), MAX_BLOCK_MAP);
+        if (n > 0)
+            uint32 blockMap[n] @ mapOff <format=hex, comment="the index of each block; FFFFFFFF - free, FFFFFFFE - zeros">;
+    }
+    local int64 dataOff = header.offsetData;
+    if (dataOff > 0 && dataOff < size)
+        uchar blocks[size - dataOff] @ dataOff <comment="the blocks of data, in the order of their indexes">;
+}

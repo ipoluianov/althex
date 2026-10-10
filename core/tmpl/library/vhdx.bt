@@ -1,0 +1,247 @@
+//! name: VHDX disk image
+//! priority: 1
+//! extensions: vhdx, avhdx
+//! magic: 0 "76 68 64 78 66 69 6C 65"
+
+// VHDX (Microsoft MS-VHDX): the file type identifier, two headers at 64 KB
+// and 128 KB (the one with the greater sequence number is in force), two
+// copies of the region table at 192 KB and 256 KB, and the regions they
+// point to: the metadata (block size, disk size, sector sizes, the
+// parent) and the block allocation table (BAT). Little-endian; GUIDs are
+// stored with their first three parts little-endian; checksums are CRC-32C.
+
+LittleEndian();
+
+// BAT entries and metadata items shown as fields
+local int64 MAX_METADATA = 2047;
+local int64 MAX_BAT = 8192;
+
+enum <uint64> VHDX_PAYLOAD_STATE {
+    PAYLOAD_BLOCK_NOT_PRESENT = 0,
+    PAYLOAD_BLOCK_UNDEFINED = 1,
+    PAYLOAD_BLOCK_ZERO = 2,
+    PAYLOAD_BLOCK_UNMAPPED = 3,
+    PAYLOAD_BLOCK_FULLY_PRESENT = 6,
+    PAYLOAD_BLOCK_PARTIALLY_PRESENT = 7
+};
+
+struct GUID {
+    uint32 data1 <format=hex>;
+    uint16 data2 <format=hex>;
+    uint16 data3 <format=hex>;
+    uchar  data4[8] <format=hex>;
+};
+
+string GuidRead(GUID &g) {
+    return Str("{%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}", g.data1, g.data2, g.data3,
+        g.data4[0], g.data4[1], g.data4[2], g.data4[3], g.data4[4], g.data4[5], g.data4[6], g.data4[7]);
+}
+
+// The name of a known GUID by its first part
+string GuidName(uint32 d1) {
+    switch (d1) {
+    case 0x2DC27766: return "BAT";
+    case 0x8B7CA206: return "metadata";
+    case 0xCAA16737: return "file parameters";
+    case 0x2FA54224: return "virtual disk size";
+    case 0xBECA12AB: return "virtual disk id";
+    case 0x8141BF1D: return "logical sector size";
+    case 0xCDA348C7: return "physical sector size";
+    case 0xA8D35F2D: return "parent locator";
+    }
+    return "";
+}
+
+struct VHDX_FILE_IDENTIFIER {
+    char signature[8] <comment="vhdxfile">;
+    local int64 creatorStart = FTell();
+    if (ReadUShort(creatorStart) != 0)
+        wstring creator <comment="the program that made the file, UTF-16">;
+    FSeek(creatorStart + 512);
+};
+
+struct VHDX_HEADER {
+    char   signature[4] <comment="head">;
+    uint32 checksum <format=hex, comment="CRC-32C of the 4 KB with this field zero">;
+    uint64 sequenceNumber <comment="the greater one is in force">;
+    GUID   fileWriteGuid <read=GuidRead>;
+    GUID   dataWriteGuid <read=GuidRead>;
+    GUID   logGuid <read=GuidRead, comment="not zero - the log has entries to replay">;
+    uint16 logVersion;
+    uint16 version;
+    uint32 logLength;
+    uint64 logOffset <format=hex>;
+    uchar  reserved[4016];
+};
+
+struct VHDX_REGION_ENTRY {
+    GUID   guid <read=GuidRead>;
+    uint64 fileOffset <format=hex>;
+    uint32 length;
+    uint32 required : 1;
+    uint32 reserved : 31;
+};
+
+string RegionRead(VHDX_REGION_ENTRY &e) {
+    return Str("%s at 0x%X, %u bytes", GuidName(e.guid.data1), e.fileOffset, e.length);
+}
+
+struct VHDX_REGION_TABLE {
+    char   signature[4] <comment="regi">;
+    uint32 checksum <format=hex, comment="CRC-32C of the 64 KB with this field zero">;
+    uint32 entryCount;
+    uint32 reserved;
+    if (entryCount > 0 && entryCount <= 2047)
+        VHDX_REGION_ENTRY entry[entryCount] <read=RegionRead>;
+};
+
+struct VHDX_METADATA_ENTRY {
+    GUID   itemId <read=GuidRead>;
+    uint32 offset <format=hex, comment="from the start of the metadata region">;
+    uint32 length;
+    uint32 isUser : 1;
+    uint32 isVirtualDisk : 1;
+    uint32 isRequired : 1;
+    uint32 reserved : 29;
+    uint32 reserved2;
+};
+
+string MetaEntryRead(VHDX_METADATA_ENTRY &e) {
+    return Str("%s, %u bytes", GuidName(e.itemId.data1), e.length);
+}
+
+struct VHDX_METADATA_TABLE {
+    char   signature[8] <comment="metadata">;
+    uint16 reserved;
+    uint16 entryCount;
+    uchar  reserved2[20];
+    if (entryCount > 0 && entryCount <= MAX_METADATA)
+        VHDX_METADATA_ENTRY entry[entryCount] <read=MetaEntryRead>;
+};
+
+struct VHDX_FILE_PARAMETERS {
+    uint32 blockSize;
+    uint32 leaveBlocksAllocated : 1;
+    uint32 hasParent : 1;
+    uint32 reserved : 30;
+};
+
+struct VHDX_PARENT_LOCATOR_ENTRY {
+    uint32 keyOffset;
+    uint32 valueOffset;
+    uint16 keyLength;
+    uint16 valueLength;
+};
+
+struct VHDX_PARENT_LOCATOR(int64 length) {
+    local int64 start = FTell();
+    GUID   locatorType <read=GuidRead>;
+    uint16 reserved;
+    uint16 keyValueCount;
+    local int64 n = Min(keyValueCount, (length - 20) / 12);
+    if (n > 0)
+        VHDX_PARENT_LOCATOR_ENTRY entry[n];
+    local int64 i;
+    for (i = 0; i < n; i++) {
+        if (entry[i].keyOffset + entry[i].keyLength <= length && entry[i].keyLength > 0)
+            wstring key @ start + entry[i].keyOffset;
+        if (entry[i].valueOffset + entry[i].valueLength <= length && entry[i].valueLength > 0)
+            wstring value @ start + entry[i].valueOffset;
+    }
+};
+
+local int64 size = FileSize();
+
+if (size >= 520)
+    VHDX_FILE_IDENTIFIER fileIdentifier <open=true>;
+
+local int64 h1 = 0x10000, h2 = 0x20000;
+if (size >= h1 + 4096)
+    VHDX_HEADER header1 @ h1;
+if (size >= h2 + 4096)
+    VHDX_HEADER header2 @ h2;
+
+local int64 rt1 = 0x30000, rt2 = 0x40000;
+if (size >= rt1 + 16)
+    VHDX_REGION_TABLE regionTable1 @ rt1 <open=true>;
+if (size >= rt2 + 16)
+    VHDX_REGION_TABLE regionTable2 @ rt2;
+
+// The regions from the first table
+local int64 metaOff = -1, metaLen = 0, batOff = -1, batLen = 0;
+local int64 i;
+if (exists(regionTable1.entry)) {
+    for (i = 0; i < regionTable1.entryCount; i++) {
+        if (regionTable1.entry[i].guid.data1 == 0x8B7CA206) {
+            metaOff = regionTable1.entry[i].fileOffset;
+            metaLen = regionTable1.entry[i].length;
+        } else if (regionTable1.entry[i].guid.data1 == 0x2DC27766) {
+            batOff = regionTable1.entry[i].fileOffset;
+            batLen = regionTable1.entry[i].length;
+        }
+    }
+}
+
+local int64 blockSize = 0, diskSize = 0, sectorSize = 512;
+if (metaOff > 0 && metaOff <= size - 32) {
+    VHDX_METADATA_TABLE metadata @ metaOff <open=true>;
+    if (exists(metadata.entry)) {
+        local int64 at;
+        local uint32 id;
+        for (i = 0; i < metadata.entryCount; i++) {
+            at = metaOff + metadata.entry[i].offset;
+            id = metadata.entry[i].itemId.data1;
+            if (metadata.entry[i].offset >= metaLen || at + metadata.entry[i].length > size)
+                continue;
+            if (id == 0xCAA16737 && metadata.entry[i].length >= 8) {
+                VHDX_FILE_PARAMETERS fileParameters @ at;
+                blockSize = fileParameters.blockSize;
+            } else if (id == 0x2FA54224 && metadata.entry[i].length >= 8) {
+                uint64 virtualDiskSize @ at;
+                diskSize = virtualDiskSize;
+            } else if (id == 0xBECA12AB && metadata.entry[i].length >= 16) {
+                GUID virtualDiskId @ at <read=GuidRead>;
+            } else if (id == 0x8141BF1D && metadata.entry[i].length >= 4) {
+                uint32 logicalSectorSize @ at;
+                sectorSize = logicalSectorSize;
+            } else if (id == 0xCDA348C7 && metadata.entry[i].length >= 4) {
+                uint32 physicalSectorSize @ at;
+            } else if (id == 0xA8D35F2D && metadata.entry[i].length >= 20) {
+                VHDX_PARENT_LOCATOR parentLocator(metadata.entry[i].length) @ at;
+            }
+        }
+    }
+}
+
+// The BAT: payload block entries, and after each chunk of them a sector
+// bitmap entry; the state is in bits 0-2, the offset in MB in bits 20-63
+struct VHDX_BAT_ENTRY {
+    VHDX_PAYLOAD_STATE state : 3;
+    uint64 reserved : 17;
+    uint64 fileOffsetMB : 44;
+};
+
+string BatRead(VHDX_BAT_ENTRY &e) {
+    if (e.fileOffsetMB == 0)
+        return EnumToString(e.state);
+    return Str("%s at 0x%X", EnumToString(e.state), e.fileOffsetMB << 20);
+}
+
+if (batOff > 0 && batOff < size) {
+    local int64 entries = Min(batLen, size - batOff) / 8;
+    if (blockSize >= 0x100000 && (blockSize & (blockSize - 1)) == 0 && (sectorSize == 512 || sectorSize == 4096)) {
+        // Only the entries in use
+        local int64 chunk = 8388608 * sectorSize / blockSize;
+        local int64 blocks = (diskSize + blockSize - 1) / blockSize;
+        local int64 used = blocks;
+        if (blocks > 0)
+            used += (blocks - 1) / chunk;
+        if (used < entries)
+            entries = used;
+    }
+    local int64 shown = Min(entries, MAX_BAT);
+    if (shown > 0)
+        VHDX_BAT_ENTRY bat[shown] @ batOff <read=BatRead>;
+    if (entries > shown)
+        uint64 batRest[entries - shown] @ batOff + shown * 8 <format=hex, comment="the rest of the BAT">;
+}

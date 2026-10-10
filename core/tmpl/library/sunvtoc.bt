@@ -1,0 +1,85 @@
+//! name: Sun disk label (VTOC)
+//! extensions: vtoc
+//! magic: 0x1FC "DA BE"
+//! priority: 1
+
+// The disk label of Solaris and SunOS on SPARC: sector 0, big-endian. The
+// text, the VTOC with the tags of the eight slices, the geometry, the
+// slices (the first cylinder and the number of sectors), the magic 0xDABE
+// and a checksum: the XOR of all the 16-bit words of the label is 0.
+// A slice starts at cylinder * heads * sectors per track.
+
+BigEndian();
+
+enum <uint16> VTOC_TAG {
+    V_UNASSIGNED = 0x00, V_BOOT = 0x01, V_ROOT = 0x02, V_SWAP = 0x03,
+    V_USR = 0x04, V_BACKUP = 0x05, V_STAND = 0x06, V_VAR = 0x07, V_HOME = 0x08,
+    V_ALTSCTR = 0x09, V_CACHE = 0x0A, V_RESERVED = 0x0B, V_SYSTEM = 0x0C,
+    LINUX_SWAP = 0x82, LINUX_NATIVE = 0x83, LINUX_LVM = 0x8E, LINUX_RAID = 0xFD
+};
+
+struct VTOC_PART {
+    VTOC_TAG tag <comment="V_BACKUP - the whole disk">;
+    uint16   flag <format=hex, comment="1 - not mountable, 0x10 - read-only">;
+};
+
+struct VTOC {
+    uint32    version <comment="1">;
+    char      volume[8];
+    uint16    nparts <comment="8">;
+    VTOC_PART part[8];
+    uint16    padding;
+    uint32    bootinfo[3];
+    uint32    sanity <format=hex, comment="0x600DDEEE">;
+    uint32    reserved[10];
+    uint32    timestamp[8];
+};
+
+struct SLICE {
+    uint32 startCylinder;
+    uint32 sectors;
+} <read=SliceRead>;
+
+string SliceRead(SLICE &s) {
+    if (s.sectors == 0)
+        return "unused";
+    local int64 spc = ReadUShort(436) * ReadUShort(438);
+    return Str("sector %d, %u sectors", s.startCylinder * spc, s.sectors);
+}
+
+string ChecksumComment(uint16 &c) {
+    local uint16 x = 0;
+    local int i;
+    for (i = 0; i < 512; i += 2)
+        x ^= ReadUShort(i);
+    if (x == 0)
+        return "OK";
+    return Str("wrong, should be 0x%04X", c ^ x);
+}
+
+struct SUN_LABEL {
+    char   asciiLabel[128];
+    VTOC   vtoc;
+    uint32 writeReinstruct;
+    uint32 readReinstruct;
+    uchar  spare[148];
+    uint16 rpm;
+    uint16 physicalCylinders;
+    uint16 alternatesPerCylinder;
+    uchar  spare2[4];
+    uint16 interleave;
+    uint16 dataCylinders;
+    uint16 alternateCylinders;
+    uint16 heads;
+    uint16 sectorsPerTrack;
+    uchar  spare3[4];
+    SLICE  slice[8];
+    uint16 magic <format=hex, comment="0xDABE">;
+    uint16 checksum <format=hex, comment=ChecksumComment>;
+};
+
+if (FileSize() < 512) {
+    Warning("less than one sector");
+    Exit(0);
+}
+SUN_LABEL label <open=true>;

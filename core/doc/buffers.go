@@ -44,6 +44,14 @@ type span struct {
 	addOff   int64
 }
 
+// newSourceBuffer reads a source that is not a file of the document's own
+// (a disk in an image, a part of another document): it is never written
+func newSourceBuffer(src source.Source, add *addBuffer) *srcBuffer {
+	b := &srcBuffer{sz: src.Size(), add: add}
+	b.cache.Store(source.NewCache(src, source.DefaultCachePages))
+	return b
+}
+
 func newSrcBuffer(f *source.File, cache *source.Cache, add *addBuffer) *srcBuffer {
 	if cache == nil {
 		cache = source.NewCache(f, source.DefaultCachePages)

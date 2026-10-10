@@ -2,8 +2,11 @@ package checksum
 
 import (
 	"encoding/binary"
+	"fmt"
 	gohash "hash"
 	"math/bits"
+	"strconv"
+	"strings"
 )
 
 // CRCParams is a CRC in the Rocksoft model, as the CRC catalogue
@@ -185,4 +188,47 @@ func (c *crc) Sum(b []byte) []byte {
 		b = append(b, byte(v>>(8*i)))
 	}
 	return b
+}
+
+// ParseCRC reads the parameters of a CRC as "width=16 poly=0x1021
+// init=0xFFFF refin=false refout=false xorout=0" (the Rocksoft model;
+// check, residue and name are taken and ignored)
+func ParseCRC(s string) (CRCParams, error) {
+	p := CRCParams{Name: "CRC (" + strings.TrimSpace(s) + ")"}
+	seen := false
+	for _, f := range strings.Fields(s) {
+		k, v, ok := strings.Cut(strings.ToLower(f), "=")
+		if !ok {
+			return p, fmt.Errorf("%q: name=value expected", f)
+		}
+		num := func() (uint64, error) { return strconv.ParseUint(v, 0, 64) }
+		var err error
+		var n uint64
+		switch k {
+		case "width":
+			n, err = num()
+			p.Width = int(n)
+			seen = true
+		case "poly":
+			p.Poly, err = num()
+		case "init":
+			p.Init, err = num()
+		case "xorout":
+			p.XorOut, err = num()
+		case "refin":
+			p.RefIn, err = strconv.ParseBool(v)
+		case "refout":
+			p.RefOut, err = strconv.ParseBool(v)
+		case "check", "residue", "name":
+		default:
+			return p, fmt.Errorf("%q: unknown parameter", k)
+		}
+		if err != nil {
+			return p, fmt.Errorf("%s: %v", k, err)
+		}
+	}
+	if !seen || p.Width < 1 || p.Width > 64 {
+		return p, fmt.Errorf("width=1..64 expected")
+	}
+	return p, nil
 }

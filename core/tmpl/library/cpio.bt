@@ -1,0 +1,172 @@
+//! name: cpio archive
+//! extensions: cpio, cpgz, initramfs
+//! magic: 0 "30 37 30 37 30"
+
+// cpio archive: the "new ASCII" format (newc, magic 070701; 070702 with a
+// checksum) of the Linux initramfs and the portable ASCII format (odc,
+// 070707). newc: a header of 13 fields of 8 hex digits, the name padded so
+// that the header and the name take a multiple of 4 bytes, the data padded
+// to 4. odc: octal fields, no padding. "TRAILER!!!" ends an archive.
+//
+// An initramfs is often several archives one after another, with zeros
+// between (the CPU microcode first), and a compressed archive at the end:
+// the archives are followed, the compressed rest is shown as bytes.
+
+local int64 fsize = FileSize();
+local int64 MAX_ENTRIES = 20000;
+local int64 entries = 0;
+
+// A number of n hex (base 16) or octal (base 8) digits at off
+int64 TextNumber(int64 off, int n, int base) {
+    local int64 v = 0;
+    local int i, c, d;
+    for (i = 0; i < n; i++) {
+        c = ReadUByte(off + i);
+        if (c >= '0' && c <= '9')
+            d = c - '0';
+        else if (c >= 'a' && c <= 'f')
+            d = c - 'a' + 10;
+        else if (c >= 'A' && c <= 'F')
+            d = c - 'A' + 10;
+        else
+            return -1;
+        if (d >= base)
+            return -1;
+        v = v * base + d;
+    }
+    return v;
+}
+
+string HexRead(char &f[]) {
+    local int64 v = TextNumber(startof(f), 8, 16);
+    if (v < 0)
+        return "not hex";
+    return Str("%d (0x%X)", v, v);
+}
+
+string ModeRead(char &f[]) {
+    local int64 m = TextNumber(startof(f), 8, 16);
+    return ModeText(m);
+}
+
+string OctRead(char &f[]) {
+    local int64 v = TextNumber(startof(f), sizeof(f), 8);
+    if (v < 0)
+        return "not octal";
+    return Str("%d", v);
+}
+
+string OctModeRead(char &f[]) {
+    return ModeText(TextNumber(startof(f), 6, 8));
+}
+
+string ModeText(int64 m) {
+    local string t = "";
+    if (m < 0)
+        return "not valid";
+    switch (m & 0xF000) {
+    case 0x4000: t = "dir"; break;
+    case 0x8000: t = "file"; break;
+    case 0xA000: t = "symlink"; break;
+    case 0x2000: t = "char device"; break;
+    case 0x6000: t = "block device"; break;
+    case 0x1000: t = "fifo"; break;
+    case 0xC000: t = "socket"; break;
+    default: t = "type?"; break;
+    }
+    return Str("%s %o", t, m & 0xFFF);
+}
+
+struct NEWC_ENTRY {
+    char c_magic[6];
+    char c_ino[8] <read=HexRead>;
+    char c_mode[8] <read=ModeRead>;
+    char c_uid[8] <read=HexRead>;
+    char c_gid[8] <read=HexRead>;
+    char c_nlink[8] <read=HexRead>;
+    char c_mtime[8] <read=HexRead>;
+    char c_filesize[8] <read=HexRead>;
+    char c_devmajor[8] <read=HexRead>;
+    char c_devminor[8] <read=HexRead>;
+    char c_rdevmajor[8] <read=HexRead>;
+    char c_rdevminor[8] <read=HexRead>;
+    char c_namesize[8] <read=HexRead, comment="with the zero">;
+    char c_check[8] <read=HexRead, comment="070702: the sum of the bytes of the data">;
+    local int64 ns = TextNumber(startof(c_namesize), 8, 16);
+    local int64 fs = TextNumber(startof(c_filesize), 8, 16);
+    local int64 base = startof(c_magic);
+    if (ns > 0 && ns <= 4096 && FTell() + ns <= fsize)
+        char name[ns];
+    if ((FTell() - base) % 4 != 0 && FTell() + 4 - (FTell() - base) % 4 <= fsize)
+        uchar name_padding[4 - (FTell() - base) % 4];
+    if (fs > 0 && FTell() + fs <= fsize)
+        uchar data[fs];
+    if ((FTell() - base) % 4 != 0 && FTell() + 4 - (FTell() - base) % 4 <= fsize)
+        uchar data_padding[4 - (FTell() - base) % 4];
+} <read=EntryRead>;
+
+struct ODC_ENTRY {
+    char c_magic[6];
+    char c_dev[6] <read=OctRead>;
+    char c_ino[6] <read=OctRead>;
+    char c_mode[6] <read=OctModeRead>;
+    char c_uid[6] <read=OctRead>;
+    char c_gid[6] <read=OctRead>;
+    char c_nlink[6] <read=OctRead>;
+    char c_rdev[6] <read=OctRead>;
+    char c_mtime[11] <read=OctRead>;
+    char c_namesize[6] <read=OctRead>;
+    char c_filesize[11] <read=OctRead>;
+    local int64 ns = TextNumber(startof(c_namesize), 6, 8);
+    local int64 fs = TextNumber(startof(c_filesize), 11, 8);
+    if (ns > 0 && ns <= 4096 && FTell() + ns <= fsize)
+        char name[ns];
+    if (fs > 0 && FTell() + fs <= fsize)
+        uchar data[fs];
+} <read=EntryRead>;
+
+string EntryRead(NEWC_ENTRY &e) {
+    if (!exists(e.name))
+        return "";
+    return Str("%s", e.name);
+}
+
+// The entries of the archives, one after another
+local int64 pos = 0;
+local int64 archive = 0;
+local int done = 0;
+local string m;
+while (!done && pos + 6 <= fsize && entries < MAX_ENTRIES) {
+    FSeek(pos);
+    m = ReadString(pos, 6);
+    if ((m == "070701" || m == "070702") && pos + 110 > fsize || m == "070707" && pos + 76 > fsize) {
+        Warning("a header at 0x%X is cut", pos);
+        break;
+    }
+    if (m == "070701" || m == "070702") {
+        NEWC_ENTRY entry;
+    } else if (m == "070707") {
+        ODC_ENTRY entry;
+    } else {
+        break;
+    }
+    entries++;
+    if (FTell() <= pos)
+        break;
+    pos = FTell();
+    if (exists(entry[entries - 1].name) && entry[entries - 1].name == "TRAILER!!!") {
+        archive++;
+        // Zeros pad the archives; another may follow at a multiple of 4
+        while (pos < fsize && ReadUByte(pos) == 0)
+            pos++;
+        if (pos >= fsize)
+            break;
+        if (ReadString(pos, 5) != "07070") {
+            FSeek(pos);
+            uchar compressed_rest[fsize - pos] <comment="a compressed archive (gzip 1F 8B, zstd 28 B5 2F FD, xz FD 37 7A...)">;
+            done = 1;
+        }
+    }
+}
+if (entries >= MAX_ENTRIES)
+    Warning("more than %d entries: the rest is not shown", MAX_ENTRIES);

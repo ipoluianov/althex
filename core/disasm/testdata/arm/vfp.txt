@@ -1,0 +1,112 @@
+ 8000000:	ed90 0a00 	vldr	s0, [r0]
+ 8000004:	edd1 faff 	vldr	s31, [r1, #1020]	@ 0x3fc
+ 8000008:	ed10 0b02 	vldr	d0, [r0, #-8]
+ 800000c:	ed9d fb04 	vldr	d15, [sp, #16]
+ 8000010:	ed9f 1a68 	vldr	s2, [pc, #416]	@ 0x80001b4
+ 8000014:	ed1f 1b06 	vldr	d1, [pc, #-24]	@ 0x8000000
+ 8000018:	ed80 0a01 	vstr	s0, [r0, #4]
+ 800001c:	ed01 8bff 	vstr	d8, [r1, #-1020]	@ 0xfffffc04
+ 8000020:	ed2d 8a10 	vpush	{s16-s31}
+ 8000024:	ed2d 8b10 	vpush	{d8-d15}
+ 8000028:	ed2d 0a01 	vpush	{s0}
+ 800002c:	ecbd 8a10 	vpop	{s16-s31}
+ 8000030:	ecbd 8b02 	vpop	{d8}
+ 8000034:	ec90 0a04 	vldmia	r0, {s0-s3}
+ 8000038:	ecb0 0b08 	vldmia	r0!, {d0-d3}
+ 800003c:	ed70 0a02 	vldmdb	r0!, {s1-s2}
+ 8000040:	ec80 2a01 	vstmia	r0, {s4}
+ 8000044:	eca1 4b04 	vstmia	r1!, {d4-d5}
+ 8000048:	ed21 0b02 	vstmdb	r1!, {d0}
+ 800004c:	ee00 1a10 	vmov	s0, r1
+ 8000050:	ee11 2a90 	vmov	r2, s3
+ 8000054:	ec43 2a10 	vmov	s0, s1, r2, r3
+ 8000058:	ec53 2a10 	vmov	r2, r3, s0, s1
+ 800005c:	ec43 2b10 	vmov	d0, r2, r3
+ 8000060:	ec53 2b10 	vmov	r2, r3, d0
+ 8000064:	ee00 1b10 	vmov.32	d0[0], r1
+ 8000068:	ee21 1b10 	vmov.32	d1[1], r1
+ 800006c:	ee32 1b10 	vmov.32	r1, d2[1]
+ 8000070:	eeb0 0a60 	vmov.f32	s0, s1
+ 8000074:	eeb0 0b41 	vmov.f64	d0, d1
+ 8000078:	eeb7 0a00 	vmov.f32	s0, #112	@ 0x3f800000  1.0
+ 800007c:	eeb8 0a04 	vmov.f32	s0, #132	@ 0xc0200000 -2.5
+ 8000080:	eeb6 0b00 	vmov.f64	d0, #96	@ 0x3f000000  0.5
+ 8000084:	eef3 0a0f 	vmov.f32	s1, #63	@ 0x41f80000  31.0
+ 8000088:	ee30 0a81 	vadd.f32	s0, s1, s2
+ 800008c:	ee31 0b02 	vadd.f64	d0, d1, d2
+ 8000090:	ee30 0ac1 	vsub.f32	s0, s1, s2
+ 8000094:	ee31 0b4f 	vsub.f64	d0, d1, d15
+ 8000098:	ee20 0a81 	vmul.f32	s0, s1, s2
+ 800009c:	ee21 0b02 	vmul.f64	d0, d1, d2
+ 80000a0:	ee20 0ac1 	vnmul.f32	s0, s1, s2
+ 80000a4:	ee80 0a81 	vdiv.f32	s0, s1, s2
+ 80000a8:	ee81 0b02 	vdiv.f64	d0, d1, d2
+ 80000ac:	ee00 0a81 	vmla.f32	s0, s1, s2
+ 80000b0:	ee00 0ac1 	vmls.f32	s0, s1, s2
+ 80000b4:	ee10 0ac1 	vnmla.f32	s0, s1, s2
+ 80000b8:	ee11 0b02 	vnmls.f64	d0, d1, d2
+ 80000bc:	eea0 0a81 	vfma.f32	s0, s1, s2
+ 80000c0:	eea0 0ac1 	vfms.f32	s0, s1, s2
+ 80000c4:	ee90 0ac1 	vfnma.f32	s0, s1, s2
+ 80000c8:	ee91 0b02 	vfnms.f64	d0, d1, d2
+ 80000cc:	eeb1 0a60 	vneg.f32	s0, s1
+ 80000d0:	eeb1 0b41 	vneg.f64	d0, d1
+ 80000d4:	eeb0 0ae0 	vabs.f32	s0, s1
+ 80000d8:	eeb0 0bc1 	vabs.f64	d0, d1
+ 80000dc:	eeb1 0ae0 	vsqrt.f32	s0, s1
+ 80000e0:	eeb1 0bc1 	vsqrt.f64	d0, d1
+ 80000e4:	eeb4 0a60 	vcmp.f32	s0, s1
+ 80000e8:	eeb4 0ae0 	vcmpe.f32	s0, s1
+ 80000ec:	eeb5 0a40 	vcmp.f32	s0, #0.0
+ 80000f0:	eeb5 0bc0 	vcmpe.f64	d0, #0.0
+ 80000f4:	eeb4 0b41 	vcmp.f64	d0, d1
+ 80000f8:	eeb7 0ae0 	vcvt.f64.f32	d0, s1
+ 80000fc:	eeb7 0bc1 	vcvt.f32.f64	s0, d1
+ 8000100:	eeb8 0ae0 	vcvt.f32.s32	s0, s1
+ 8000104:	eeb8 0a60 	vcvt.f32.u32	s0, s1
+ 8000108:	eeb8 0be0 	vcvt.f64.s32	d0, s1
+ 800010c:	eeb8 0b60 	vcvt.f64.u32	d0, s1
+ 8000110:	eebd 0ae0 	vcvt.s32.f32	s0, s1
+ 8000114:	eebc 0ae0 	vcvt.u32.f32	s0, s1
+ 8000118:	eebd 0a60 	vcvtr.s32.f32	s0, s1
+ 800011c:	eebc 0b41 	vcvtr.u32.f64	s0, d1
+ 8000120:	eebd 0bc1 	vcvt.s32.f64	s0, d1
+ 8000124:	eebe 0a46 	vcvt.s16.f32	s0, s0, #4
+ 8000128:	eebf 0ac6 	vcvt.u32.f32	s0, s0, #20
+ 800012c:	eeba 0a40 	vcvt.f32.s16	s0, s0, #16
+ 8000130:	eebb 0aef 	vcvt.f32.u32	s0, s0, #1
+ 8000134:	eeba 0bcc 	vcvt.f64.s32	d0, d0, #8
+ 8000138:	eeb2 0a60 	vcvtb.f32.f16	s0, s1
+ 800013c:	eeb2 0ae0 	vcvtt.f32.f16	s0, s1
+ 8000140:	eeb3 0a60 	vcvtb.f16.f32	s0, s1
+ 8000144:	eeb3 0ae0 	vcvtt.f16.f32	s0, s1
+ 8000148:	eeb2 0b60 	vcvtb.f64.f16	d0, s1
+ 800014c:	eeb3 0b41 	vcvtb.f16.f64	s0, d1
+ 8000150:	eef1 0a10 	vmrs	r0, fpscr
+ 8000154:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8000158:	eee1 0a10 	vmsr	fpscr, r0
+ 800015c:	eef8 1a10 	vmrs	r1, fpexc
+ 8000160:	eee8 1a10 	vmsr	fpexc, r1
+ 8000164:	feb8 0a60 	vrinta.f32	s0, s1
+ 8000168:	feb9 0b41 	vrintn.f64	d0, d1
+ 800016c:	feba 0a60 	vrintp.f32	s0, s1
+ 8000170:	febb 0a60 	vrintm.f32	s0, s1
+ 8000174:	eeb6 0a60 	vrintr.f32	s0, s1
+ 8000178:	eeb6 0bc1 	vrintz.f64	d0, d1
+ 800017c:	eeb7 0a60 	vrintx.f32	s0, s1
+ 8000180:	febc 0ae0 	vcvta.s32.f32	s0, s1
+ 8000184:	febd 0a60 	vcvtn.u32.f32	s0, s1
+ 8000188:	febe 0bc1 	vcvtp.s32.f64	s0, d1
+ 800018c:	febf 0b41 	vcvtm.u32.f64	s0, d1
+ 8000190:	fe00 0a81 	vseleq.f32	s0, s1, s2
+ 8000194:	fe21 0b02 	vselge.f64	d0, d1, d2
+ 8000198:	fe30 0a81 	vselgt.f32	s0, s1, s2
+ 800019c:	fe10 0a81 	vselvs.f32	s0, s1, s2
+ 80001a0:	fe80 0a81 	vmaxnm.f32	s0, s1, s2
+ 80001a4:	fe81 0b42 	vminnm.f64	d0, d1, d2
+ 80001a8:	bf08      	it	eq
+ 80001aa:	ee30 0a81 	vaddeq.f32	s0, s1, s2
+ 80001ae:	bf18      	it	ne
+ 80001b0:	ee10 0a90 	vmovne	r0, s1
+ 80001b4:	bf00      	nop
+ 80001b6:	bf00      	nop

@@ -1,6 +1,10 @@
 package forms
 
 import (
+	"context"
+	"sync/atomic"
+	"time"
+
 	"github.com/ipoluianov/althex/app"
 	"github.com/ipoluianov/althex/config"
 	"github.com/ipoluianov/althex/install"
@@ -12,6 +16,10 @@ type StatusBar struct {
 	ui.Widget
 
 	lblInfo *ui.Label
+	// The long operations running in the background (6.1): the link cancels them
+	lblCancel *ui.Label
+	tasks     map[int]context.CancelFunc
+	nextTask  int
 
 	// What the install link does: install, update or uninstall
 	installStatus install.Status
@@ -23,13 +31,77 @@ func NewStatusBar() *StatusBar {
 	c.SetPanelPadding(4)
 	c.lblInfo = ui.NewLabel("")
 	c.AddWidget(0, 0, c.lblInfo)
-	c.AddWidget(0, 1, ui.NewHSpacer())
+	c.lblCancel = newLinkLabel(func() string { return T().Cancel }, c.cancelTasks)
+	c.lblCancel.SetVisible(false)
+	c.AddWidget(0, 1, c.lblCancel)
+	c.AddWidget(0, 2, ui.NewHSpacer())
 	// A downloaded copy offers to install or update itself, the installed one to be removed
 	c.installStatus = install.CurrentStatus()
 	if c.installStatus != install.StatusNone {
-		c.AddWidget(0, 2, newLinkLabel(c.installText, c.onInstallLink))
+		c.AddWidget(0, 3, newLinkLabel(c.installText, c.onInstallLink))
 	}
 	return &c
+}
+
+// startTask counts a long operation in: the Cancel link shows while any
+// runs (6.1). Returns its context and the function that ends it, called on
+// the goroutine of the window.
+func (c *StatusBar) startTask() (context.Context, func()) {
+	ctx, cancel := context.WithCancel(context.Background())
+	if c.tasks == nil {
+		c.tasks = make(map[int]context.CancelFunc)
+	}
+	id := c.nextTask
+	c.nextTask++
+	c.tasks[id] = cancel
+	c.lblCancel.SetVisible(true)
+	return ctx, func() {
+		cancel()
+		delete(c.tasks, id)
+		c.lblCancel.SetVisible(len(c.tasks) > 0)
+	}
+}
+
+// cancelTasks cancels the operations running
+func (c *StatusBar) cancelTasks() {
+	for _, cancel := range c.tasks {
+		cancel()
+	}
+}
+
+// background runs work off the window, its progress shown in the status bar
+// as text of the percent of total, with the Cancel link (6.1); done gets
+// the error of work (context.Canceled when canceled) on the goroutine of the
+// window. Returns the function that cancels it.
+func (c *MainForm) background(text func(percent int) string, total int64, work func(ctx context.Context, progress func(done int64)) error, done func(err error)) context.CancelFunc {
+	form := c.Form()
+	taskCtx, end := c.status.startTask()
+	ctx, cancel := context.WithCancel(taskCtx)
+	c.status.SetInfo(text(0))
+	var lastShown atomic.Int64
+	progress := func(d int64) {
+		// Shown at most ten times a second
+		now := time.Now().UnixMilli()
+		if now-lastShown.Load() < 100 || total <= 0 {
+			return
+		}
+		lastShown.Store(now)
+		pct := int(min(d, total) * 100 / total)
+		form.Invoke(func() { c.status.SetInfo(text(pct)) })
+	}
+	go func() {
+		err := work(ctx, progress)
+		if err == nil && ctx.Err() != nil {
+			err = ctx.Err()
+		}
+		form.Invoke(func() {
+			cancel()
+			end()
+			c.updateStatus()
+			done(err)
+		})
+	}()
+	return cancel
 }
 
 // SetInfo sets the text on the left

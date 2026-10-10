@@ -1,0 +1,155 @@
+//! name: Linux ARM zImage
+//! extensions: zimage
+//! magic: 0x24 "18 28 6F 01"
+//! priority: 1
+
+// The 32-bit ARM Linux zImage (arch/arm/boot/compressed/head.S and
+// vmlinux.lds.S): eight NOPs (or the "MZ" header of the EFI stub) and a
+// branch, then the magic 0x016F2818 at 0x24, the start and the end
+// addresses of the image, the endianness flag 0x04030201 (newer kernels)
+// and, after 0x45454545, the offset of a table of tags (KLSZ: where the
+// size of the decompressed kernel is and the size of its BSS). The words
+// are little-endian in a big-endian (BE8) kernel too; only the flag is
+// in the order of the kernel. A device tree appended to the image
+// (CONFIG_ARM_APPENDED_DTB, cat zImage board.dtb) starts at end - start.
+// The priority beats the PE template on a kernel with the EFI stub.
+
+LittleEndian();
+
+local int64 fsize = FileSize();
+
+string EndianComment(uint32 &e) {
+    if (e == 0x04030201)
+        return "little-endian kernel";
+    if (e == 0x01020304)
+        return "big-endian kernel (BE8)";
+    return "no flag: an old kernel";
+}
+
+string SizeComment(uint32 &e) {
+    local int64 size = (int64)e - (int64)ReadUInt(0x28);
+    if (size <= 0)
+        return "";
+    if (size > fsize)
+        return Str("the image has %d bytes, the file is cut", size);
+    return Str("the image has %d bytes", size);
+}
+
+struct ZIMAGE_HEADER {
+    uint32 code[9] <format=hex, comment="NOPs (mov r0, r0 = 0xE1A00000) and a branch over the header">;
+    uint32 magic <format=hex, comment="0x016F2818">;
+    uint32 start <format=hex, comment="the load address; 0 - position independent">;
+    uint32 end <format=hex, comment=SizeComment>;
+    if (fsize >= 0x34)
+        uint32 endian <format=hex, comment=EndianComment>;
+    if (fsize >= 0x3C && ReadUInt(0x34) == 0x45454545) {
+        uint32 table_magic <format=hex, comment="0x45454545: the offset of the tag table follows">;
+        uint32 table_offset <format=hex>;
+    }
+};
+
+struct ZIMAGE_TAG {
+    uint32 size <comment="words, these two included">;
+    uint32 tag <format=hex, comment="0x5A534C4B - KLSZ: the kernel sizes">;
+    if (tag == 0x5A534C4B && size >= 4) {
+        uint32 size_ptr <format=hex, comment="the offset of the word with the size of the decompressed kernel">;
+        uint32 bss_size;
+        if (size >= 5)
+            uint32 text_offset <format=hex>;
+        if (size >= 6)
+            uint32 malloc_size;
+        if (size > 6)
+            uint32 more[size - 6] <format=hex>;
+    } else if (size > 2) {
+        uint32 data[size - 2] <format=hex>;
+    }
+} <read=TagRead>;
+
+string TagRead(ZIMAGE_TAG &t) {
+    if (t.tag == 0x5A534C4B)
+        return Str("KLSZ, %d words", t.size);
+    return Str("0x%08X, %d words", t.tag, t.size);
+}
+
+// The header of the flattened device tree, big-endian
+struct FDT_HEADER {
+    BigEndian();
+    uint32 magic <format=hex, comment="0xD00DFEED">;
+    uint32 totalsize;
+    uint32 off_dt_struct <format=hex>;
+    uint32 off_dt_strings <format=hex>;
+    uint32 off_mem_rsvmap <format=hex>;
+    uint32 version;
+    uint32 last_comp_version;
+    uint32 boot_cpuid_phys;
+    uint32 size_dt_strings;
+    uint32 size_dt_struct;
+    LittleEndian();
+};
+
+if (fsize < 0x30) {
+    Warning("the header is cut");
+    Exit(0);
+}
+
+ZIMAGE_HEADER header <open=true>;
+
+// The tag table, up to the zero size
+local int64 sizePtr = -1;
+local int64 n = 0;
+local int64 sz;
+if (exists(header.table_offset) && header.table_offset >= 0x3C && header.table_offset < fsize) {
+    FSeek(header.table_offset);
+    while (n < 64 && FTell() + 4 <= fsize) {
+        sz = ReadUInt(FTell());
+        if (sz == 0) {
+            uint32 table_end <comment="0 ends the table">;
+            break;
+        }
+        if (sz < 2 || FTell() + sz * 4 > fsize) {
+            Warning("a tag of %d words does not fit", sz);
+            break;
+        }
+        ZIMAGE_TAG tags;
+        if (tags.tag == 0x5A534C4B && exists(tags.size_ptr))
+            sizePtr = tags.size_ptr;
+        n++;
+    }
+}
+
+int64 Earlier(int64 a, int64 b) {
+    if (b >= 0 && (a < 0 || b < a))
+        return b;
+    return a;
+}
+
+// The compressed kernel ends with the word at size_ptr; it starts with
+// the magic of its compressor
+if (sizePtr > 0x30 && sizePtr + 4 <= fsize) {
+    uint32 decompressed_size @ sizePtr <comment="the size of the kernel after decompression">;
+    local int64 best = -1;
+    best = Earlier(best, FindHex("1F 8B 08", 0x30, sizePtr));
+    best = Earlier(best, FindHex("FD 37 7A 58 5A 00", 0x30, sizePtr));
+    best = Earlier(best, FindHex("89 4C 5A 4F 00 0D 0A 1A 0A", 0x30, sizePtr));
+    best = Earlier(best, FindHex("02 21 4C 18", 0x30, sizePtr));
+    best = Earlier(best, FindHex("28 B5 2F FD", 0x30, sizePtr));
+    if (best > 0)
+        uchar compressed_kernel[sizePtr + 4 - best] @ best <comment="gzip 1F 8B, xz FD 37 7A 58 5A, lzo 89 4C 5A 4F, lz4 02 21 4C 18, zstd 28 B5 2F FD; it ends with the size">;
+}
+
+// A device tree appended to the image
+local int64 imgEnd = (int64)header.end - (int64)header.start;
+if (imgEnd > 0 && imgEnd + 40 <= fsize && ReadUInt(imgEnd) == 0xEDFE0DD0) {
+    FSeek(imgEnd);
+    FDT_HEADER appended_dtb <open=true, comment="the device tree appended to the image">;
+    local int64 total = appended_dtb.totalsize;
+    if (total > 40 && imgEnd + total <= fsize)
+        uchar appended_dtb_data[total - 40];
+    else
+        Warning("the appended device tree is cut");
+    if (FTell() < fsize)
+        uchar after_dtb[fsize - FTell()];
+} else if (imgEnd > 0 && imgEnd < fsize) {
+    FSeek(imgEnd);
+    uchar after_image[fsize - imgEnd] <comment="past the end of the image">;
+}

@@ -1,0 +1,169 @@
+//! name: QCOW2 disk image
+//! priority: 1
+//! extensions: qcow2, qcow
+//! magic: 0 "51 46 49 FB 00 00 00 02"
+//! magic: 0 "51 46 49 FB 00 00 00 03"
+
+// QEMU copy-on-write image, versions 2 and 3 (docs/interop/qcow2.txt): the
+// header, header extensions (version 3), the backing file name, the L1
+// table of the L2 tables, which map the clusters of the disk, the refcount
+// table and the snapshots. All numbers are big-endian.
+
+BigEndian();
+
+// Tables shown as fields
+local int64 MAX_L2_TABLES = 64;
+local int64 MAX_SNAPSHOTS = 1000;
+local int64 MAX_EXTENSIONS = 256;
+
+enum <uint32> QCOW_CRYPT { CRYPT_NONE = 0, CRYPT_AES = 1, CRYPT_LUKS = 2 };
+enum <uchar> QCOW_COMPRESSION { COMPRESSION_DEFLATE = 0, COMPRESSION_ZSTD = 1 };
+
+enum <uint32> QCOW_EXTENSION {
+    EXT_END = 0,
+    EXT_BACKING_FORMAT = 0xE2792ACA,
+    EXT_FEATURE_NAMES = 0x6803F857,
+    EXT_BITMAPS = 0x23852875,
+    EXT_FULL_DISK_ENCRYPTION = 0x0537BE77,
+    EXT_EXTERNAL_DATA_FILE = 0x44415441
+};
+
+struct QCOW_HEADER {
+    char   magic[4] <comment="QFI FB">;
+    uint32 version;
+    uint64 backingFileOffset <format=hex>;
+    uint32 backingFileSize;
+    uint32 clusterBits <comment="the cluster is 1 << clusterBits bytes">;
+    uint64 size <comment="the size of the disk">;
+    QCOW_CRYPT cryptMethod;
+    uint32 l1Size <comment="entries">;
+    uint64 l1TableOffset <format=hex>;
+    uint64 refcountTableOffset <format=hex>;
+    uint32 refcountTableClusters;
+    uint32 nbSnapshots;
+    uint64 snapshotsOffset <format=hex>;
+    if (version >= 3 && FileSize() >= 104) {
+        // Bit 0 is the lowest one
+        BitfieldRightToLeft();
+        uint64 dirty : 1;
+        uint64 corrupt : 1;
+        uint64 externalDataFile : 1;
+        uint64 compressionType : 1;
+        uint64 extendedL2 : 1;
+        uint64 otherIncompatible : 59;
+        uint64 lazyRefcounts : 1;
+        uint64 otherCompatible : 63;
+        uint64 bitmapsExtension : 1;
+        uint64 rawExternalData : 1;
+        uint64 otherAutoclear : 62;
+        BitfieldByteOrder();
+        uint32 refcountOrder <comment="refcounts are 1 << refcountOrder bits">;
+        uint32 headerLength;
+        if (headerLength > 104 && headerLength <= Min(4096, FileSize())) {
+            QCOW_COMPRESSION compressionTypeValue;
+            if (headerLength > 105)
+                uchar padding[headerLength - 105];
+        }
+    }
+};
+
+struct QCOW_EXTENSION_HEADER {
+    QCOW_EXTENSION type;
+    uint32 length;
+    if (length > 0 && length <= FileSize() - FTell()) {
+        if (type == EXT_BACKING_FORMAT || type == EXT_EXTERNAL_DATA_FILE)
+            char text[length];
+        else
+            uchar data[length];
+        if ((length & 7) != 0 && FileSize() - FTell() >= 8 - (length & 7))
+            uchar padding[8 - (length & 7)];
+    }
+};
+
+struct QCOW_L2_TABLE(int64 n) {
+    uint64 entry[n] <format=hex, comment="bit 63 - copied, 62 - compressed, 0 - zeros; the host offset in bits 9-55">;
+};
+
+struct QCOW_SNAPSHOT {
+    uint64 l1TableOffset <format=hex>;
+    uint32 l1Size;
+    uint16 idStrSize;
+    uint16 nameSize;
+    uint32 dateSec;
+    uint32 dateNsec;
+    uint64 vmClockNsec;
+    uint32 vmStateSize;
+    uint32 extraDataSize;
+    if (extraDataSize > 0 && extraDataSize <= FileSize() - FTell())
+        uchar extraData[extraDataSize];
+    if (idStrSize > 0 && idStrSize <= FileSize() - FTell())
+        char id[idStrSize];
+    if (nameSize > 0 && nameSize <= FileSize() - FTell())
+        char name[nameSize];
+    // Each snapshot starts at a multiple of 8
+    local int64 pad = (8 - (FTell() & 7)) & 7;
+    if (pad > 0 && pad <= FileSize() - FTell())
+        uchar padding[pad];
+};
+
+local int64 size = FileSize();
+local int ok = 0;
+if (size >= 72) {
+    QCOW_HEADER header <open=true>;
+    ok = 1;
+}
+
+if (ok) {
+    local int64 cluster = 0;
+    if (header.clusterBits >= 9 && header.clusterBits <= 21)
+        cluster = 1 << header.clusterBits;
+
+    // Header extensions follow the header, up to the end of the cluster
+    if (header.version >= 3 && exists(header.headerLength) && header.headerLength >= 104 && header.headerLength < size) {
+        FSeek(header.headerLength);
+        local int64 n = 0;
+        while (FileSize() - FTell() >= 8 && n < MAX_EXTENSIONS) {
+            QCOW_EXTENSION_HEADER extension;
+            n++;
+            if (extension[n - 1].type == EXT_END)
+                break;
+        }
+    }
+
+    if (header.backingFileOffset > 0 && header.backingFileOffset < size && header.backingFileSize > 0)
+        char backingFile[Min(header.backingFileSize, size - header.backingFileOffset)] @ header.backingFileOffset;
+
+    // The L1 table and the first L2 tables it points to
+    local int64 l1 = header.l1TableOffset;
+    if (l1 > 0 && l1 < size && header.l1Size > 0) {
+        local int64 l1n = Min(header.l1Size, (size - l1) / 8);
+        if (l1n > 0)
+            uint64 l1Table[l1n] @ l1 <format=hex, comment="the offset of each L2 table in bits 9-55; bit 63 - copied">;
+        if (cluster > 0) {
+            local int64 i;
+            local int64 shown = 0;
+            local int64 at;
+            for (i = 0; i < l1n && shown < MAX_L2_TABLES; i++) {
+                at = ReadUInt64(l1 + i * 8) & 0x00FFFFFFFFFFFE00;
+                if (at == 0 || at > size - cluster)
+                    continue;
+                QCOW_L2_TABLE l2Table(cluster / 8) @ at;
+                shown++;
+            }
+        }
+    }
+
+    local int64 rt = header.refcountTableOffset;
+    if (rt > 0 && rt < size && cluster > 0) {
+        local int64 rn = Min(header.refcountTableClusters * cluster, size - rt) / 8;
+        if (rn > 0)
+            uint64 refcountTable[rn] @ rt <format=hex, comment="the offsets of the refcount blocks">;
+    }
+
+    if (header.nbSnapshots > 0 && header.snapshotsOffset > 0 && header.snapshotsOffset < size) {
+        FSeek(header.snapshotsOffset);
+        local int64 s;
+        for (s = 0; s < header.nbSnapshots && s < MAX_SNAPSHOTS && FileSize() - FTell() >= 40; s++)
+            QCOW_SNAPSHOT snapshot;
+    }
+}

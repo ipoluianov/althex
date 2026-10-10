@@ -1,0 +1,91 @@
+//! name: GRUB boot.img / core.img
+//! extensions: img
+//! priority: -2
+//! magic: 0x180 "47 52 55 42 20 00 47 65 6F 6D"
+
+// GRUB 2 for BIOS (grub-core/boot/i386/pc). boot.img is the MBR: a jump,
+// the BPB area (kept from the disk when installed), the kernel sector
+// (the LBA of core.img) at 0x5C, the boot drive at 0x64, the code, the
+// partition table and 55 AA. core.img starts with diskboot.img, a sector
+// whose end holds blocklists of 12 bytes (going down from 0x1F4): the
+// sectors of the rest of core.img; then lzma_decompress.img and the
+// compressed kernel with its modules.
+//
+// The magic is the "GRUB " message of boot.img at 0x180 of the GRUB 2.x
+// boot.img; the template can be chosen by hand for other builds and for
+// core.img.
+
+LittleEndian();
+
+local int64 fsize = FileSize();
+
+string DriveComment(uchar &d) {
+    if (d == 0xFF)
+        return "0xFF: the drive the BIOS booted from (DL)";
+    if (d >= 0x80)
+        return "a hard disk";
+    return "a floppy";
+}
+
+struct PARTITION {
+    uchar  status <format=hex, comment="0x80 - active">;
+    uchar  chs_first[3] <format=hex>;
+    uchar  type <format=hex>;
+    uchar  chs_last[3] <format=hex>;
+    uint32 lba_first;
+    uint32 sectors;
+};
+
+struct BOOT_IMG {
+    uchar  jump[2] <format=hex, comment="jmp to the code after the BPB">;
+    uchar  nop <format=hex>;
+    uchar  bpb[0x57] <comment="the BIOS parameter block area (0x03-0x59), kept from the disk">;
+    uchar  unused[2];
+    uint64 kernel_sector <comment="the LBA of the first sector of core.img">;
+    uchar  boot_drive <format=hex, comment=DriveComment>;
+    uchar  code[0x1B8 - 0x65];
+    uint32 disk_signature <format=hex>;
+    uint16 reserved;
+    PARTITION partition[4];
+    uint16 signature <format=hex, comment="0xAA55">;
+};
+
+struct BLOCKLIST {
+    uint64 start <comment="the LBA of the sectors">;
+    uint16 len <comment="how many sectors; 0 ends the list">;
+    uint16 segment <format=hex, comment="where they are loaded">;
+};
+
+struct DISKBOOT_IMG {
+    uchar code[0x200 - 12 * 1];
+    BLOCKLIST firstlist <open=true>;
+};
+
+if (fsize < 512) {
+    Warning("less than a sector");
+    Exit(0);
+}
+
+// diskboot.img has no 55 AA; boot.img has it
+if (ReadUShort(510) == 0xAA55) {
+    BOOT_IMG boot_img <open=true>;
+} else {
+    // The blocklists go down from the end of the sector; the code holds
+    // the others
+    local int64 n = 0;
+    while (n < 20 && ReadUShort(0x1F4 - 12 * n + 8) != 0)
+        n++;
+    if (n <= 1) {
+        DISKBOOT_IMG diskboot <open=true>;
+    } else {
+        uchar code[0x200 - 12 * n];
+        local int64 i;
+        for (i = n - 1; i >= 0; i--) {
+            FSeek(0x1F4 - 12 * i);
+            BLOCKLIST blocklist;
+        }
+    }
+    FSeek(512);
+    if (fsize > 512)
+        uchar decompressor_and_kernel[fsize - 512] <comment="lzma_decompress.img, the kernel and the modules">;
+}

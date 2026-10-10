@@ -58,8 +58,9 @@ if [ "$GOOS_T" = "linux" ]; then
 
   # Archive for scripts/linux-install.sh: the binary and the menu icon
   cp icon.svg bin/.pkg/althex.svg
+  cp app/notices.txt bin/.pkg/NOTICES.txt
   chmod 755 bin/.pkg/althex
-  tar -czf "${DIR}/${APP}-${VERSION}-linux-${GOARCH_T}.tar.gz" -C bin/.pkg althex althex.svg
+  tar -czf "${DIR}/${APP}-${VERSION}-linux-${GOARCH_T}.tar.gz" -C bin/.pkg althex althex.svg NOTICES.txt
   rm -rf bin/.pkg
 
   # The installer downloads the archive for its machine from the release of

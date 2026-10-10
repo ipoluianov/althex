@@ -1,0 +1,408 @@
+Notices of the register descriptions (CMSIS-SVD) the peripheral database is made of.
+Their licences ask for these notices to be reproduced with binary distributions.
+
+------------------------------------------------------------------------------
+ATSAM3X8E
+
+SAM Software Package License
+
+Copyright (c) %copyright_year%, Atmel Corporation
+
+- Redistributions of source code must retain the above copyright notice,
+
+------------------------------------------------------------------------------
+ATSAMD21
+
+Copyright (c) 2018 Microchip Technology Inc.
+
+SPDX-License-Identifier: Apache-2.0
+
+Licensed under the Apache License, Version 2.0 (the "License");
+
+you may not use this file except in compliance with the License.
+
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+
+distributed under the License is distributed on an "AS IS" BASIS,
+
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+See the License for the specific language governing permissions and
+
+limitations under the License.
+
+------------------------------------------------------------------------------
+ATSAMD51, ATSAME5x, ATSAME70
+
+Copyright (c) 2017 Microchip Technology Inc.
+
+SPDX-License-Identifier: Apache-2.0
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+------------------------------------------------------------------------------
+ATSAMR21
+
+Atmel Microcontroller Software Support
+
+Copyright (c) 2016 Atmel Corporation,
+
+a wholly owned subsidiary of Microchip Technology Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+
+you may not use this file except in compliance with the License.
+
+You may obtain a copy of the Licence at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+
+distributed under the License is distributed on an "AS IS" BASIS,
+
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+See the License for the specific language governing permissions and
+
+limitations under the License.
+
+------------------------------------------------------------------------------
+ESP32, ESP32-C2, ESP32-C3, ESP32-C6, ESP32-H2, ESP32-S2, ESP32-S3
+
+Copyright 2023 Espressif Systems (Shanghai) PTE LTD
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+------------------------------------------------------------------------------
+GD32VF103
+
+Copyright 2019 Sipeed Co.,Ltd.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+------------------------------------------------------------------------------
+LPC55S69
+
+Copyright 2016-2020 NXP
+All rights reserved.
+
+SPDX-License-Identifier: BSD-3-Clause
+
+------------------------------------------------------------------------------
+MIMXRT1062
+
+Copyright 2016-2019 NXP
+All rights reserved.
+
+SPDX-License-Identifier: BSD-3-Clause
+
+------------------------------------------------------------------------------
+MK20D7, MK64F12, MK66F18, MKL25Z4, MKL26Z4
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+o Redistributions of source code must retain the above copyright notice, this list
+of conditions and the following disclaimer.
+o Redistributions in binary form must reproduce the above copyright notice, this
+list of conditions and the following disclaimer in the documentation and/or
+other materials provided with the distribution.
+o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+contributors may be used to endorse or promote products derived from this
+software without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+------------------------------------------------------------------------------
+MSP432P401R
+
+Copyright (C) 2012-2018 Texas Instruments Incorporated - http://www.ti.com/
+
+Redistribution and use in source and binary forms, with or without
+
+modification, are permitted provided that the following conditions
+
+are met:
+
+Redistributions of source code must retain the above copyright
+
+notice, this list of conditions and the following disclaimer.
+
+Redistributions in binary form must reproduce the above copyright
+
+notice, this list of conditions and the following disclaimer in the
+
+documentation and/or other materials provided with the
+
+distribution.
+
+Neither the name of Texas Instruments Incorporated nor the names of
+
+its contributors may be used to endorse or promote products derived
+
+from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+------------------------------------------------------------------------------
+RP2040
+
+Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
+
+SPDX-License-Identifier: BSD-3-Clause
+
+Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
+
+SPDX-License-Identifier: BSD-3-Clause
+
+------------------------------------------------------------------------------
+RP2350
+
+Copyright (c) 2024 Raspberry Pi Ltd.
+
+SPDX-License-Identifier: BSD-3-Clause
+
+Copyright (c) 2024 Raspberry Pi Ltd.
+
+SPDX-License-Identifier: BSD-3-Clause
+
+------------------------------------------------------------------------------
+STM32F301, STM32F302, STM32F303, STM32F373, STM32F3x4, STM32F72x/73x, STM32F745/746, STM32F765/767, STM32F769, STM32L0x0, STM32L0x1, STM32L0x2, STM32L0x3, STM32L100, STM32L151, STM32L152, STM32U575/585
+
+Copyright (c) 2023 STMicroelectronics.
+
+SPDX-License-Identifier: Apache-2.0
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+------------------------------------------------------------------------------
+STM32F401, STM32F405, STM32F407, STM32F410, STM32F411, STM32F412, STM32F413, STM32F427, STM32F429, STM32F446, STM32F469, STM32G030, STM32G031, STM32G070, STM32G071, STM32G0B1, STM32L412/422, STM32L432/442, STM32L433/443, STM32L452/462, STM32L475/476/486, STM32L496/4A6, STM32L552, STM32U073/083, STM32WB15 (CM4), STM32WB35 (CM4), STM32WB55 (CM4), STM32WL5x (CM4), STM32WLE5
+
+Copyright (c) 2024 STMicroelectronics.
+
+SPDX-License-Identifier: Apache-2.0
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+------------------------------------------------------------------------------
+STM32C031, STM32C071, STM32G431, STM32G474, STM32G491, STM32H503, STM32H562/563/573, STM32H723/733, STM32H742/743, STM32H745/755 (CM7), STM32H747/757 (CM7), STM32H750, STM32H7A3/7B3, STM32L4R5/R7/S5, STM32WBA5x
+
+Copyright (c) 2025 STMicroelectronics.
+
+SPDX-License-Identifier: Apache-2.0
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+------------------------------------------------------------------------------
+XMC1100
+
+Copyright (C) 2016 Infineon Technologies AG. All rights reserved.
+
+Infineon Technologies AG (Infineon) is supplying this software for use with
+Infineon's microcontrollers.  This file can be freely distributed within
+development tools that are supporting such microcontrollers.
+
+THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
+OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
+INFINEON SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL,
+OR CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+
+------------------------------------------------------------------------------
+XMC4700/4800
+
+Copyright (c) 2016, Infineon Technologies AG
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,are permitted provided that the
+following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+disclaimer.
+
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+disclaimer in the documentation and/or other materials provided with the distribution.
+
+Neither the name of the copyright holders nor the names of its contributors may be used to endorse or promote
+products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE  FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+To improve the quality of the software, users are encouraged to share modifications, enhancements or bug fixes with
+Infineon Technologies AG dave@infineon.com).
+
+------------------------------------------------------------------------------
+nRF51, nRF52832, nRF52833, nRF52840, nRF9160
+
+Copyright (c) 2010 - 2021, Nordic Semiconductor ASA All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+
+list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright
+
+notice, this list of conditions and the following disclaimer in the
+
+documentation and/or other materials provided with the distribution.
+
+3. Neither the name of Nordic Semiconductor ASA nor the names of its
+
+contributors may be used to endorse or promote products derived from this
+
+software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+
+IMPLIED WARRANTIES OF MERCHANTABILITY, AND FITNESS FOR A PARTICULAR PURPOSE
+
+ARE DISCLAIMED. IN NO EVENT SHALL NORDIC SEMICONDUCTOR ASA OR CONTRIBUTORS BE
+
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+
+POSSIBILITY OF SUCH DAMAGE.
+
+------------------------------------------------------------------------------
+nRF5340 (application), nRF5340 (network)
+
+Copyright (c) 2010 - 2021, Nordic Semiconductor ASA All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+
+3. Neither the name of Nordic Semiconductor ASA nor the names of its
+contributors may be used to endorse or promote products derived from this
+software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY, AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL NORDIC SEMICONDUCTOR ASA OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.

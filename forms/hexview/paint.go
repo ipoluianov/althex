@@ -47,6 +47,7 @@ func (v *View) paint(cnv *ui.Canvas) {
 type rowCtx struct {
 	off      int64 // of the row
 	n        int   // bytes in the row
+	bad      bool  // some bytes could not be read (rowBad)
 	y, base  int   // the top and the baseline
 	ready    bool
 	data     []byte // the bytes of the row
@@ -69,6 +70,7 @@ func (v *View) draw(pc *paintCtx, w, h int) {
 	if len(v.rowBuf) != bpr {
 		v.rowBuf = make([]byte, bpr)
 		v.rowMark = make([]bool, bpr)
+		v.rowBad = make([]bool, bpr)
 	}
 	selStart, selLen := v.Selection()
 	caretRow := v.caret / int64(bpr)
@@ -98,6 +100,7 @@ func (v *View) draw(pc *paintCtx, w, h int) {
 		rc.n, rc.ready = snap.TryReadAt(v.rowBuf, off, v.dataArrived)
 		rc.data = v.rowBuf[:rc.n]
 		snap.Edited(off, v.rowMark[:rc.n])
+		rc.bad = snap.Unreadable(off, v.rowBad[:rc.n])
 		v.drawBands(pc, &rc)
 		v.drawNumbers(pc, &rc)
 		v.drawText(pc, &rc, snap)
@@ -240,6 +243,13 @@ func (v *View) drawNumbers(pc *paintCtx, rc *rowCtx) {
 		x := pc.ox + v.cellX(i)
 		if !rc.ready {
 			fillRect(pc.img, pc.clip, x, rc.y+lh/2-1, v.cellW-cw/3, 2, pc.pal.placeholder)
+			continue
+		}
+		if rc.bad && v.rowBad[j] {
+			// A bad sector: the bytes are not known
+			for d := 0; d < digits; d++ {
+				f.DrawChar(pc.img, pc.clip, x+d*cw, rc.base, '?', pc.pal.edited)
+			}
 			continue
 		}
 		b := rc.data[j]

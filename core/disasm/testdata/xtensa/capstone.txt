@@ -1,0 +1,4002 @@
+# random words, Capstone ESP32: bytes, length, mnemonic, operands
+# 100000 words: same length and mnemonic 94811
+4204cb	3	l8ui	a4, a4, 0xcb
+1e34c5	0		
+8e9b20	0		
+7909	2	s32i.n	a7, a9, 0
+0ca3d3	2	movi.n	a3, 0xa
+7296cd	3	l16si	a7, a6, 0x19a
+58a511	2	l32i.n	a5, a5, 0x28
+98fe	2	l32i.n	a9, a14, 0x3c
+8df9e4	0		
+5fb54a	0		
+45ffd9	3	call0	. -0x26008
+?ecbf	0		
+352a09	3	call12	. +0x92a4
+16ed74	3	beqz	a13, . +0x752
+2bb908	2	addi.n	a11, a9, 2
+4a7e	2	add.n	a7, a14, a4
+1e0e04	0		
+b51162	3	call12	. +0x6211c
+d1a417	3	l32r	a13, . 0x40045e90
+2b3d	2	addi.n	a3, a13, 2
+569a0d	3	bnez	a10, . +0xdd
+5fa0a8	0		
+f099e2	3	remu	a9, a9, a15
+6b98	2	addi.n	a9, a8, 6
+6b1619	2	addi.n	a1, a6, 6
+f1de3e	3	l32r	a15, . 0x4004fb78
+b63388	3	bltui	a3, 3, . -0x74
+1bf6	2	addi.n	a15, a6, 1
+991257	2	s32i.n	a9, a2, 4
+526045	3	s32i	a5, a0, 0x114
+ef8722	0		
+f885	2	l32i.n	a15, a5, 0x20
+1a2d5b	2	add.n	a2, a13, a1
+258585	3	call8	. -0x7a7ac
+95c74d	3	call4	. +0x4dc7c
+8946	2	s32i.n	a8, a6, 0x10
+2777d4	3	bbci	a7, 0x12, . -0x28
+bd07e8	2	mov.n	a11, a7
+c87536	2	l32i.n	a12, a5, 0x1c
+fb02	2	addi.n	a0, a2, 0xf
+2a466b	2	add.n	a4, a6, a2
+928c0f	0		
+eae3f4	2	add.n	a14, a3, a14
+2cc9	2	movi.n	a9, 0x2c
+?22bc04	0		
+90f5e7	0		
+f5255b	3	call12	. +0x5b260
+cdee	0		
+0606cf	3	j	. -0xc3e4
+3dd0e9	0		
+7af111	2	add.n	a15, a1, a7
+3c73	2	movi.n	a3, 0x37
+49cfa8	2	s32i.n	a4, a15, 0x30
+d243a1	3	s8i	a13, a3, 0xa1
+0561c2	3	call0	. -0x3d9ec
+3a1d	2	add.n	a1, a13, a3
+961c41	3	bltz	a12, . +0x415
+d08d3e	0		
+d5014f	3	call4	. +0x4f020
+eb4d	2	addi.n	a4, a13, 0xe
+4cd0da	2	movi.n	a0, 0x4d
+9203fe	3	l8ui	a9, a3, 0xfe
+0edc53	0		
+faf0	2	add.n	a15, a0, a15
+3ea67d	0		
+f2a65f	3	movi	a15, 0x65f
+025a72	3	s16i	a0, a10, 0xe4
+3d2f	0		
+571874	3	beq	a8, a5, . +0x78
+d3239d	0		
+268f00	3	beqi	a15, 8, . +4
+0cac	2	movi.n	a12, 0xa
+7d1f6b	0		
+b030a4	3	extui	a3, a11, 0, 0xb
+0567a0	3	call0	. -0x5f98c
+e83b	2	l32i.n	a14, a11, 0xc
+0faa24	0		
+b00acb	3	movf.s	f0, f10, b11
+46e172	3	j	. +0x1cb89
+1a43	2	add.n	a4, a3, a1
+836c56	0		
+4f3a06	0		
+b76dd6	3	bbci	a13, 0xb, . -0x26
+fdd3	0		
+f4de9d	0		
+64ac21	0		
+ebfd6e	2	addi.n	a15, a13, 0xe
+?fc55	0		
+144f9e	0		
+53bedc	0		
+7e8998	0		
+08c6	2	l32i.n	a0, a6, 0x30
+034473	3	ssi	f0, a4, 0x1cc
+865fff	3	j	. -0x27e
+f25734	3	s16i	a15, a7, 0x68
+a864	2	l32i.n	a10, a4, 0x18
+7c7c5c	2	movi.n	a12, -9
+d473a4	0		
+1a50b9	2	add.n	a5, a0, a1
+5c7f	2	movi.n	a15, 0x57
+?acf94b	0		
+bbf859	2	addi.n	a15, a8, 0xb
+9db574	0		
+bb30	2	addi.n	a3, a0, 0xb
+49609f	2	s32i.n	a4, a0, 0x18
+ef37c3	0		
+6aac09	2	add.n	a10, a12, a6
+1bd3	2	addi.n	a13, a3, 1
+6aff43	2	add.n	a15, a15, a6
+702dcf	0		
+6494a5	0		
+4b90	2	addi.n	a9, a0, 4
+b03659	0		
+c7c4b9	3	bnall	a4, a12, . -0x43
+d8c496	2	l32i.n	a13, a4, 0x30
+7a7f	2	add.n	a7, a15, a7
+9f4768	0		
+58cfe1	2	l32i.n	a5, a15, 0x30
+3407fb	0		
+da47	2	add.n	a4, a7, a13
+904769	0		
+8ee875	0		
+78fbd9	2	l32i.n	a7, a11, 0x3c
+bd77	0		
+1f547d	0		
+?e2fa74	0		
+f418ac	0		
+4acd	2	add.n	a12, a13, a4
+ee3865	0		
+fe416f	0		
+14ae2f	0		
+78a4	2	l32i.n	a7, a4, 0x28
+8e35df	0		
+7c3481	2	movi.n	a4, -0xd
+217ab1	3	l32r	a2, . 0x4006c5e8
+?fce1	0		
+1c9d96	2	movi.n	a13, 0x19
+?9cc900	0		
+0e5523	0		
+5aaa	2	add.n	a10, a10, a5
+94a42d	0		
+c29d45	3	l16si	a12, a13, 0x8a
+5e3f7e	0		
+fdea	0		
+0c8f48	2	movi.n	a15, 8
+d3c9da	3	ssiu	f13, a9, 0x368
+298d18	2	s32i.n	a2, a13, 0x20
+da1a	2	add.n	a1, a10, a13
+1fab01	0		
+6c0725	2	movi.n	a7, -0x20
+b098c4	3	extui	a9, a11, 8, 0xd
+2ca7	2	movi.n	a7, 0x2a
+6b1dee	2	addi.n	a1, a13, 6
+a4caa9	0		
+3a972e	2	add.n	a9, a7, a3
+e88c	2	l32i.n	a14, a12, 0x20
+e81046	2	l32i.n	a14, a0, 4
+5e41d4	0		
+95eac8	3	call4	. -0x37154
+9ab5	2	add.n	a11, a5, a9
+eb7fdf	2	addi.n	a7, a15, 0xe
+480595	2	l32i.n	a4, a5, 0
+ded2b1	0		
+1a4e	2	add.n	a4, a14, a1
+d10140	3	l32r	a13, . 0x40050004
+8f5250	0		
+f4646a	0		
+e83c	2	l32i.n	a14, a12, 0xc
+61e4cc	3	l32r	a6, . 0x40073390
+065655	3	j	. +0x1555c
+1ebbd7	0		
+?8c8f	0		
+59631d	2	s32i.n	a5, a3, 0x18
+07fefc	3	bbsi	a14, 0x10, . 0
+5fbd72	0		
+986e	2	l32i.n	a9, a14, 0x18
+a6b1bf	3	blti	a1, 0x10, . -0x3d
+4bbad7	2	addi.n	a11, a10, 4
+7abb82	2	add.n	a11, a11, a7
+5d2e	0		
+6386be	3	lsiu	f6, a6, 0x2f8
+0dd0ef	0		
+69c22f	2	s32i.n	a6, a2, 0x30
+1af5	2	add.n	a15, a5, a1
+713727	3	l32r	a7, . 0x40049cdc
+c88042	2	l32i.n	a12, a0, 0x20
+45d436	3	call0	. +0x36d48
+edb3	0		
+581367	2	l32i.n	a5, a3, 4
+08833d	2	l32i.n	a0, a3, 0x20
+0eb54e	0		
+f8c6	2	l32i.n	a15, a6, 0x30
+19bd72	2	s32i.n	a1, a13, 0x2c
+5f85d4	0		
+7ba335	2	addi.n	a10, a3, 7
+d85c	2	l32i.n	a13, a12, 0x14
+111272	3	l32r	a1, . 0x4005c848
+1ffaca	0		
+3baed0	2	addi.n	a10, a14, 3
+fbb9	2	addi.n	a11, a9, 0xf
+89019a	2	s32i.n	a8, a1, 0
+5adf8e	2	add.n	a13, a15, a5
+4a3631	2	add.n	a3, a6, a4
+dd78	0		
+?aca001	0		
+401051	0		
+8dc4bd	0		
+f899	2	l32i.n	a15, a9, 0x24
+a87e93	2	l32i.n	a10, a14, 0x1c
+eb554f	2	addi.n	a5, a5, 0xe
+37913e	3	bne	a1, a3, . +0x42
+bd9c	0		
+8d9cf1	0		
+?bce61f	0		
+ea5c53	2	add.n	a5, a12, a14
+?cc0b	0		
+5409ab	0		
+c0fa6d	0		
+91ebe2	3	l32r	a9, . 0x40078bac
+d84f	2	l32i.n	a13, a15, 0x10
+cb710f	2	addi.n	a7, a1, 0xc
+a9e9fc	2	s32i.n	a10, a9, 0x38
+9a39b6	2	add.n	a3, a9, a9
+4a4a	2	add.n	a4, a10, a4
+50cb06	0		
+3882ea	2	l32i.n	a3, a2, 0x20
+9d49d6	0		
+cd67	0		
+0f0c97	0		
+4265f7	3	s32i	a4, a5, 0x3dc
+340656	0		
+6ada	2	add.n	a13, a10, a6
+e204a9	3	l8ui	a14, a4, 0xa9
+8f7317	0		
+a33087	0		
+eb75	2	addi.n	a7, a5, 0xe
+bf8bf3	0		
+1bae74	2	addi.n	a10, a14, 1
+fdefe3	0		
+6dcb	0		
+9171e0	3	l32r	a9, . 0x400781c4
+e085ae	0		
+11845f	3	l32r	a1, . 0x40057e10
+4ce4	2	movi.n	a4, 0x4e
+9910fd	2	s32i.n	a9, a0, 4
+4fbecb	0		
+c4fc6a	0		
+f9f9	2	s32i.n	a15, a9, 0x3c
+?fc29e9	0		
+c7c23b	3	bnall	a2, a12, . +0x3f
+c54d90	3	call0	. -0x6fb20
+8b22	2	addi.n	a2, a2, 8
+f55653	3	call12	. +0x53570
+166ba0	3	beqz	a11, . -0x5f6
+88b70f	2	l32i.n	a8, a7, 0x2c
+09c4	2	s32i.n	a0, a4, 0x30
+?dcbc7c	0		
+0e8c58	0		
+6636cc	3	bnei	a6, 3, . -0x30
+8960	2	s32i.n	a8, a0, 0x18
+2150f3	3	l32r	a2, . 0x4007cd40
+99c003	2	s32i.n	a9, a0, 0x30
+bda05a	0		
+881d	2	l32i.n	a8, a13, 4
+5960a6	2	s32i.n	a5, a0, 0x18
+4633e4	3	j	. -0x6f2f
+8245d4	3	s8i	a8, a5, 0xd4
+8993	2	s32i.n	a8, a3, 0x24
+1590bb	3	call4	. -0x446fc
+0f1fb0	0		
+2c7066	2	movi.n	a0, 0x27
+5899	2	l32i.n	a5, a9, 0x24
+cf1b7c	0		
+9a7379	2	add.n	a7, a3, a9
+75e91b	3	call12	. +0x1be98
+db89	2	addi.n	a8, a9, 0xd
+7e0b5c	0		
+4a8a86	2	add.n	a8, a10, a4
+007215	3	extui	a7, a0, 0x12, 2
+3bad	2	addi.n	a10, a13, 3
+8b9632	2	addi.n	a9, a6, 8
+9977eb	2	s32i.n	a9, a7, 0x1c
+cbbf19	2	addi.n	a11, a15, 0xc
+b8b5	2	l32i.n	a11, a5, 0x2c
+de22e6	0		
+6811d1	2	l32i.n	a6, a1, 4
+044923	0		
+3deb	0		
+?ccaafe	0		
+3e61ce	0		
+c2c237	3	addi	a12, a2, 0x37
+884c	2	l32i.n	a8, a12, 0x10
+ef8bcb	0		
+324690	3	s8i	a3, a6, 0x90
+5d6c2e	0		
+287c	2	l32i.n	a2, a12, 0x1c
+bf5ad8	0		
+752d18	3	call12	. +0x182d8
+?92bec8	0		
+594e	2	s32i.n	a5, a14, 0x10
+ad544b	0		
+af55c5	0		
+80ae66	0		
+1b19	2	addi.n	a1, a9, 1
+268a6e	3	beqi	a10, 8, . +0x72
+5c1202	2	movi.n	a2, 0x51
+940e71	3	umul.aa.hl	a14, a9
+bd80	0		
+984dc7	2	l32i.n	a9, a13, 0x10
+2ab0f3	2	add.n	a11, a0, a2
+359f6c	3	call12	. +0x6c9f4
+4919	2	s32i.n	a4, a9, 4
+950a36	3	call4	. +0x360ac
+1d2ae3	0		
+3611cc	3	entry	a1, 0x6608
+2cbb	2	movi.n	a11, 0x2b
+5ad3a8	2	add.n	a13, a3, a5
+a2493d	3	s8i	a10, a9, 0x3d
+dd38c7	0		
+3b3d	2	addi.n	a3, a13, 3
+74c1c1	0		
+fb63e9	2	addi.n	a6, a3, 0xf
+9d1941	0		
+4be8	2	addi.n	a14, a8, 4
+30e44f	0		
+796193	2	s32i.n	a7, a1, 0x18
+b84552	2	l32i.n	a11, a5, 0x10
+1940	2	s32i.n	a1, a0, 0x10
+a8c951	2	l32i.n	a10, a9, 0x30
+5b6938	2	addi.n	a6, a9, 5
+2a9cfd	2	add.n	a9, a12, a2
+bde2	0		
+986125	2	l32i.n	a9, a1, 0x18
+73f3fb	0		
+?8c4224	0		
+eb98	2	addi.n	a9, a8, 0xe
+bba95c	2	addi.n	a10, a9, 0xb
+f7bdfc	3	bgeu	a13, a15, . 0
+9790c1	3	bne	a0, a9, . -0x3b
+3bf9	2	addi.n	a15, a9, 3
+b638ec	3	bltui	a8, 3, . -0x10
+7e6cae	0		
+c88f77	2	l32i.n	a12, a15, 0x20
+4b09	2	addi.n	a0, a9, 4
+b32a64	0		
+1de9dd	0		
+fb8a91	2	addi.n	a8, a10, 0xf
+19c7	2	s32i.n	a1, a7, 0x30
+ffbbfa	0		
+088b7b	2	l32i.n	a0, a11, 0x20
+1a4e87	2	add.n	a4, a14, a1
+5841	2	l32i.n	a5, a1, 0x10
+51bf77	3	l32r	a5, . 0x4005defc
+366f1a	3	entry	a15, 0xd30
+1d3527	0		
+edbb	0		
+?ec1fa3	0		
+e55909	3	call8	. +0x95a0
+fdd01c	0		
+2a6a	2	add.n	a6, a10, a2
+d71fe7	3	beq	a15, a13, . -0x15
+c4edd4	0		
+da859e	2	add.n	a8, a5, a13
+9bd5	2	addi.n	a13, a5, 9
+3f818d	0		
+710c97	3	l32r	a7, . 0x40065c30
+?8ca995	0		
+399d	2	s32i.n	a3, a13, 0x24
+f4ae14	0		
+42eb3e	3	s32c1i	a4, a11, 0xf8
+079d4b	3	bne	a13, a0, . +0x4f
+986a	2	l32i.n	a9, a10, 0x18
+02e8da	3	s32c1i	a0, a8, 0x368
+c7815c	3	bany	a1, a12, . +0x60
+6aa2dc	2	add.n	a10, a2, a6
+?8c56	0		
+202a9f	0		
+4ddb90	0		
+234a70	3	ssi	f2, a10, 0x1c0
+fb12	2	addi.n	a1, a2, 0xf
+b986db	2	s32i.n	a11, a6, 0x20
+5482e4	0		
+f73c9a	3	bltu	a12, a15, . -0x62
+98ba	2	l32i.n	a9, a10, 0x2c
+53e01b	0		
+5d1b10	0		
+8f458d	0		
+887d	2	l32i.n	a8, a13, 0x1c
+825d93	3	s16i	a8, a13, 0x126
+c862aa	2	l32i.n	a12, a2, 0x18
+0f1a8d	0		
+9de9	0		
+61e783	3	l32r	a6, . 0x40060f9c
+1f4d19	0		
+aabba4	2	add.n	a11, a11, a10
+a90b	2	s32i.n	a10, a11, 0
+a108f4	3	l32r	a10, . 0x4007d020
+d4a4ff	0		
+35b5e8	3	call12	. -0x174ac
+9a52	2	add.n	a5, a2, a9
+47e7c7	3	bbsi	a7, 4, . -0x35
+74f94e	0		
+f6d634	3	bgeui	a6, 0x40, . +0x38
+4dec	0		
+2aaa25	2	add.n	a10, a10, a2
+faa2c3	2	add.n	a10, a2, a15
+5488fc	0		
+1a33	2	add.n	a3, a3, a1
+6b62ed	2	addi.n	a6, a2, 6
+1d2f4a	0		
+fb3526	2	addi.n	a3, a5, 0xf
+4d90	0		
+3083c7	0		
+e04f0c	0		
+219a27	3	l32r	a2, . 0x40049e68
+3d0c	2	mov.n	a3, a12
+3d94b5	0		
+b9f9a6	2	s32i.n	a11, a9, 0x3c
+3afc28	2	add.n	a15, a12, a3
+aa56	2	add.n	a5, a6, a10
+9a54be	2	add.n	a5, a4, a9
+e7cb06	3	bnall	a11, a14, . +0xa
+dba17d	2	addi.n	a10, a1, 0xd
+bbc1	2	addi.n	a12, a1, 0xb
+?8c2071	0		
+f0a5fb	0		
+b7fa88	3	bbsi	a10, 0x1b, . -0x74
+e91d	2	s32i.n	a14, a13, 4
+585a1f	2	l32i.n	a5, a10, 0x14
+96ea13	3	bltz	a10, . +0x142
+6de1b3	0		
+089f	2	l32i.n	a0, a15, 0x24
+9aa8b6	2	add.n	a10, a8, a9
+4e5eea	0		
+e28a3c	0		
+b84a	2	l32i.n	a11, a10, 0x10
+03df3b	0		
+518690	3	l32r	a5, . 0x40064218
+38f24c	2	l32i.n	a3, a2, 0x3c
+1dad	0		
+8f565f	0		
+d4987f	0		
+086730	2	l32i.n	a0, a7, 0x18
+382c	2	l32i.n	a3, a12, 8
+462848	3	j	. +0x120a5
+82a744	3	movi	a8, 0x744
+80f3d4	3	extui	a15, a8, 3, 0xe
+db20	2	addi.n	a2, a0, 0xd
+f2d5c7	3	addmi	a15, a5, -0x3900
+6a2588	2	add.n	a2, a5, a6
+330614	3	lsi	f3, a6, 0x50
+09b5	2	s32i.n	a0, a5, 0x2c
+f0610a	3	add.s	f6, f1, f15
+0c7682	2	movi.n	a6, 7
+d6b67a	3	bgez	a6, . +0x7af
+686a	2	l32i.n	a6, a10, 0x18
+4652ca	3	j	. -0xd6b3
+0857b3	2	l32i.n	a0, a7, 0x14
+39a891	2	s32i.n	a3, a8, 0x28
+6ddb	0		
+d46b32	0		
+b23251	0		
+368b52	3	entry	a11, 0x2940
+b9a7	2	s32i.n	a11, a7, 0x28
+09bfb3	2	s32i.n	a0, a15, 0x2c
+08b804	2	l32i.n	a0, a8, 0x2c
+b61dfa	3	bltui	a13, 0x10000, . -2
+9940	2	s32i.n	a9, a0, 0x10
+c9175d	2	s32i.n	a12, a7, 4
+5c3399	2	movi.n	a3, 0x53
+e539f2	3	call8	. -0xdc60
+aba5	2	addi.n	a10, a5, 0xa
+5542ed	3	call4	. -0x12bd8
+2deced	0		
+8520b6	3	call0	. -0x49df4
+3a4f	2	add.n	a4, a15, a3
+f8332f	2	l32i.n	a15, a3, 0xc
+4debd5	0		
+090339	2	s32i.n	a0, a3, 0
+fa74	2	add.n	a7, a4, a15
+55c0ca	3	call4	. -0x353f8
+468273	3	j	. +0x1ce0d
+660980	3	bnei	a9, -1, . -0x7c
+fb8a	2	addi.n	a8, a10, 0xf
+bbd980	2	addi.n	a13, a9, 0xb
+6b1186	2	addi.n	a1, a1, 6
+ed864f	0		
+3cc4	2	movi.n	a4, 0x3c
+a37974	0		
+54a4de	0		
+5c0d46	2	movi.n	a13, 0x50
+4db2	0		
+05e8ee	3	call0	. -0x1117c
+1d194e	0		
+2021da	3	ufloat.s	f2, a1, 2
+d9c0	2	s32i.n	a13, a0, 0x30
+e33188	0		
+e1ef10	3	l32r	a14, . 0x400443bc
+c876f8	2	l32i.n	a12, a6, 0x1c
+a883	2	l32i.n	a10, a3, 0x20
+163ef2	3	beqz	a14, . -0xd9
+7acdc2	2	add.n	a12, a13, a7
+b7c672	3	bnall	a6, a11, . +0x76
+?9c34	0		
+2986ef	2	s32i.n	a2, a6, 0x20
+397429	2	s32i.n	a3, a4, 0x1c
+cd1f09	0		
+2b4b	2	addi.n	a4, a11, 2
+2f5bbe	0		
+797c85	2	s32i.n	a7, a12, 0x1c
+?ec34dc	0		
+?ec6a	0		
+7d62a3	0		
+74ebf0	0		
+6ff0da	0		
+1abb	2	add.n	a11, a11, a1
+8d44f1	0		
+7ee581	0		
+45fa9a	3	call0	. -0x65058
+?dcd9	0		
+08f5b2	2	l32i.n	a0, a5, 0x3c
+f4cc82	0		
+7aac11	2	add.n	a10, a12, a7
+?ec91	0		
+931153	0		
+6bc9b3	2	addi.n	a12, a9, 6
+514cbf	3	l32r	a5, . 0x4006fd30
+2cda	2	movi.n	a10, 0x2d
+63685f	0		
+9d5211	0		
+f8439c	2	l32i.n	a15, a3, 0x10
+2b00	2	addi.n	a0, a0, 2
+0500a0	3	call0	. -0x5fffc
+82aa74	3	movi	a8, -0x58c
+7e7635	0		
+?9ca3	0		
+16acb7	3	beqz	a12, . -0x482
+0d68c9	0		
+a3ef12	0		
+4805	2	l32i.n	a4, a5, 0
+dd36dc	0		
+910241	3	l32r	a9, . 0x40050408
+241ad8	0		
+0972	2	s32i.n	a0, a2, 0x1c
+a493c9	0		
+eec221	0		
+9a132f	2	add.n	a1, a3, a9
+3bcd	2	addi.n	a12, a13, 3
+228d42	0		
+265cc9	3	beqi	a12, 5, . -0x33
+15a015	3	call4	. +0x15a04
+8908	2	s32i.n	a8, a8, 0
+c7718c	3	bbci	a1, 0x1c, . -0x70
+f53fa8	3	call12	. -0x57c00
+1e98af	0		
+89cd	2	s32i.n	a8, a13, 0x30
+9e3ca6	0		
+984214	2	l32i.n	a9, a2, 0x10
+789213	2	l32i.n	a7, a2, 0x24
+6b69	2	addi.n	a6, a9, 6
+aecb7f	0		
+916582	3	l32r	a9, . 0x40060994
+251317	3	call8	. +0x17134
+6c35	2	movi.n	a5, -0x1d
+17ce96	3	bnall	a14, a1, . -0x66
+0fb273	0		
+432ee0	0		
+4cf6	2	movi.n	a6, 0x4f
+15222c	3	call4	. +0x2c224
+ebd743	2	addi.n	a13, a7, 0xe
+894ae8	2	s32i.n	a8, a10, 0x10
+ba6b	2	add.n	a6, a11, a11
+198b8c	2	s32i.n	a1, a11, 0x20
+c5042e	3	call0	. +0x2e050
+7709a3	3	bnone	a9, a7, . -0x59
+4dde	0		
+099799	2	s32i.n	a0, a7, 0x24
+77bc13	3	bgeu	a12, a7, . +0x17
+b75bd4	3	bbc	a11, a11, . -0x28
+5d7f	0		
+88ea5c	2	l32i.n	a8, a10, 0x38
+873693	3	bltu	a6, a8, . -0x69
+56108e	3	bnez	a0, . -0x71b
+18f5	2	l32i.n	a1, a5, 0x3c
+eb281e	2	addi.n	a2, a8, 0xe
+028298	0		
+ab30a0	2	addi.n	a3, a0, 0xa
+?aca7	0		
+becd01	0		
+e69301	3	bgei	a3, 0xa, . +5
+fd693f	0		
+fa1f	2	add.n	a1, a15, a15
+8875a2	2	l32i.n	a8, a5, 0x1c
+795878	2	s32i.n	a7, a8, 0x14
+aae919	2	add.n	a14, a9, a10
+9a57	2	add.n	a5, a7, a9
+65da83	3	call8	. -0x7c258
+967e6e	3	bltz	a14, . +0x6eb
+9a513a	2	add.n	a5, a1, a9
+8a4b	2	add.n	a4, a11, a8
+70bc99	0		
+1ed7eb	0		
+cf8516	0		
+?acaf	0		
+668d01	3	bnei	a13, 8, . +5
+036ec8	0		
+?9cbf6d	0		
+1a46	2	add.n	a4, a6, a1
+c891c9	2	l32i.n	a12, a1, 0x24
+7bc51d	2	addi.n	a12, a5, 7
+4e6ed5	0		
+48e2	2	l32i.n	a4, a2, 0x38
+ef8807	0		
+690820	2	s32i.n	a6, a8, 0
+b4ead2	0		
+a84a	2	l32i.n	a10, a10, 0x10
+aa5920	2	add.n	a5, a9, a10
+ad34d1	0		
+968391	3	bltz	a3, . -0x6e4
+c91b	2	s32i.n	a12, a11, 4
+f4b813	0		
+c70c30	3	bnone	a12, a12, . +0x34
+be0c4b	0		
+?cc73	0		
+a53242	3	call8	. +0x4232c
+0e4dbf	0		
+502960	0		
+2900	2	s32i.n	a2, a0, 0
+f1208a	3	l32r	a15, . 0x40062880
+cbadbc	2	addi.n	a10, a13, 0xc
+86b32b	3	j	. +0xaed2
+0a4d	2	add.n	a4, a13, a0
+00b5a5	3	extui	a11, a0, 0x15, 0xb
+928b3c	0		
+cfac81	0		
+a89b	2	l32i.n	a10, a11, 0x24
+69a393	2	s32i.n	a6, a3, 0x28
+5ef53d	0		
+dfbde0	0		
+391f	2	s32i.n	a3, a15, 4
+?bc2e52	0		
+36da85	3	entry	a10, 0x42e8
+1ba92c	2	addi.n	a10, a9, 1
+e961	2	s32i.n	a14, a1, 0x18
+48b0e3	2	l32i.n	a4, a0, 0x2c
+68d387	2	l32i.n	a6, a3, 0x34
+b5a38c	3	call12	. -0x735c4
+aa5f	2	add.n	a5, a15, a10
+812faa	3	l32r	a8, . 0x4006a8bc
+?dc9398	0		
+e3f5ec	0		
+29fb	2	s32i.n	a2, a11, 0x3c
+d1c7bf	3	l32r	a13, . 0x4006ff1c
+58931e	2	l32i.n	a5, a3, 0x24
+b6c3f6	3	bltui	a3, 0x20, . -6
+0c35	2	movi.n	a5, 3
+b8811b	2	l32i.n	a11, a1, 0x20
+336319	0		
+c5761a	3	call0	. +0x1a770
+9b54	2	addi.n	a5, a4, 9
+a3d5a8	0		
+f0b7c0	3	sub	a11, a7, a15
+8b4d9e	2	addi.n	a4, a13, 8
+?9ce2	0		
+d721e7	3	blt	a1, a13, . -0x15
+3f65c3	0		
+059d07	3	call0	. +0x79d4
+f9a5	2	s32i.n	a15, a5, 0x28
+49fb93	2	s32i.n	a4, a11, 0x3c
+1149e6	3	l32r	a1, . 0x40079924
+0d87bd	0		
+b8e2	2	l32i.n	a11, a2, 0x38
+c06ad4	3	extui	a6, a12, 0xa, 0xe
+1e64da	0		
+469b8c	3	j	. -0x1cd8f
+49d5	2	s32i.n	a4, a5, 0x34
+2f6f87	0		
+fdc715	0		
+993015	2	s32i.n	a9, a0, 0xc
+3df1	0		
+11e81b	3	l32r	a1, . 0x40046fa0
+6a89e4	2	add.n	a8, a9, a6
+b13a32	3	l32r	a11, . 0x4004c8e8
+29b9	2	s32i.n	a2, a9, 0x2c
+b1d7c5	3	l32r	a11, . 0x4007175c
+2a7266	2	add.n	a7, a2, a2
+6c4abb	2	movi.n	a10, -0x1c
+?2df7	0		
+c5b239	3	call0	. +0x39b30
+3b7a13	2	addi.n	a7, a10, 3
+806a13	0		
+9d52	0		
+7eba33	0		
+be893f	0		
+c1fafc	3	l32r	a12, . 0x4007f3e8
+ea89	2	add.n	a8, a9, a14
+bf9f86	0		
+be5274	0		
+1d728e	0		
+1aa7	2	add.n	a10, a7, a1
+3315cb	0		
+b3ee56	0		
+a6a39f	3	blti	a3, 0xc, . -0x5d
+78d4	2	l32i.n	a7, a4, 0x34
+c3d614	0		
+902e20	3	or	a2, a14, a9
+692ce0	2	s32i.n	a6, a12, 8
+4b63	2	addi.n	a6, a3, 4
+aa5753	2	add.n	a5, a7, a10
+e3342e	0		
+42e491	3	s32c1i	a4, a4, 0x244
+3b6a	2	addi.n	a6, a10, 3
+e788b6	3	bany	a8, a14, . -0x46
+88df65	2	l32i.n	a8, a15, 0x34
+9f95f7	0		
+2997	2	s32i.n	a2, a7, 0x24
+3851c2	2	l32i.n	a3, a1, 0x14
+c42e4e	0		
+a7359d	3	bltu	a5, a10, . -0x5f
+a9b1	2	s32i.n	a10, a1, 0x2c
+a73c9e	3	bltu	a12, a10, . -0x5e
+d14614	3	l32r	a13, . 0x40045118
+f941dc	2	s32i.n	a15, a1, 0x10
+4b34	2	addi.n	a3, a4, 4
+33eb6d	0		
+221fb6	3	l16ui	a2, a15, 0x16c
+c06c91	0		
+09e1	2	s32i.n	a0, a1, 0x38
+3819a1	2	l32i.n	a3, a9, 4
+?acc2a4	0		
+838a15	3	lsiu	f8, a10, 0x54
+c820	2	l32i.n	a12, a0, 8
+64eaa0	0		
+a57a1d	3	call8	. +0x1d7ac
+61df23	3	l32r	a6, . 0x40048f7c
+5d07	2	mov.n	a5, a7
+ca1cf8	2	add.n	a1, a12, a12
+da13a6	2	add.n	a1, a3, a13
+3b7466	2	addi.n	a7, a4, 3
+1860	2	l32i.n	a1, a0, 0x18
+80701a	3	sub.s	f7, f0, f8
+b67caa	3	bltui	a12, 7, . -0x52
+0045b5	3	extui	a4, a0, 0x15, 0xc
+aa9d	2	add.n	a9, a13, a10
+d6ac62	3	bgez	a12, . +0x62e
+9878cc	2	l32i.n	a9, a8, 0x1c
+35e4db	3	call12	. -0x241bc
+fd28	0		
+846182	0		
+ef02e2	0		
+6cb0e4	2	movi.n	a0, -0x15
+4a33	2	add.n	a3, a3, a4
+030a12	3	lsi	f0, a10, 0x48
+432617	0		
+31cb0a	3	l32r	a3, . 0x40042b2c
+28cb	2	l32i.n	a2, a11, 0x30
+f5883c	3	call12	. +0x3c890
+976fd5	3	bbci	a15, 9, . -0x27
+d0e027	0		
+7baa	2	addi.n	a10, a10, 7
+f9a31d	2	s32i.n	a15, a3, 0x28
+939983	0		
+ce6e3e	0		
+eb1d	2	addi.n	a1, a13, 0xe
+cbc0d3	2	addi.n	a12, a0, 0xc
+ce193f	0		
+f5dbbe	3	call12	. -0x41240
+b904	2	s32i.n	a11, a4, 0
+ca55e5	2	add.n	a5, a5, a12
+24c1f3	0		
+547054	0		
+2c83	2	movi.n	a3, 0x28
+5983cf	2	s32i.n	a5, a3, 0x20
+0553f5	3	call0	. -0xaacc
+eaf7fb	2	add.n	a15, a7, a14
+dd9d	0		
+02df3c	3	addmi	a0, a15, 0x3c00
+e88753	2	l32i.n	a14, a7, 0x20
+725f1a	3	s16i	a7, a15, 0x34
+ed11	0		
+4f8f5e	0		
+3913b3	2	s32i.n	a3, a3, 4
+232529	0		
+89fb	2	s32i.n	a8, a11, 0x3c
+9b7c31	2	addi.n	a7, a12, 9
+79c340	2	s32i.n	a7, a3, 0x30
+6d4d9d	0		
+?cc77	0		
+9a6317	2	add.n	a6, a3, a9
+0aa1d6	2	add.n	a10, a1, a0
+48f7f7	2	l32i.n	a4, a7, 0x3c
+7d9d	0		
+308ab7	0		
+66e4d3	3	bnei	a4, 0x80, . -0x29
+fb3069	2	addi.n	a3, a0, 0xf
+3c47	2	movi.n	a7, 0x34
+0475ce	0		
+34077e	3	muls.aa.lh	a7, a3
+4d503f	0		
+aa14	2	add.n	a1, a4, a10
+83cb42	3	ssiu	f8, a11, 0x108
+8b6598	2	addi.n	a6, a5, 8
+e62ff9	3	bgei	a15, 2, . -3
+8b72	2	addi.n	a7, a2, 8
+e36d95	0		
+09c8d8	2	s32i.n	a0, a8, 0x30
+546275	0		
+?bc31	0		
+4b526a	2	addi.n	a5, a2, 4
+7f1d35	0		
+6212b6	3	l16ui	a6, a2, 0x16c
+08d7	2	l32i.n	a0, a7, 0x34
+ca2928	2	add.n	a2, a9, a12
+df9ac2	0		
+5a3988	2	add.n	a3, a9, a5
+ca43	2	add.n	a4, a3, a12
+5834c3	2	l32i.n	a5, a4, 0xc
+58452d	2	l32i.n	a5, a5, 0x10
+c5a8a0	3	call0	. -0x5f570
+e9af	2	s32i.n	a14, a15, 0x28
+b21e48	3	l16ui	a11, a14, 0x90
+732f39	0		
+4dcc67	0		
+594b	2	s32i.n	a5, a11, 0x10
+cfb818	0		
+0db9b1	0		
+f79670	3	bne	a6, a15, . +0x74
+4cfe	2	movi.n	a14, 0x4f
+977768	3	bbci	a7, 0x19, . +0x6c
+594beb	2	s32i.n	a5, a11, 0x10
+c79029	3	bne	a0, a12, . +0x2d
+0c72	2	movi.n	a2, 7
+c6b13b	3	j	. +0xeecb
+5f0ced	0		
+e70e2a	3	bnone	a14, a14, . +0x2e
+?bce4	0		
+f3c429	3	ssiu	f15, a4, 0xa4
+598793	2	s32i.n	a5, a7, 0x20
+e83278	2	l32i.n	a14, a2, 0xc
+2828	2	l32i.n	a2, a8, 8
+a3c804	3	ssiu	f10, a8, 0x10
+292e2b	2	s32i.n	a2, a14, 8
+f6178a	3	bgeui	a7, 0x10000, . -0x72
+888c	2	l32i.n	a8, a12, 0x20
+7693b9	3	loopnez	a3, . +0xbd
+e11794	3	l32r	a14, . 0x4006505c
+528eaf	0		
+b80e	2	l32i.n	a11, a14, 0
+2189f9	3	l32r	a2, . 0x4007e624
+dee0d3	0		
+495eb2	2	s32i.n	a4, a14, 0x14
+7dc1	0		
+0c4a2e	2	movi.n	a10, 4
+a9d22e	2	s32i.n	a10, a2, 0x34
+5d4180	0		
+a98e	2	s32i.n	a10, a14, 0x20
+7b2866	2	addi.n	a2, a8, 7
+f22808	3	l32i	a15, a8, 0x20
+244b10	0		
+?8cb0	0		
+9eff72	0		
+2c4c1b	2	movi.n	a12, 0x24
+a7ba63	3	bgeu	a10, a10, . +0x67
+988b	2	l32i.n	a9, a11, 0x20
+aeb601	0		
+8a7a95	2	add.n	a7, a10, a8
+2f44a1	0		
+dbb1	2	addi.n	a11, a1, 0xd
+80b065	3	extui	a11, a8, 0x10, 7
+5939b5	2	s32i.n	a5, a9, 0xc
+97a370	3	bge	a3, a9, . +0x74
+28e3	2	l32i.n	a2, a3, 0x38
+404112	3	andbc	b4, b1, b4
+15ad95	3	call4	. -0x6a52c
+f39efb	0		
+8de4	0		
+5d6022	0		
+c66eb4	3	j	. -0x12e41
+943d76	0		
+cd22	0		
+305918	3	lsxu	f5, a9, a3
+57948d	3	bne	a4, a5, . -0x6f
+9e6bbb	0		
+?acc6	0		
+97ef50	3	bbsi	a15, 9, . +0x54
+07f469	3	bbsi	a4, 0x10, . +0x6d
+1acf7f	2	add.n	a12, a15, a1
+bbf4	2	addi.n	a15, a4, 0xb
+5273a6	0		
+5a5201	2	add.n	a5, a2, a5
+7bf4de	2	addi.n	a15, a4, 7
+b90d	2	s32i.n	a11, a13, 0
+64ce25	0		
+0b5a3a	2	addi.n	a5, a10, -1
+816eef	3	l32r	a8, . 0x4007bdb8
+4a9e	2	add.n	a9, a14, a4
+e6c0d6	3	bgei	a0, 0x20, . -0x26
+ae15ea	0		
+5e594e	0		
+fb37	2	addi.n	a3, a7, 0xf
+e246dc	3	s8i	a14, a6, 0xdc
+d7bafe	3	bgeu	a10, a13, . +2
+81fa8a	3	l32r	a8, . 0x40062be8
+68d1	2	l32i.n	a6, a1, 0x34
+15a1e4	3	call4	. -0x1b5ec
+9897de	2	l32i.n	a9, a7, 0x24
+41be88	3	l32r	a4, . 0x400622f8
+ad7e	0		
+362ca6	3	entry	a12, 0x5310
+c8ea24	2	l32i.n	a12, a10, 0x38
+47d11c	3	bbs	a1, a4, . +0x20
+6c60	2	movi.n	a0, -0x1a
+a918ee	2	s32i.n	a10, a8, 4
+aead2b	0		
+?dcd633	0		
+5a8a	2	add.n	a8, a10, a5
+1d11f5	0		
+249b97	0		
+cb877d	2	addi.n	a8, a7, 0xc
+8873	2	l32i.n	a8, a3, 0x1c
+57eec5	3	bbsi	a14, 5, . -0x37
+d0b318	3	lsxu	f11, a3, a13
+00dca4	3	extui	a13, a0, 0xc, 0xb
+185d	2	l32i.n	a1, a13, 0x14
+7fd93d	0		
+b8766e	2	l32i.n	a11, a6, 0x1c
+7e34f4	0		
+78f0	2	l32i.n	a7, a0, 0x3c
+791027	2	s32i.n	a7, a0, 4
+2206b8	3	l8ui	a2, a6, 0xb8
+008b6c	0		
+6a30	2	add.n	a3, a0, a6
+7cb699	2	movi.n	a6, -5
+c8adc8	2	l32i.n	a12, a13, 0x28
+09cc2e	2	s32i.n	a0, a12, 0x30
+a876	2	l32i.n	a10, a6, 0x1c
+a8eaab	2	l32i.n	a10, a10, 0x38
+4001a0	3	addx4	a0, a1, a4
+0e6054	0		
+b9b2	2	s32i.n	a11, a2, 0x2c
+5cac2a	2	movi.n	a12, 0x5a
+?32bc89	0		
+7db6d7	0		
+3a42	2	add.n	a4, a2, a3
+2d489c	0		
+8f540f	0		
+5e6c17	0		
+ed4b	0		
+3332de	0		
+6c492f	2	movi.n	a9, -0x1c
+42a70f	3	movi	a4, 0x70f
+6da2	0		
+f91f14	2	s32i.n	a15, a15, 4
+37504e	3	bbc	a0, a3, . +0x52
+0c4b6f	2	movi.n	a11, 4
+2a50	2	add.n	a5, a0, a2
+e819c4	2	l32i.n	a14, a9, 4
+f22965	3	l32i	a15, a9, 0x194
+d1c67f	3	l32r	a13, . 0x4005ff18
+ad5c	0		
+3e94c0	0		
+?bc1915	0		
+ca33af	2	add.n	a3, a3, a12
+2b98	2	addi.n	a9, a8, 2
+28597a	2	l32i.n	a2, a9, 0x14
+8efeff	0		
+b1b336	3	l32r	a11, . 0x4004dacc
+?cce3	0		
+5e3b71	0		
+9dcd78	0		
+c1c9c9	3	l32r	a12, . 0x40072724
+681b	2	l32i.n	a6, a11, 4
+658f8b	3	call8	. -0x74708
+c38538	3	lsiu	f12, a5, 0xe0
+dd51a4	0		
+482d	2	l32i.n	a4, a13, 8
+139371	0		
+69c3e0	2	s32i.n	a6, a3, 0x30
+0cd44b	2	movi.n	a4, 0xd
+19bd	2	s32i.n	a1, a13, 0x2c
+?ac2fe5	0		
+7ea7b0	0		
+d266bf	3	s32i	a13, a6, 0x2fc
+a9b0	2	s32i.n	a10, a0, 0x2c
+985f66	2	l32i.n	a9, a15, 0x14
+813522	3	l32r	a8, . 0x400488d4
+085ad5	2	l32i.n	a0, a10, 0x14
+4823	2	l32i.n	a4, a3, 8
+e8a49c	2	l32i.n	a14, a4, 0x28
+693946	2	s32i.n	a6, a9, 0xc
+230fbb	3	lsi	f2, a15, 0x2ec
+9bf7	2	addi.n	a15, a7, 9
+1743a3	3	ball	a3, a1, . -0x59
+0b9925	2	addi.n	a9, a9, -1
+8b600a	2	addi.n	a6, a0, 8
+785b	2	l32i.n	a7, a11, 0x14
+53ca24	3	ssiu	f5, a10, 0x90
+cb8b28	2	addi.n	a8, a11, 0xc
+6d3454	0		
+?cc7a	0		
+35e046	3	call12	. +0x46e04
+f1b0e9	3	l32r	a15, . 0x4007a6c0
+30b52d	0		
+1b62	2	addi.n	a6, a2, 1
+40276e	0		
+0a9504	2	add.n	a9, a5, a0
+747b5d	0		
+8830	2	l32i.n	a8, a0, 0xc
+2c894e	2	movi.n	a9, 0x28
+9a25c7	2	add.n	a2, a5, a9
+ed24f2	0		
+9a53	2	add.n	a5, a3, a9
+260b40	3	beqi	a11, -1, . +0x44
+49db75	2	s32i.n	a4, a11, 0x34
+10c4df	0		
+?acc7	0		
+73505d	0		
+b8647e	2	l32i.n	a11, a4, 0x18
+c247ff	3	s8i	a12, a7, 0xff
+0976	2	s32i.n	a0, a6, 0x1c
+7fd38b	0		
+aaadaa	2	add.n	a10, a13, a10
+f66617	3	bgeui	a6, 6, . +0x1b
+?fcd5	0		
+9b67d8	2	addi.n	a6, a7, 9
+baf696	2	add.n	a15, a6, a11
+61e41e	3	l32r	a6, . 0x40047b90
+?dc54	0		
+638444	3	lsiu	f6, a4, 0x110
+513a18	3	l32r	a5, . 0x400460e8
+d63194	3	bgez	a1, . -0x6b9
+b8ec	2	l32i.n	a11, a12, 0x38
+9506d8	3	call4	. -0x27f94
+2b8948	2	addi.n	a8, a9, 2
+e3a7ae	0		
+7a90	2	add.n	a9, a0, a7
+51b125	3	l32r	a5, . 0x400496c4
+5bfd03	2	addi.n	a15, a13, 5
+718b9c	3	l32r	a7, . 0x4006722c
+aa5e	2	add.n	a5, a14, a10
+db9961	2	addi.n	a9, a9, 0xd
+7b98fb	2	addi.n	a9, a8, 7
+3a3b30	2	add.n	a3, a11, a3
+6cfb	2	movi.n	a11, -0x11
+5f0001	0		
+cbd1c6	2	addi.n	a13, a1, 0xc
+f22015	3	l32i	a15, a0, 0x54
+29dd	2	s32i.n	a2, a13, 0x34
+2bc658	2	addi.n	a12, a6, 2
+713c36	3	l32r	a7, . 0x4004d8f0
+7c6148	2	movi.n	a1, -0xa
+d963	2	s32i.n	a13, a3, 0x18
+36052b	3	entry	a5, 0x1580
+72dded	3	addmi	a7, a13, -0x1300
+dea484	0		
+db9c	2	addi.n	a9, a12, 0xd
+9f9e11	0		
+4d95b7	0		
+ffcce3	0		
+6acd	2	add.n	a12, a13, a6
+36f609	3	entry	a6, 0x4f8
+ee6fed	0		
+15b575	3	call4	. +0x75b54
+ea4f	2	add.n	a4, a15, a14
+b00d96	0		
+6c5468	2	movi.n	a4, -0x1b
+2e1eb8	0		
+a8bf	2	l32i.n	a10, a15, 0x2c
+5c53e4	2	movi.n	a3, 0x55
+fe1d8d	0		
+095ef0	2	s32i.n	a0, a14, 0x14
+08cc	2	l32i.n	a0, a12, 0x30
+0de9ee	0		
+?8c2f86	0		
+24608b	0		
+6bbc	2	addi.n	a11, a12, 6
+156bae	3	call4	. -0x5194c
+b6de14	3	bltui	a14, 0x40, . +0x18
+2af204	2	add.n	a15, a2, a2
+1d58	0		
+3812d2	2	l32i.n	a3, a2, 4
+48fbaa	2	l32i.n	a4, a11, 0x3c
+f1f77b	3	l32r	a15, . 0x4005efdc
+4c35	2	movi.n	a5, 0x43
+b08f36	0		
+?02f909	0		
+448dcc	0		
+9887	2	l32i.n	a9, a7, 0x20
+43536e	0		
+c005db	3	movt.s	f0, f5, b12
+4f66ad	0		
+49af	2	s32i.n	a4, a15, 0x28
+04e504	0		
+c3424a	3	ssi	f12, a2, 0x128
+0b0f70	2	addi.n	a0, a15, -1
+d825	2	l32i.n	a13, a5, 8
+d81f6f	2	l32i.n	a13, a15, 4
+d78887	3	bany	a8, a13, . -0x75
+8afc6c	2	add.n	a15, a12, a8
+9861	2	l32i.n	a9, a1, 0x18
+3eb61e	0		
+941916	0		
+1e74cc	0		
+4d24	0		
+deeac8	0		
+5468e3	0		
+?fcd82e	0		
+1c80	2	movi.n	a0, 0x18
+426805	3	s32i	a4, a8, 0x14
+c4057f	3	muls.aa.hh	a5, a12
+181f19	2	l32i.n	a1, a15, 4
+7d1b	0		
+af6e22	0		
+c80c9a	2	l32i.n	a12, a12, 0
+e91ec6	2	s32i.n	a14, a14, 4
+?bc6e	0		
+62a6f0	3	movi	a6, 0x6f0
+fb144d	2	addi.n	a1, a4, 0xf
+?8cd8b1	0		
+79d2	2	s32i.n	a7, a2, 0x34
+2b9665	2	addi.n	a9, a6, 2
+d463d8	0		
+ce1123	0		
+7c96	2	movi.n	a6, -7
+7fddf0	0		
+cee175	0		
+d44ae3	0		
+6a06	2	add.n	a0, a6, a6
+333362	0		
+f5f0f3	3	call12	. -0xc0f0
+be34ac	0		
+1cec	2	movi.n	a12, 0x1e
+7d36e8	0		
+cb4760	2	addi.n	a4, a7, 0xc
+ad63d2	0		
+faa4	2	add.n	a10, a4, a15
+f48284	0		
+c5360a	3	call0	. +0xa370
+664153	3	bnei	a1, 4, . +0x57
+bb81	2	addi.n	a8, a1, 0xb
+091136	2	s32i.n	a0, a1, 4
+859e0d	3	call0	. +0xd9ec
+80a288	0		
+ba3c	2	add.n	a3, a12, a11
+158950	3	call4	. +0x50894
+b246c5	3	s8i	a11, a6, 0xc5
+8f7107	0		
+69c8	2	s32i.n	a6, a8, 0x30
+926d8c	3	s32i	a9, a13, 0x230
+6593c2	3	call8	. -0x3d6c8
+dff421	0		
+bb1b	2	addi.n	a1, a11, 0xb
+0872e6	2	l32i.n	a0, a2, 0x1c
+765e02	0		
+4130f6	3	l32r	a4, . 0x4007d8c0
+bd33	0		
+c742a1	3	ball	a2, a12, . -0x5b
+04fdd9	0		
+686863	2	l32i.n	a6, a8, 0x18
+7c10	2	movi.n	a0, -0xf
+?cc8bdf	0		
+534e23	3	ssi	f5, a14, 0x8c
+8b36cf	2	addi.n	a3, a6, 8
+2a10	2	add.n	a1, a0, a2
+925d1e	3	s16i	a9, a13, 0x3c
+182279	2	l32i.n	a1, a2, 8
+f43513	0		
+99bb	2	s32i.n	a9, a11, 0x2c
+6a608e	2	add.n	a6, a0, a6
+b0087b	3	ule.s	b0, f8, f11
+0c70dd	2	movi.n	a0, 7
+2992	2	s32i.n	a2, a2, 0x24
+30425b	3	ult.s	b4, f2, f3
+ceb95b	0		
+8500d2	3	call0	. -0x2dff4
+2b94	2	addi.n	a9, a4, 2
+6719be	3	beq	a9, a6, . -0x3e
+680db4	2	l32i.n	a6, a13, 0
+ba5794	2	add.n	a5, a7, a11
+fd1d	0		
+aebd2d	0		
+a8144d	2	l32i.n	a10, a4, 4
+611b8c	3	l32r	a6, . 0x4006306c
+e8ab	2	l32i.n	a14, a11, 0x28
+c35a21	0		
+fbc2bc	2	addi.n	a12, a2, 0xf
+88212d	2	l32i.n	a8, a1, 8
+1a2a	2	add.n	a2, a10, a1
+3d9eb8	0		
+6c1801	2	movi.n	a8, -0x1f
+f5837b	3	call12	. +0x7b840
+fabd	2	add.n	a11, a13, a15
+29b515	2	s32i.n	a2, a5, 0x2c
+390bb0	2	s32i.n	a3, a11, 0
+9fd46e	0		
+fac7	2	add.n	a12, a7, a15
+4b3e25	2	addi.n	a3, a14, 4
+d11f90	3	l32r	a13, . 0x4006407c
+9b4314	2	addi.n	a4, a3, 9
+380f	2	l32i.n	a3, a15, 0
+f8fd3e	2	l32i.n	a15, a13, 0x3c
+c3a64b	0		
+cfe1f9	0		
+5a8e	2	add.n	a8, a14, a5
+ad0bdf	2	mov.n	a10, a11
+6421f2	0		
+83c404	3	ssiu	f8, a4, 0x10
+b9eb	2	s32i.n	a11, a11, 0x38
+68431f	2	l32i.n	a6, a3, 0x10
+ca5b06	2	add.n	a5, a11, a12
+065e6c	3	j	. +0x1b17c
+3a62	2	add.n	a6, a2, a3
+9b4177	2	addi.n	a4, a1, 9
+065ca7	3	j	. -0x1628c
+0dd6d0	0		
+098d	2	s32i.n	a0, a13, 0x20
+3a55c3	2	add.n	a5, a5, a3
+fd62ab	0		
+0dee2e	0		
+dd5a	0		
+85bc5a	3	call0	. +0x5abcc
+5d95c5	0		
+89dad3	2	s32i.n	a8, a10, 0x34
+1d3b	0		
+93dbb0	0		
+0ab52c	2	add.n	a11, a5, a0
+06be02	3	j	. +0xafc
+ed05	2	mov.n	a14, a5
+90c29d	0		
+6d53eb	0		
+8fddf5	0		
+bd83	0		
+0eed42	0		
+fdba4b	0		
+b1ac9c	3	l32r	a11, . 0x400672b0
+6853	2	l32i.n	a6, a3, 0x14
+0e7b83	0		
+0b6600	2	addi.n	a6, a6, -1
+0de6df	0		
+caf9	2	add.n	a15, a9, a12
+1b327f	2	addi.n	a3, a2, 1
+2bae8e	2	addi.n	a10, a14, 2
+a34028	3	ssi	f10, a0, 0xa0
+39d7	2	s32i.n	a3, a7, 0x34
+d98e74	2	s32i.n	a13, a14, 0x20
+e34008	3	ssi	f14, a0, 0x20
+9edb2a	0		
+f91d	2	s32i.n	a15, a13, 4
+c54fe4	3	call0	. -0x1bb00
+a72181	3	blt	a1, a10, . -0x7b
+446fc5	0		
+6a20	2	add.n	a2, a0, a6
+9facdc	0		
+71ac6f	3	l32r	a7, . 0x4005beb0
+383b28	2	l32i.n	a3, a11, 0xc
+7d72	0		
+a10efa	3	l32r	a10, . 0x4007e838
+a1e7bb	3	l32r	a10, . 0x4006ef9c
+eb4ab8	2	addi.n	a4, a10, 0xe
+ebec	2	addi.n	a14, a12, 0xe
+16d9a4	3	beqz	a9, . -0x5af
+c40079	3	mula.aa.hl	a0, a12
+882a02	2	l32i.n	a8, a10, 8
+4888	2	l32i.n	a4, a8, 0x20
+d43225	0		
+18af9b	2	l32i.n	a1, a15, 0x28
+cfed60	0		
+68d9	2	l32i.n	a6, a9, 0x34
+095df7	2	s32i.n	a0, a13, 0x14
+78d4eb	2	l32i.n	a7, a4, 0x34
+3eb7fe	0		
+?acc8	0		
+a31c76	0		
+4b2318	2	addi.n	a2, a3, 4
+7c3593	2	movi.n	a5, -0xd
+aa3f	2	add.n	a3, a15, a10
+756a72	3	call12	. +0x726a8
+c3e0d1	0		
+d1c185	3	l32r	a13, . 0x40061704
+9bda	2	addi.n	a13, a10, 9
+4afc02	2	add.n	a15, a12, a4
+9aab4d	2	add.n	a10, a11, a9
+9de836	0		
+ea14	2	add.n	a1, a4, a14
+d332f8	0		
+6607ec	3	bnei	a7, -1, . -0x10
+b7bca4	3	bgeu	a12, a11, . -0x58
+e8b8	2	l32i.n	a14, a8, 0x2c
+97d04b	3	bbs	a0, a9, . +0x4f
+ed8626	0		
+397164	2	s32i.n	a3, a1, 0x1c
+1ab1	2	add.n	a11, a1, a1
+dd9176	0		
+e769aa	3	bbci	a9, 0xe, . -0x52
+3ae5b1	2	add.n	a14, a5, a3
+9888	2	l32i.n	a9, a8, 0x20
+2dc93a	0		
+49f6b5	2	s32i.n	a4, a6, 0x3c
+a15f5d	3	l32r	a10, . 0x4005757c
+1dad	0		
+b23b38	0		
+0550dc	3	call0	. -0x23afc
+7e0093	0		
+0ad5	2	add.n	a13, a5, a0
+283d62	2	l32i.n	a2, a13, 0xc
+48a161	2	l32i.n	a4, a1, 0x28
+dbdd13	2	addi.n	a13, a13, 0xd
+bb82	2	addi.n	a8, a2, 0xb
+adb1ab	0		
+dfad64	0		
+81251c	3	l32r	a8, . 0x40047094
+1d9e	0		
+520de8	3	l8ui	a5, a13, 0xe8
+1d7bd5	0		
+?ac54f2	0		
+396b	2	s32i.n	a3, a11, 0x18
+976e52	3	bbci	a14, 9, . +0x56
+fff4e9	0		
+d3309c	0		
+9bc2	2	addi.n	a12, a2, 9
+d15868	3	l32r	a13, . 0x4005a160
+0da77a	0		
+913c25	3	l32r	a9, . 0x400494f0
+3c72	2	movi.n	a2, 0x37
+28015d	2	l32i.n	a2, a1, 0
+ffc12d	0		
+?bc2751	0		
+6b96	2	addi.n	a9, a6, 6
+a3ab64	0		
+7f39c1	0		
+d21654	3	l16ui	a13, a6, 0xa8
+9d86	0		
+9f2d25	0		
+58a2ee	2	l32i.n	a5, a2, 0x28
+55520f	3	call4	. +0xf528
+4887	2	l32i.n	a4, a7, 0x20
+fe99ee	0		
+9307eb	3	lsi	f9, a7, 0x3ac
+b3b1ae	0		
+d968	2	s32i.n	a13, a8, 0x18
+7ba0f5	2	addi.n	a10, a0, 7
+da28ac	2	add.n	a2, a8, a13
+f47d25	0		
+7906	2	s32i.n	a7, a6, 0
+58fb91	2	l32i.n	a5, a11, 0x3c
+0e838e	0		
+8293c4	3	l16si	a8, a3, 0x188
+5a7f	2	add.n	a7, a15, a5
+55c020	3	call4	. +0x20c08
+9e096e	0		
+1208ba	3	l8ui	a1, a8, 0xba
+0bb1	2	addi.n	a11, a1, -1
+821561	3	l16ui	a8, a5, 0xc2
+cd75c0	0		
+8841ea	2	l32i.n	a8, a1, 0x10
+4abc	2	add.n	a11, a12, a4
+952423	3	call4	. +0x2324c
+985a90	2	l32i.n	a9, a10, 0x14
+c8b821	2	l32i.n	a12, a8, 0x2c
+1cbe	2	movi.n	a14, 0x1b
+02874e	0		
+f5b9fd	3	call12	. -0x2460
+db4dab	2	addi.n	a4, a13, 0xd
+dbf7	2	addi.n	a15, a7, 0xd
+5294c9	3	l16si	a5, a4, 0x192
+053c4d	3	call0	. +0x4d3c4
+deac6e	0		
+eb01	2	addi.n	a0, a1, 0xe
+8bbb08	2	addi.n	a11, a11, 8
+303609	3	l32e	a3, a6, -0x34
+663a21	3	bnei	a10, 3, . +0x25
+1c66	2	movi.n	a6, 0x16
+ff24d9	0		
+c153ad	3	l32r	a12, . 0x4006b54c
+a1fb03	3	l32r	a10, . 0x40040fec
+2a95	2	add.n	a9, a5, a2
+2476fb	0		
+eefcdb	0		
+dd253c	0		
+d8e5	2	l32i.n	a13, a5, 0x38
+d8d4a0	2	l32i.n	a13, a4, 0x34
+230eee	3	lsi	f2, a14, 0x3b8
+1046fb	0		
+4973	2	s32i.n	a4, a3, 0x1c
+e56d3b	3	call8	. +0x3b6e0
+29dfce	2	s32i.n	a2, a15, 0x34
+00cb3d	0		
+4a1b	2	add.n	a1, a11, a4
+77414a	3	ball	a1, a7, . +0x4e
+89000a	2	s32i.n	a8, a0, 0
+b93bee	2	s32i.n	a11, a11, 0xc
+cdd9	0		
+327f12	0		
+3ab068	2	add.n	a11, a0, a3
+a9c01e	2	s32i.n	a10, a0, 0x30
+3804	2	l32i.n	a3, a4, 0
+29b8c3	2	s32i.n	a2, a8, 0x2c
+72a2c8	3	movi	a7, 0x2c8
+272d00	3	blt	a13, a2, . +4
+5a6b	2	add.n	a6, a11, a5
+b8a526	2	l32i.n	a11, a5, 0x28
+14e016	0		
+ca8183	2	add.n	a8, a1, a12
+e9f5	2	s32i.n	a14, a5, 0x3c
+0b95e2	2	addi.n	a9, a5, -1
+a7a35b	3	bge	a3, a10, . +0x5f
+9b5fde	2	addi.n	a5, a15, 9
+0a52	2	add.n	a5, a2, a0
+0ae120	2	add.n	a14, a1, a0
+bede18	0		
+?ac8b56	0		
+eb2b	2	addi.n	a2, a11, 0xe
+1ec541	0		
+e363fe	0		
+26b899	3	beqi	a8, 0x10, . -0x63
+6844	2	l32i.n	a6, a4, 0x10
+04740f	0		
+3de285	0		
+99f341	2	s32i.n	a9, a3, 0x3c
+c8ab	2	l32i.n	a12, a11, 0x28
+725844	3	s16i	a7, a8, 0x88
+54c316	0		
+d1556b	3	l32r	a13, . 0x4005ad54
+eb0c	2	addi.n	a0, a12, 0xe
+367725	3	entry	a7, 0x12b8
+62e93f	3	s32c1i	a6, a9, 0xfc
+bf274d	0		
+98ff	2	l32i.n	a9, a15, 0x3c
+42a08d	3	movi	a4, 0x8d
+9529a1	3	call4	. -0x5ed64
+f94d53	2	s32i.n	a15, a13, 0x10
+2c96	2	movi.n	a6, 0x29
+f821c3	2	l32i.n	a15, a1, 8
+e3dac0	0		
+82481c	3	s8i	a8, a8, 0x1c
+aa9e	2	add.n	a9, a14, a10
+7990d4	2	s32i.n	a7, a0, 0x24
+35f37b	3	call12	. +0x7bf34
+4db021	0		
+b90c	2	s32i.n	a11, a12, 0
+b02a65	3	extui	a2, a11, 0x1a, 7
+?dc88ac	0		
+2e232f	0		
+8805	2	l32i.n	a8, a5, 0
+b41a0b	0		
+1ea359	0		
+d9fe3c	2	s32i.n	a13, a14, 0x3c
+4cdc	2	movi.n	a12, 0x4d
+b3752e	0		
+61ff11	3	l32r	a6, . 0x400447fc
+a818cc	2	l32i.n	a10, a8, 4
+9beb	2	addi.n	a14, a11, 9
+7b9092	2	addi.n	a9, a0, 7
+b85fa1	2	l32i.n	a11, a15, 0x14
+8350d4	0		
+a848	2	l32i.n	a10, a8, 0x10
+7c0178	2	movi.n	a1, -0x10
+f4a609	0		
+410841	3	l32r	a4, . 0x40050420
+dab7	2	add.n	a11, a7, a13
+ed6d43	0		
+2854c9	2	l32i.n	a2, a4, 0x14
+9e6a30	0		
+4c52	2	movi.n	a2, 0x45
+b59896	3	call12	. -0x69674
+abd825	2	addi.n	a13, a8, 0xa
+?ccd83b	0		
+4df7	0		
+f11faa	3	l32r	a15, . 0x4006a87c
+fab04e	2	add.n	a11, a0, a15
+b8c46d	2	l32i.n	a11, a4, 0x30
+28e2	2	l32i.n	a2, a2, 0x38
+7e5ed0	0		
+51fa7f	3	l32r	a5, . 0x4005ffe8
+9812f5	2	l32i.n	a9, a2, 4
+0848	2	l32i.n	a0, a8, 0x10
+7f42b1	0		
+b45f55	0		
+7ed39a	0		
+2b72	2	addi.n	a7, a2, 2
+0486c4	0		
+1c4584	2	movi.n	a5, 0x14
+91fb05	3	l32r	a9, . 0x400417ec
+?9cbe	0		
+9468b0	0		
+0ddd99	0		
+c941a6	2	s32i.n	a12, a1, 0x10
+f80d	2	l32i.n	a15, a13, 0
+5819b2	2	l32i.n	a5, a9, 4
+6e8647	0		
+2152f9	3	l32r	a2, . 0x4007e548
+?acb1	0		
+0b662d	2	addi.n	a6, a6, -1
+2e8dd0	0		
+c115fe	3	l32r	a12, . 0x4007f854
+1a90	2	add.n	a9, a0, a1
+6d15f1	0		
+550b71	3	call4	. +0x710b8
+10ac96	0		
+99d7	2	s32i.n	a9, a7, 0x34
+3fb016	0		
+11602e	3	l32r	a1, . 0x4004b980
+?2df504	0		
+?8c97	0		
+bd325c	0		
+f2944a	3	l16si	a15, a4, 0x94
+642112	0		
+4d7e	0		
+2b47c3	2	addi.n	a4, a7, 2
+c468b3	0		
+7cf9d3	2	movi.n	a9, -1
+?9c88	0		
+173a5d	3	bltu	a10, a1, . +0x61
+39c0f0	2	s32i.n	a3, a0, 0x30
+7c750f	2	movi.n	a5, -9
+7903	2	s32i.n	a7, a3, 0
+5a4ca7	2	add.n	a4, a12, a5
+915b86	3	l32r	a9, . 0x4006196c
+373b0b	3	bltu	a11, a3, . +0xf
+dac4	2	add.n	a12, a4, a13
+fd901f	0		
+76baa6	0		
+1953d0	2	s32i.n	a1, a3, 0x14
+893a	2	s32i.n	a8, a10, 0xc
+833c04	0		
+484a90	2	l32i.n	a4, a10, 0x10
+e96ba4	2	s32i.n	a14, a11, 0x18
+284a	2	l32i.n	a2, a10, 0x10
+ea2049	2	add.n	a2, a0, a14
+97e97b	3	bbsi	a9, 9, . +0x7f
+1adabb	2	add.n	a13, a10, a1
+18df	2	l32i.n	a1, a15, 0x34
+d431dd	0		
+b2c95c	3	addi	a11, a9, 0x5c
+cadf09	2	add.n	a13, a15, a12
+08ab	2	l32i.n	a0, a11, 0x28
+a9944b	2	s32i.n	a10, a4, 0x24
+41fdd8	3	l32r	a4, . 0x400763f4
+b22d6b	3	l32i	a11, a13, 0x1ac
+4b36	2	addi.n	a3, a6, 4
+71d992	3	l32r	a7, . 0x40064b64
+1a44d8	2	add.n	a4, a4, a1
+db396d	2	addi.n	a3, a9, 0xd
+7d96	0		
+26f583	3	beqi	a5, 0x100, . -0x79
+0dcefe	0		
+f11313	3	l32r	a15, . 0x40044c4c
+?9c1b	0		
+c06621	3	srai	a6, a12, 6
+2afa1e	2	add.n	a15, a10, a2
+cba8df	2	addi.n	a10, a8, 0xc
+0d82	0		
+fe119c	0		
+757826	3	call12	. +0x26788
+a1c6e3	3	l32r	a10, . 0x40078f18
+f8b7	2	l32i.n	a15, a7, 0x2c
+c17d75	3	l32r	a12, . 0x4005d5f4
+2a6c63	2	add.n	a6, a12, a2
+3f8e47	0		
+0bd0	2	addi.n	a13, a0, -1
+563a8d	3	bnez	a10, . -0x729
+629940	3	l16si	a6, a9, 0x80
+089834	2	l32i.n	a0, a8, 0x24
+0cda	2	movi.n	a10, 0xd
+9aebaf	2	add.n	a14, a11, a9
+36b5b2	3	entry	a5, 0x5958
+d4bd29	0		
+99bb	2	s32i.n	a9, a11, 0x2c
+573d2a	3	bltu	a13, a5, . +0x2e
+2d7d4d	0		
+ab1b38	2	addi.n	a1, a11, 0xa
+?8c0e	0		
+26c93b	3	beqi	a9, 0x20, . +0x3f
+777b05	3	bbci	a11, 0x17, . +9
+a02de9	0		
+5a2a	2	add.n	a2, a10, a5
+0c68fc	2	movi.n	a8, 6
+d12acf	3	l32r	a13, . 0x40073ca8
+7d220e	0		
+c8c9	2	l32i.n	a12, a9, 0x30
+b473eb	0		
+f0d48e	0		
+20a4aa	3	floor.s	a10, f4, 2
+291d	2	s32i.n	a2, a13, 4
+780ea7	2	l32i.n	a7, a14, 0
+f6807a	3	bgeui	a0, 8, . +0x7e
+?42b59c	0		
+1dd5	0		
+ab5e43	2	addi.n	a5, a14, 0xa
+aedd4b	0		
+6f184b	0		
+598d	2	s32i.n	a5, a13, 0x20
+bb7bda	2	addi.n	a7, a11, 0xb
+3af4ee	2	add.n	a15, a4, a3
+c359be	0		
+e97b	2	s32i.n	a14, a11, 0x1c
+504121	3	srai	a4, a5, 1
+3269b4	3	s32i	a3, a9, 0x2d0
+842b35	0		
+aae1	2	add.n	a14, a1, a10
+?c2b48e	0		
+753c1e	3	call12	. +0x1e3c8
+da21b8	2	add.n	a2, a1, a13
+ed82	0		
+769d56	3	loopnez	a13, . +0x5a
+e9820d	2	s32i.n	a14, a2, 0x20
+5c996b	2	movi.n	a9, 0x59
+4ca5	2	movi.n	a5, 0x4a
+2dd210	0		
+412ff9	3	l32r	a4, . 0x4007e4bc
+8f55d5	0		
+0961	2	s32i.n	a0, a1, 0x18
+16c74a	3	beqz	a7, . +0x4b0
+159834	3	call4	. +0x34984
+e31133	0		
+1ca9	2	movi.n	a9, 0x1a
+3a1976	2	add.n	a1, a9, a3
+c1bc11	3	l32r	a12, . 0x400446f0
+022269	3	l32i	a0, a2, 0x1a4
+8aed	2	add.n	a14, a13, a8
+c42611	0		
+f0863d	0		
+bacdbe	2	add.n	a12, a13, a11
+ddcb	0		
+4be1c2	2	addi.n	a14, a1, 4
+95c9e0	3	call4	. -0x1f364
+7605dc	3	bf	b5, . -0x20
+9d7f	0		
+5ec8ad	0		
+5f190d	0		
+?ccc8f4	0		
+d90b	2	s32i.n	a13, a11, 0
+908081	3	src	a8, a0, a9
+1b9833	2	addi.n	a9, a8, 1
+631889	0		
+6c07	2	movi.n	a7, -0x20
+550f9f	3	call4	. -0x60f08
+90f6d7	0		
+d5e460	3	call4	. +0x60e50
+ebb6	2	addi.n	a11, a6, 0xe
+8b89fd	2	addi.n	a8, a9, 8
+3c95dc	2	movi.n	a5, 0x39
+39c4e7	2	s32i.n	a3, a4, 0x30
+3b74	2	addi.n	a7, a4, 3
+3a3852	2	add.n	a3, a8, a3
+1257bf	3	s16i	a1, a7, 0x17e
+149ebd	0		
+9aee	2	add.n	a14, a14, a9
+245e05	0		
+541bab	0		
+f725dd	3	blt	a5, a15, . -0x1f
+1944	2	s32i.n	a1, a4, 0x10
+2004df	0		
+c52254	3	call0	. +0x54230
+aa6a49	2	add.n	a6, a10, a10
+2d99	0		
+71429c	3	l32r	a7, . 0x40067108
+61a7b2	3	l32r	a6, . 0x4006ca9c
+9b2290	2	addi.n	a2, a2, 9
+79e4	2	s32i.n	a7, a4, 0x38
+51b706	3	l32r	a5, . 0x40041adc
+f9998e	2	s32i.n	a15, a9, 0x24
+44956a	0		
+1c28	2	movi.n	a8, 0x12
+d61c3d	3	bgez	a12, . +0x3d5
+caf0c4	2	add.n	a15, a0, a12
+e644c8	3	bgei	a4, 4, . -0x34
+598a	2	s32i.n	a5, a10, 0x20
+8fc4ba	0		
+485cd1	2	l32i.n	a4, a12, 0x14
+72c9a3	3	addi	a7, a9, -0x5d
+7c53	2	movi.n	a3, -0xb
+957a9c	3	call4	. -0x63854
+f0b914	3	extui	a11, a15, 9, 2
+0ace82	2	add.n	a12, a14, a0
+ea19	2	add.n	a1, a9, a14
+37c6ec	3	bnall	a6, a3, . -0x10
+0c6ad0	2	movi.n	a10, 6
+?32b548	0		
+2d79	0		
+9532d0	3	call4	. -0x2fcd4
+eff9c7	0		
+3b5379	2	addi.n	a5, a3, 3
+89b8	2	s32i.n	a8, a8, 0x2c
+00e886	0		
+61343d	3	l32r	a6, . 0x4004f4d0
+72867f	0		
+b9c6	2	s32i.n	a11, a6, 0x30
+155322	3	call4	. +0x22534
+494dbe	2	s32i.n	a4, a13, 0x10
+271224	3	beq	a2, a2, . +0x28
+?ec7f	0		
+?52fea5	0		
+6ec362	0		
+2c3a96	2	movi.n	a10, 0x23
+4d9e	0		
+b735f4	3	bltu	a5, a11, . -8
+ee7781	0		
+eaa2fa	2	add.n	a10, a2, a14
+08e2	2	l32i.n	a0, a2, 0x38
+9188cf	3	l32r	a9, . 0x40073e20
+edd48b	0		
+bf38b3	0		
+99cb	2	s32i.n	a9, a11, 0x30
+a49c0a	0		
+4e9eee	0		
+2e4674	0		
+b9ae	2	s32i.n	a11, a14, 0x28
+3c8d0d	2	movi.n	a13, 0x38
+f4bae5	0		
+547a26	0		
+181b	2	l32i.n	a1, a11, 4
+a41bf7	0		
+abfab5	2	addi.n	a15, a10, 0xa
+41c861	3	l32r	a4, . 0x40058720
+?dc68	0		
+d02fa3	3	movltz	a2, a15, a13
+1297ca	3	l16si	a1, a7, 0x194
+b85c70	2	l32i.n	a11, a12, 0x14
+396b	2	s32i.n	a3, a11, 0x18
+904844	3	extui	a4, a9, 8, 5
+b0acd9	0		
+37ca6e	3	bnall	a10, a3, . +0x72
+c898	2	l32i.n	a12, a8, 0x24
+281bb5	2	l32i.n	a2, a11, 4
+1ef7ab	0		
+ff1fbd	0		
+59f5	2	s32i.n	a5, a5, 0x3c
+b0d081	3	src	a13, a0, a11
+2460cc	0		
+22dd3d	3	addmi	a2, a13, 0x3d00
+fd7a	0		
+7493d7	0		
+9eaca9	0		
+e4772e	0		
+096e	2	s32i.n	a0, a14, 0x18
+9b5b22	2	addi.n	a5, a11, 9
+fe2988	0		
+89a467	2	s32i.n	a8, a4, 0x28
+6b3d	2	addi.n	a3, a13, 6
+8fc5e9	0		
+33a8be	0		
+5c3bf8	2	movi.n	a11, 0x53
+2c24	2	movi.n	a4, 0x22
+cb58fb	2	addi.n	a5, a8, 0xc
+90da9e	0		
+30c239	0		
+aa21	2	add.n	a2, a1, a10
+616210	3	l32r	a6, . 0x40044188
+5b1090	2	addi.n	a1, a0, 5
+e4ce0f	0		
+e9e0	2	s32i.n	a14, a0, 0x38
+2eb915	0		
+?9c0ce8	0		
+85b329	3	call0	. +0x29b3c
+2a69	2	add.n	a6, a9, a2
+61f6d6	3	l32r	a6, . 0x40075bd8
+2461e1	0		
+8f6875	0		
+bbfc	2	addi.n	a15, a12, 0xb
+857955	3	call0	. +0x5579c
+0b23c4	2	addi.n	a2, a3, -1
+74f983	0		
+e9d5	2	s32i.n	a14, a5, 0x34
+8eeef0	0		
+7bbca8	2	addi.n	a11, a12, 7
+e0ea39	0		
+5812	2	l32i.n	a5, a2, 4
+?b0bdf3	0		
+c62635	3	j	. +0xd49f
+5af39e	2	add.n	a15, a3, a5
+6c19	2	movi.n	a9, -0x1f
+897f60	2	s32i.n	a8, a15, 0x1c
+e20502	3	l8ui	a14, a5, 2
+353627	3	call12	. +0x27364
+a804	2	l32i.n	a10, a4, 0
+563f0f	3	bnez	a15, . +0xf7
+e86177	2	l32i.n	a14, a1, 0x18
+?dc1aae	0		
+3ca4	2	movi.n	a4, 0x3a
+9d2018	0		
+27cb71	3	bnall	a11, a2, . +0x75
+653ece	3	call8	. -0x31c18
+eae1	2	add.n	a14, a1, a14
+?ec6abe	0		
+3ff0fe	0		
+423d22	0		
+5a8d	2	add.n	a8, a13, a5
+b4f09b	0		
+4eb015	0		
+3a40ef	2	add.n	a4, a0, a3
+6b6a	2	addi.n	a6, a10, 6
+57b090	3	bgeu	a0, a5, . -0x6c
+64fc40	0		
+9572e9	3	call4	. -0x168d4
+ed15	0		
+8fc0c4	0		
+80a353	3	max	a10, a3, a8
+52d655	3	addmi	a5, a6, 0x5500
+?dcee	0		
+530f05	3	lsi	f5, a15, 0x14
+c83602	2	l32i.n	a12, a6, 0xc
+26a70c	3	beqi	a7, 0xc, . +0x10
+7c03	2	movi.n	a3, -0x10
+e077a8	0		
+9bfd5e	2	addi.n	a15, a13, 9
+20033e	0		
+b805	2	l32i.n	a11, a5, 0
+a78aa7	3	bany	a10, a10, . -0x55
+902818	3	lsxu	f2, a8, a9
+e62d39	3	bgei	a13, 2, . +0x3d
+bb3d	2	addi.n	a3, a13, 0xb
+2ff0ee	0		
+a39983	0		
+aac759	2	add.n	a12, a7, a10
+da7a	2	add.n	a7, a10, a13
+15b2eb	3	call4	. -0x144dc
+bb7c84	2	addi.n	a7, a12, 0xb
+?ac5ad9	0		
+1d57	0		
+1aa97c	2	add.n	a10, a9, a1
+26f687	3	beqi	a6, 0x100, . -0x75
+b5516f	3	call12	. +0x6f51c
+0aa5	2	add.n	a10, a5, a0
+310200	3	l32r	a3, . 0x40040008
+7d4a7b	0		
+d3b222	0		
+0cfb	2	movi.n	a11, 0xf
+015cce	3	l32r	a0, . 0x40073970
+f48d0e	0		
+67f6dd	3	bbsi	a6, 0x16, . -0x1f
+2d4a	0		
+4291b0	3	l16si	a4, a1, 0x160
+ba540f	2	add.n	a5, a4, a11
+869795	3	j	. -0x1a99e
+?dc22	0		
+0ad3e6	2	add.n	a13, a3, a0
+7e7988	0		
+44594a	3	mula.da.lh.ldinc	m1, a9, m1, a4
+?9c9c	0		
+098af8	2	s32i.n	a0, a10, 0x20
+2da667	0		
+a409d2	0		
+e83b	2	l32i.n	a14, a11, 0xc
+95c3a7	3	call4	. -0x583c4
+09bd37	2	s32i.n	a0, a13, 0x2c
+4108f0	3	l32r	a4, . 0x4007c020
+5d82	0		
+a8c0f9	2	l32i.n	a10, a0, 0x30
+199042	2	s32i.n	a1, a0, 0x24
+c569cf	3	call0	. -0x30960
+9bbc	2	addi.n	a11, a12, 9
+4d1aa3	0		
+6d0650	2	mov.n	a6, a6
+a892b0	2	l32i.n	a10, a2, 0x24
+8d45	0		
+e54ab1	3	call8	. -0x4eb50
+7ae4c8	2	add.n	a14, a4, a7
+9518e6	3	call4	. -0x19e74
+48dd	2	l32i.n	a4, a13, 0x34
+5b598a	2	addi.n	a5, a9, 5
+?bc65b8	0		
+eec79e	0		
+2c35	2	movi.n	a5, 0x23
+eb83d7	2	addi.n	a8, a3, 0xe
+6babc3	2	addi.n	a10, a11, 6
+fa3411	2	add.n	a3, a4, a15
+486c	2	l32i.n	a4, a12, 0x18
+3899e5	2	l32i.n	a3, a9, 0x24
+88bf03	2	l32i.n	a8, a15, 0x2c
+bd7e0f	0		
+4ae3	2	add.n	a14, a3, a4
+ed85d6	0		
+5b9c55	2	addi.n	a9, a12, 5
+b9a4a3	2	s32i.n	a11, a4, 0x28
+fd42	0		
+64fcc9	0		
+8f5ca5	0		
+940891	0		
+8b67	2	addi.n	a6, a7, 8
+74994d	0		
+cd0690	2	mov.n	a12, a6
+01b3b1	3	l32r	a0, . 0x4006c6cc
+4bbf	2	addi.n	a11, a15, 4
+44b021	0		
+e175fc	3	l32r	a14, . 0x4007f1d4
+7cc0c4	2	movi.n	a0, -4
+a9a4	2	s32i.n	a10, a4, 0x28
+5bbf5c	2	addi.n	a11, a15, 5
+3d9e89	0		
+4c16b1	2	movi.n	a6, 0x41
+391e	2	s32i.n	a3, a14, 4
+182054	2	l32i.n	a1, a0, 8
+550e1f	3	call4	. +0x1f0e8
+f40ba6	0		
+faa4	2	add.n	a10, a4, a15
+14e1cc	0		
+dfb897	0		
+e5ed79	3	call8	. +0x79ee0
+7c96	2	movi.n	a6, -7
+a99756	2	s32i.n	a10, a7, 0x24
+576323	3	bbci	a3, 5, . +0x27
+4a9049	2	add.n	a9, a0, a4
+3dca	0		
+343287	0		
+823970	0		
+3ceb8c	2	movi.n	a11, 0x3e
+6b16	2	addi.n	a1, a6, 6
+151fa3	3	call4	. -0x5ce0c
+540109	0		
+0b36aa	2	addi.n	a3, a6, -1
+b9e7	2	s32i.n	a11, a7, 0x38
+c7393f	3	bltu	a9, a12, . +0x43
+91b095	3	l32r	a9, . 0x400656c0
+fd5d4f	0		
+4c5f	2	movi.n	a15, 0x45
+153981	3	call4	. -0x7ec6c
+6faa2a	0		
+213d18	3	l32r	a2, . 0x400460f4
+7c63	2	movi.n	a3, -0xa
+66d7a5	3	bnei	a7, 0x40, . -0x57
+d2d516	3	addmi	a13, a5, 0x1600
+945b9d	0		
+d88f	2	l32i.n	a13, a15, 0x20
+eb521d	2	addi.n	a5, a2, 0xe
+218fac	3	l32r	a2, . 0x4006b23c
+a88b80	2	l32i.n	a10, a11, 0x20
+1916	2	s32i.n	a1, a6, 4
+db7f3c	2	addi.n	a7, a15, 0xd
+f19606	3	l32r	a15, . 0x40041a58
+e965de	2	s32i.n	a14, a5, 0x18
+?ccbe	0		
+8ea414	0		
+13f076	0		
+975e95	3	bbc	a14, a9, . -0x67
+3b2f	2	addi.n	a2, a15, 3
+5548b3	3	call4	. -0x4cb78
+ebd9e4	2	addi.n	a13, a9, 0xe
+3f9d5d	0		
+4ba8	2	addi.n	a10, a8, 4
+e3126b	0		
+95c826	3	call4	. +0x26c8c
+7d7ca2	0		
+18c2	2	l32i.n	a1, a2, 0x30
+ded774	0		
+60f584	3	extui	a15, a6, 5, 9
+55171f	3	call4	. +0x1f178
+dd24	0		
+652f93	3	call8	. -0x6cd08
+?ec8fb9	0		
+?8c34b2	0		
+1d6c	0		
+286fc3	2	l32i.n	a2, a15, 0x18
+7cf668	2	movi.n	a6, -1
+c8eaf5	2	l32i.n	a12, a10, 0x38
+990c	2	s32i.n	a9, a12, 0
+aa8666	2	add.n	a8, a6, a10
+e843d4	2	l32i.n	a14, a3, 0x10
+2d549f	0		
+edbf	0		
+688338	2	l32i.n	a6, a3, 0x20
+e91a37	2	s32i.n	a14, a10, 4
+b3d7f9	0		
+79b8	2	s32i.n	a7, a8, 0x2c
+533404	0		
+fd8245	0		
+249a42	0		
+7ca7	2	movi.n	a7, -6
+838d5d	3	lsiu	f8, a13, 0x174
+73c468	3	ssiu	f7, a4, 0x1a0
+16206e	3	beqz	a0, . +0x6e6
+3996	2	s32i.n	a3, a6, 0x24
+81c10a	3	l32r	a8, . 0x40042b04
+cbf250	2	addi.n	a15, a2, 0xc
+d9cd89	2	s32i.n	a13, a13, 0x30
+?dc7c	0		
+3d1af0	0		
+7d9b20	0		
+a2df98	3	addmi	a10, a15, -0x6800
+?bc06	0		
+8489bd	0		
+9adb19	2	add.n	a13, a11, a9
+4ca575	2	movi.n	a5, 0x4a
+eaf9	2	add.n	a15, a9, a14
+73c2b2	3	ssiu	f7, a2, 0x2c8
+06829c	3	j	. -0x18df4
+08936c	2	l32i.n	a0, a3, 0x24
+cd1d	0		
+e58a15	3	call8	. +0x158b0
+8d6873	0		
+ea6727	2	add.n	a6, a7, a14
+7914	2	s32i.n	a7, a4, 4
+77b41d	3	bgeu	a4, a7, . +0x21
+?92f2d9	0		
+8f248b	0		
+18a8	2	l32i.n	a1, a8, 0x28
+75a3bb	3	call12	. -0x445c8
+87f200	3	bbsi	a2, 0x18, . +4
+b4b84f	0		
+d8e0	2	l32i.n	a13, a0, 0x38
+?ccce	0		
+?8ce7ab	0		
+?ccfc90	0		
+?9c28	0		
+?fcdf1f	0		
+?9c0f	0		
+?8c43f2	0		
+?dcb0	0		
+?bc3609	0		
+?dc89	0		
+?bc5958	0		
+?fcf7	0		
+?dc94	0		
+?fc5ec1	0		
+?cc0c64	0		
+?8c0488	0		
+?bcddc7	0		
+?ecd4	0		
+?dc3601	0		
+?9ca9	0		
+?ec6d53	0		
+?bcd0e7	0		
+?8cb48b	0		
+?82fb3e	0		
+?ecd70e	0		
+?cc9b34	0		
+?9c5f	0		
+?bcc859	0		
+?ecfa7e	0		
+?fc8056	0		
+?fc29e2	0		
+?bc4902	0		
+?dc78	0		
+?32bc3e	0		
+?8c7db7	0		
+?8c08	0		
+?bcf66b	0		
+?bc4b	0		
+?cc5696	0		
+?ac80d0	0		
+?9cc2d0	0		
+?ac31	0		
+?8c2602	0		
+?acdaa2	0		
+?fc63	0		
+?cc03	0		
+?ac3761	0		
+?ece4da	0		
+?32ba10	0		
+?ecc661	0		
+?8c8327	0		
+?cc58c9	0		
+?e2b2f0	0		
+?ac41cf	0		
+?fc09	0		
+?fccfed	0		
+?bc8009	0		
+?22b888	0		
+?9c9c	0		
+?ecd55d	0		
+?bc0d	0		
+?ace5cb	0		
+?ac8ca9	0		
+?0df7fc	0		
+?8ce8	0		
+?8c736b	0		
+?ac54	0		
+?ac37	0		
+?bc0c	0		
+?ccd32f	0		
+?52f3f4	0		
+?ec8a	0		
+?bcd2	0		
+?62b345	0		
+?ac65	0		
+?dc6b87	0		
+?ec5dfb	0		
+?ec4656	0		
+?e2b657	0		
+?ac1bfb	0		
+?ccc6	0		
+?fc6a	0		
+?ccd7	0		
+?fc294f	0		
+?8c3585	0		
+?bc2ecf	0		
+?52fa7d	0		
+?fc22c5	0		
+?9c49	0		
+?fc7b	0		
+?dcb0b7	0		
+?9c2695	0		
+?8c44fb	0		
+?8c6a	0		
+?9c8085	0		
+?dc6f98	0		
+?cc7b0f	0		
+?ac27bd	0		
+?2cf0a7	2	break.n	0
+?ac07	0		
+?fc80ac	0		
+?fc666d	0		
+?ec37f6	0		
+?9cc17d	0		
+?fcb8	0		
+?9ca7db	0		
+?dc7bed	0		
+?ece3	0		
+?fc43	0		
+?ec40	0		
+?fcac98	0		
+?2cff	2	break.n	0xf
+?aca7	0		
+?c2bac6	0		
+?8cc722	0		
+?9c6c	0		
+?ccf3f4	0		
+?8caa4e	0		
+?2df2	0		
+?cc8af1	0		
+?ac6b	0		
+?f2f9ac	0		
+?ac6e	0		
+?fcc926	0		
+?dc50ee	0		
+?cc47	0		
+?72f5f4	0		
+?ece408	0		
+?9c65	0		
+?cc34	0		
+?9c1d	0		
+?fc02	0		
+?ac81fc	0		
+?ac21d4	0		
+?ccf0b0	0		
+?fce750	0		
+?ecf2	0		
+?acdd54	0		
+?92b09c	0		
+?dc807c	0		
+?c2beb1	0		
+?cca010	0		
+?fcc3	0		
+?ec723d	0		
+?ccc954	0		
+?8cc7	0		
+?9cae22	0		
+?8c35	0		
+?fcaf41	0		
+?fc4b	0		
+?dceebc	0		
+?32b734	0		
+?ecec	0		
+?acfffc	0		
+?ccf880	0		
+?fc4b78	0		
+?dc03	0		
+?72bf89	0		
+?bca1	0		
+?52b68a	0		
+?fc38	0		
+?fcbbbd	0		
+?ec6c2c	0		
+?ac9a18	0		
+?cc6aa2	0		
+?bcc3	0		
+?9cdad1	0		
+?dcd4	0		
+?8cdcc9	0		
+?dc1967	0		
+?ecd8	0		
+?bc6e	0		
+?9c9b	0		
+?9c5807	0		
+?72b15b	0		
+?bcbc8c	0		
+?fc06	0		
+?aca4	0		
+?dc9a	0		
+?bcbac0	0		
+?dce0	0		
+?fc3806	0		
+?8cfb	0		
+?fce8	0		
+?ec99	0		
+?ace3	0		
+?ac166e	0		
+?bc73	0		
+?ec54	0		
+?8c9677	0		
+?ac06f8	0		
+?9cea	0		
+?ac0346	0		
+?9ce349	0		
+?cc6c	0		
+?ccc2	0		
+?dcbe	0		
+?ec8f	0		
+?8c5ecf	0		
+?82b5e6	0		
+?ecd9b1	0		
+?ec3280	0		
+?8c45	0		
+?dc1e	0		
+?ac73	0		
+?8c0993	0		
+?dc93	0		
+?bc80a2	0		
+?9cad	0		
+?acdc36	0		
+?fcf543	0		
+?bce6	0		
+?bc4a	0		
+?bc5a17	0		
+?bcf8d5	0		
+?dc58	0		
+?ecd210	0		
+?bc7f	0		
+?dc8e	0		
+?2dfde6	0		
+?2cf1	2	break.n	1
+?dc011f	0		
+?8cb2	0		
+?e2bdfd	0		
+?02fe8c	0		
+?c09fe3	0		
+?cc5c46	0		
+?8009e3	0		
+?dc2a	0		
+?9c1309	0		
+?9c8a2e	0		
+?cc0c	0		
+?ecc2	0		
+?dc6f91	0		
+?ec1616	0		
+?ccaf	0		
+?bcc8f7	0		
+?cc02	0		
+?8ce2	0		
+?a2f809	0		
+?bc46	0		
+?a2f95e	0		
+?bc39da	0		
+?8c53	0		
+?fca0	0		
+?10c5e3	0		
+?8c49ce	0		
+?2cf7	2	break.n	7
+?8ca627	0		
+?8ce4	0		
+?ec30	0		
+?bc0395	0		
+?fcdb	0		
+?9c07bd	0		
+?f2b294	0		
+?bccb	0		
+?acb0df	0		
+?9c8c18	0		
+?dcb0	0		
+?62f14d	0		
+?ac5e82	0		
+?bcd0	0		
+?acfa	0		
+?fcc543	0		
+?9cb502	0		
+?82b938	0		
+?ac09ac	0		
+?dcdb35	0		
+?ccc303	0		
+?e2f285	0		
+?dcf0	0		
+?cc19e1	0		
+?cc6fb8	0		
+?ac75	0		
+?dcba	0		
+?42ff0f	0		
+?12bdb6	0		
+?f2f033	0		
+?92b0fa	0		
+?dc45	0		
+?2df09e	0		
+?ccd7	0		
+?ecf8	0		
+?bcaea7	0		
+?8c86	0		
+?bc121e	0		
+?8cfcdb	0		
+?ac3d	0		
+?f2b1ef	0		
+?d2b1bc	0		
+?8cad	0		
+?dcc5	0		
+?ec4b	0		
+?bc92	0		
+?fc3c31	0		
+?f2b1ff	0		
+?cc43	0		
+?8cb8	0		
+?bc84	0		
+?8cf2	0		
+?fc7801	0		
+?bc5e	0		
+?62f6c6	0		
+?ec0dc8	0		
+?9cb969	0		
+?8cf2	0		
+?ac380b	0		
+?92f423	0		
+?dc25	0		
+?cca1	0		
+?dcfc	0		
+?accc50	0		
+?dce6	0		
+?8cbf	0		
+?ec76	0		
+?bc9b	0		
+?72f9bf	0		
+?8c9c	0		
+?cc0c	0		
+?9cf8	0		
+?fcd31b	0		
+?9ca0bf	0		
+?8c59	0		
+?bc23	0		
+?fc7c	0		
+?9c7feb	0		
+?dcf07d	0		
+?ac6a	0		
+?ac50	0		
+?dcc1	0		
+?eca5	0		
+?dc773e	0		
+?ac9c	0		
+?72f502	0		
+?8c8136	0		
+?9cdc	0		
+?dce97d	0		
+?2cf0b3	2	break.n	0
+?aceb0f	0		
+?dc15	0		
+?f2bdce	0		
+?0df8c2	0		
+?bc9e97	0		
+?fc56	0		
+?9c3a	0		
+?80aaf3	0		
+?bc8711	0		
+?bc0d	0		
+?9c3270	0		
+?ec071b	0		
+?ece2	0		
+?8ca145	0		
+?accbbb	0		
+?82fb81	0		
+?9cfe	0		
+?9c6ca2	0		
+?fc9d	0		
+?ac1791	0		
+?bcabfe	0		
+?fcc5	0		
+?bca0	0		
+?bc98d1	0		
+?cc47	0		
+?cc8c5c	0		
+?fce5	0		
+?fcfb	0		
+?ecd629	0		
+?ece5	0		
+?dc42c5	0		
+?bcfe7f	0		
+?ec4d37	0		
+?dcbbbb	0		
+?fcd9	0		
+?bca1	0		
+?9cf08d	0		
+?ac88bd	0		
+?8c7956	0		
+?8cd8	0		
+?ccb0	0		
+?ec84	0		
+?cc30	0		
+?dc3b	0		
+?72f9c9	0		
+?9c2ef0	0		
+?dc6046	0		
+?bc2779	0		
+?22b54c	0		
+?8c90	0		
+?92b5f6	0		
+?ecbe	0		
+?8cbf35	0		
+?ec52	0		
+?9c58	0		
+?dc2ea6	0		
+?8cbdc8	0		
+?72ba2b	0		
+?dccec1	0		
+?ec1c	0		
+?cce3f0	0		
+?ec21ce	0		
+?a09ae3	0		
+?bc6bf1	0		
+?72f541	0		
+?cc1d56	0		
+?dcd988	0		
+?9cf0	0		
+?f2b839	0		
+?acf1	0		
+?2cf7	2	break.n	7
+?2dfd	0		
+?dcb34b	0		
+?ece643	0		
+?9c7a59	0		
+?ccea	0		
+?eca5e4	0		
+?cc32	0		
+?ac87	0		
+?8c2c	0		
+?cc342f	0		
+?8c00	0		
+?aca85e	0		
+?9c04af	0		
+?02f353	0		
+?32f3ef	0		
+?9cef	0		
+?ac0c	0		
+?8cfe	0		
+?e017f3	0		
+?bc09d6	0		
+?ccd5	0		
+?9cce99	0		
+?9cd88e	0		
+?8c9598	0		
+?dc73b5	0		
+?ec0540	0		
+?9cfb	0		
+?acc7	0		
+?ccd7fd	0		
+?9c35c8	0		
+?ec9c	0		
+?ec878d	0		
+?8c29	0		
+?fcc876	0		
+?bcbe	0		
+?9cb1d5	0		
+?dc737f	0		
+?8cf907	0		
+?cc4e3c	0		
+?ec4c11	0		
+?5076f3	0		
+?ac2c	0		
+?dc9b	0		
+?bc0cef	0		
+?8cf5	0		
+?ec3128	0		
+?8c146f	0		
+?ecbe9a	0		
+?9c02	0		
+?ac80	0		
+?bcc4	0		
+?fcc2	0		
+?42b19c	0		
+?fc52	0		
+?ec2d8d	0		
+?fc29	0		
+?ccd5	0		
+?ac78c7	0		
+?fc0c82	0		
+?ccad9a	0		
+?9c9d	0		
+?a2faf6	0		
+?ac67	0		
+?8c64	0		
+?bc8b66	0		
+?9c0869	0		
+?82b279	0		
+?dc8b32	0		
+?fc603c	0		
+?ac3efc	0		
+?bcaac6	0		
+?f2f82b	0		
+?fcbf	0		
+?a2f3b5	0		
+?92f2e1	0		
+?12f47b	0		
+?ccbd	0		
+?fc65	0		
+?9c73	0		
+?9cc42e	0		
+?fc0b	0		
+?dcdec1	0		
+?92f32b	0		
+?02bbd0	0		
+?ac07	0		
+?bcec	0		
+?fc23ec	0		
+?42bf91	0		
+?dcab3f	0		
+?e2f417	0		
+?9c48ea	0		
+?bca2	0		
+?d2f990	0		
+?ac019a	0		
+?bc46	0		
+?8c1c4b	0		
+?d2fd86	0		
+?82f7e1	0		
+?bc86	0		
+?dcf2	0		
+?cc19	0		
+?9cced7	0		
+?ecf9	0		
+?eceb	0		
+?ccd14a	0		
+?cc62	0		
+?bcc16e	0		
+?e028f3	0		
+?42b4c8	0		
+?bcb8f8	0		
+?acafca	0		
+?02bd5b	0		
+?22ba26	0		
+?9cb51a	0		
+?ac69	0		
+?cc03	0		
+?bcead6	0		
+?acd2	0		
+?8c093f	0		
+?bcaf73	0		
+?cc32	0		
+?bc86	0		
+?cc95	0		
+?ecda	0		
+?0df6	0		
+?ec2b	0		
+?0dfa57	0		
+?8c3995	0		
+?22f274	0		
+?cc22	0		
+?ec6137	0		
+?cc43e6	0		
+?d2f0b5	0		
+?f2bd3d	0		
+?dce181	0		
+?dc09	0		
+?8cac2a	0		
+?dcb879	0		
+?bc843d	0		
+?9cf2	0		
+?ac8c27	0		
+?9c04	0		
+?cccb	0		
+?ac21	0		
+?9cc3	0		
+?9cef69	0		
+?ccebe4	0		
+?ec9b	0		
+?bc1a1a	0		
+?fc10	0		
+?8c80	0		
+?9ceb	0		
+?fc76	0		
+?d2f627	0		
+?ac903e	0		
+?fc90e5	0		
+?9c16	0		
+?dc7795	0		
+?8cf2	0		
+?9c58	0		
+?acf850	0		
+?fcff	0		
+?8c21d5	0		
+?92b0ab	0		
+?dca9bc	0		
+?cc872f	0		
+?bc4f45	0		
+?2cfc	2	break.n	0xc
+?fc5e43	0		
+?ac00a6	0		
+?bcfc	0		
+?bccaf5	0		
+?ccde	0		
+?eccf38	0		
+?cc66f4	0		
+?8c18	0		
+?ecf6	0		
+?ccfb79	0		
+?bca2	0		
+?bc771b	0		
+?9c1c	0		
+?cc28	0		
+?cc65	0		
+?dc0f4f	0		
+?ec37	0		
+?ec7ec2	0		
+?9cff41	0		
+?b2ba48	0		
+?ece7	0		
+?cc9f	0		
+?dc1289	0		
+?ecea	0		
+?12f919	0		
+?fc6fe9	0		
+?8c0a	0		
+?ccf4	0		
+?8cca3f	0		
+?bc82	0		
+?ac5abe	0		
+?dc45	0		
+?fc50	0		
+?2cf8	2	break.n	8
+?dc2260	0		
+?72ff94	0		
+?dcb887	0		
+?ac1f	0		
+?d08ce3	0		
+?ecf11f	0		
+?e02306	3	wr_mask_gpio_out	a3, a14
+?ec9bdb	0		
+?bc23	0		
+?acb4db	0		
+?12b68a	0		
+?8ca5	0		
+?02b1a5	0		
+?8c05	0		
+?bcd415	0		
+?ac98	0		
+?bcda	0		
+?02f9f8	0		
+?2df150	0		
+?ec73	0		
+?dce56e	0		
+?8ce1	0		
+?cce5	0		
+?ec55e5	0		
+?dc4ca9	0		
+?8c9e	0		
+?ac3dbb	0		
+?8c54	0		
+?92b41a	0		
+?0df8	0		
+?8c80	0		
+?ac371d	0		
+?dc31	0		
+?9ccd	0		
+?ac28f5	0		
+?cc99	0		
+?cc9a0e	0		
+?dcfe01	0		
+?ccea25	0		
+?fcdfd3	0		
+?acdae0	0		
+?d2f401	0		
+?82f4e2	0		
+?8c9544	0		
+?9c1b	0		
+?f2fe5e	0		
+?fc55	0		
+?8cca48	0		
+?acf1e7	0		
+?c2b482	0		
+?dc654d	0		
+?9c4e98	0		
+?ac48	0		
+?bcc2e3	0		
+?8cb581	0		
+?cc701c	0		
+?02bd65	0		
+?bc682d	0		
+?32fca2	0		
+?ccb091	0		
+?fc4cc1	0		
+?dc5b06	0		
+?dcd088	0		
+?82f2f8	0		
+?dce21a	0		
+?205bf3	0		
+?bce7	0		
+?8c3a3c	0		
+?ec1f3c	0		
+?cc46	0		
+?bc2bfe	0		
+?ac9f95	0		
+?bcef	0		
+?32f223	0		
+?cc20	0		
+?fc7619	0		
+?9cbbe7	0		
+?ec7313	0		
+?8ce3bf	0		
+?ec25	0		
+?ac5d55	0		
+?8cbfca	0		
+?8c0f	0		
+?ac98a8	0		
+?9c4077	0		
+?fc22	0		
+?ecbf29	0		
+?ecd888	0		
+?9c7c	0		
+?ac25	0		
+?bca5	0		
+?b2bf1a	0		
+?fccb	0		
+?dc425d	0		
+?9cd452	0		
+?fc6c	0		
+?ec07ac	0		
+?fc33	0		
+?acad52	0		
+?dc4e	0		
+?62b254	0		
+?ac5ca2	0		
+?9ccf	0		
+?ac84e5	0		
+?bc75f4	0		
+?aca8	0		
+?bc65	0		
+?acd9ce	0		
+?aca3	0		
+?fc4a	0		
+?f2b4ff	0		
+?fc60	0		
+?a2bcb2	0		
+?ec86	0		
+?8c43	0		
+?ac6a	0		
+?bc8339	0		
+?cc13	0		
+?acc8	0		
+?eca3	0		
+?bc6986	0		
+?fcf2	0		
+?ec2080	0		
+?9c4d	0		
+?bc9a	0		
+?bc16	0		
+?cc16c5	0		
+?cc62	0		
+?ec04d7	0		
+?8cc730	0		
+?dcd877	0		
+?ec3d	0		
+?8c5b	0		
+?8c1173	0		
+?fc355b	0		
+?acad	0		
+?92b8fa	0		
+?bcb9	0		
+?42b409	0		
+?fc0d	0		
+?fce5	0		
+?bcf2c7	0		
+?ec48b7	0		
+?fcbdb1	0		
+?c2f685	0		
+?accbe7	0		
+?9c3caf	0		
+?bc6e	0		
+?9c5c	0		
+?12baf6	0		
+?ecaa	0		
+?ccf9	0		
+?dc5e	0		
+?dc27f9	0		
+?cc4f	0		
+?9c3a	0		
+?2cfa	2	break.n	0xa
+?fce4	0		
+?bc69	0		
+?bcb534	0		
+?12b014	0		
+?dccf	0		
+?cc7d73	0		
+?ccd8	0		
+?acbdd6	0		
+?8c09	0		
+?dca7cf	0		
+?bcfa	0		
+?82f679	0		
+?ecc954	0		
+?9c5b	0		
+?9c01	0		
+?9c71	0		
+?bcf0	0		
+?8c4189	0		
+?bc19b5	0		
+?fceb	0		
+?fc4b	0		
+?8ce9	0		
+?8cb4	0		
+?9cfb	0		
+?dc1103	0		
+?f2ffbf	0		
+?cccbed	0		
+?8c1e	0		
+?ac2362	0		
+?fc83aa	0		
+?fc205f	0		
+?52bc49	0		
+?9c69fd	0		
+?ecce	0		
+?9c2ca0	0		
+?9c61	0		
+?8c4c	0		
+?ccd029	0		
+?fcb641	0		
+?8c39	0		
+?e2f879	0		
+?72f694	0		
+?ac1f	0		
+?22f93e	0		
+?ccf5ad	0		
+?9c71	0		
+?8c6cc8	0		
+?9cc9	0		
+?8cc4	0		
+?82fb01	0		
+?fc3e	0		
+?ace5d8	0		
+?8ce744	0		
+?eccb	0		
+?bce6	0		
+?ac65ec	0		
+?ac9f36	0		
+?8cd7ef	0		
+?cc3b	0		
+?dc1316	0		
+?ec13	0		
+?72fd2c	0		
+?0df6	0		
+?ec480b	0		
+?fc1029	0		
+?fc3e09	0		
+?bc2d	0		
+?dc6f	0		
+?dc39ac	0		
+?c2f5e3	0		
+?ec1489	0		
+?cc84ba	0		
+?8c13	0		
+?e2bd76	0		
+?bc86	0		
+?dcb4	0		
+?fcde	0		
+?9cbd	0		
+?bc535b	0		
+?dc3ed9	0		
+?cce27d	0		
+?dc3329	0		
+?a2f0c2	0		
+?82bc57	0		
+?bc167f	0		
+?dcf5	0		
+?ac166e	0		
+?9ca786	0		
+?dcaace	0		
+?2cfce2	2	break.n	0xc
+?8c0ca3	0		
+?ecd2	0		
+?dcf1	0		
+?8c69a5	0		
+?bc6fb8	0		
+?cc4e	0		
+?bc4e	0		
+?ac3a	0		
+?bcb4	0		
+?fc22	0		
+?fc22	0		
+?32bcb5	0		
+?8c23e7	0		
+?ccc226	0		
+?2df9	0		
+?ec5f2d	0		
+?ec01bd	0		
+?9cc929	0		
+?aca4	0		
+?8c7e	0		
+?2dfc	0		
+?32b883	0		
+?bc3a	0		
+?cc2756	0		
+?ccc6e7	0		
+?ac6679	0		
+?cc06	0		
+?9c66f1	0		
+?a2ba6f	0		
+?bccc70	0		
+?dccc3b	0		
+?8cbe	0		
+?ccd792	0		
+?ac5378	0		
+?bc164d	0		
+?acc1b4	0		
+?cc89	0		
+?bc68	0		
+?cc1b	0		
+?ccaa8c	0		
+?fcea	0		
+?2df018	0		
+?ccfe	0		
+?dc59	0		
+?cce887	0		
+?ac351c	0		
+?fc38	0		
+?cc0ec6	0		
+?9c2f	0		
+?bc1b23	0		
+?dc31ce	0		
+?ec7309	0		
+?bca73c	0		
+?ac69	0		
+?9cedde	0		
+?e2f41c	0		
+?304be3	0		
+?ac8c	0		
+?ccd7aa	0		
+?fc6676	0		
+?bc0a	0		
+?ac5a09	0		
+?ac30	0		
+?2df6aa	0		
+?ac22	0		
+?dc9d	0		
+?ec661a	0		
+?0df8	0		
+?acaf	0		
+?ec35	0		
+?ccc4d3	0		
+?2df0a5	0		
+?52b1f1	0		
+?cc22	0		
+?e2b245	0		
+?ecf3df	0		
+?fc96	0		
+?8c61	0		
+?fc9a13	0		
+?c2fa2c	0		
+?cc04	0		
+?ecce74	0		
+?fc7dd2	0		
+?8c59f3	0		
+?fc3e41	0		
+?fc3d1a	0		
+?32f900	0		
+?8cc0	0		
+?70e3e3	0		
+?acd5	0		
+?9c62	0		
+?fcd7	0		
+?9c7d	0		
+?ccdc	0		
+?cc6f	0		
+?ec60	0		
+?acef	0		
+?9c4ae9	0		
+?2df9	0		
+?9cdd4d	0		
+?bca483	0		
+?bc1df3	0		
+?8c27c7	0		
+?8c3b4c	0		
+?ecc6	0		
+?dce5	0		
+?a2b55d	0		
+?dce044	0		
+?ac53	0		
+?bc3c	0		
+?bcf89a	0		
+?cc4f	0		
+?fc7b9a	0		
+?ac04fd	0		
+?ac6972	0		
+?503850	0		
+?ac7ec5	0		
+?fc28	0		
+?9cedcc	0		
+?cccb2f	0		
+?cc98	0		
+?ec115b	0		
+?cc88	0		
+?8c6710	0		
+?ec0657	0		
+?8c19	0		
+?dc55ed	0		
+?8c3174	0		
+?82bb35	0		
+?ec7ae4	0		
+?dcaa	0		
+?f2ffee	0		
+?2df1	0		
+?fca9	0		
+?ac0c3c	0		
+?fc117f	0		
+?9c9d	0		
+?bc61	0		
+?acf477	0		
+?bc2c52	0		
+?dc4629	0		
+?a2bab8	0		
+?8cfc	0		
+?dc9e4f	0		
+?ccd4	0		
+?bc62	0		
+?ac48	0		
+?fc9fd0	0		
+?2dff2d	0		
+?ecf6	0		
+?dcb284	0		
+?ec8c	0		
+?bc22cd	0		
+?ec3774	0		
+?fcbd64	0		
+?acb0f7	0		
+?eca563	0		
+?cc1f8b	0		
+?acb8	0		
+?ac1b	0		
+?fc8a57	0		
+?aceff0	0		
+?ec722c	0		
+?ac5f	0		
+?dc05	0		
+?dc37b1	0		
+?f2f1b2	0		
+?dcc6	0		
+?22b6ba	0		
+?acf349	0		
+?e2b042	0		
+?9cb4	0		
+?bc7307	0		
+?cc7c	0		
+?ec64a0	0		
+?8c2b04	0		
+?9cc281	0		
+?8c8b	0		
+?8cb6	0		
+?dcda	0		
+?ac938c	0		
+?ac8302	0		
+?ec56	0		
+?ac245d	0		
+?7035e3	0		
+?9cb3	0		
+?acb1	0		
+?ac22d0	0		
+?bcfb43	0		
+?8cb2a0	0		
+?9c66	0		
+?a0ade3	0		
+?dc53	0		
+?9cb8ec	0		
+?bc22	0		
+?92b267	0		
+?dc6354	0		
+?8c9143	0		
+?8c3fe7	0		
+?ac52db	0		
+?bcb42d	0		
+?12b81b	0		
+?9cc151	0		
+?cc398b	0		
+?dc97	0		
+?fc3dfc	0		
+?ac8b	0		
+?e2b8d2	0		
+?ec7c7d	0		
+?9cfc	0		
+?cc71	0		
+?9ce7e9	0		
+?ac6d	0		
+?bc76f0	0		
+?f2b999	0		
+?b2b3b9	0		
+?ccc3	0		
+?cc0b8a	0		
+?ec7143	0		
+?d2f2f6	0		
+?22fd81	0		
+?bcaedf	0		
+?dc66	0		
+?ecc9	0		
+?acef	0		
+?ccfd16	0		
+?8cf4dd	0		
+?9c78	0		
+?bcf1db	0		
+?bc6f21	0		
+?8ca2	0		
+?bc7266	0		
+?ccdc79	0		
+?8c3cbc	0		
+?bc4a64	0		
+?ec7f	0		
+?ccfd	0		
+?9c44	0		
+?cce820	0		
+?9c53	0		
+?32b2c8	0		
+?ccdb	0		
+?bcf8	0		
+?9c427e	0		
+?fc3e17	0		
+?72f28e	0		
+?ec3fbb	0		
+?02bf21	0		
+?dc01	0		
+?ac76	0		
+?2cf8	2	break.n	8
+?bcd188	0		
+?ac98	0		
+?cc6c47	0		
+?cc908e	0		
+?ac950c	0		
+?ec45	0		
+?9c8e61	0		
+?9c3789	0		
+?bca82e	0		
+?fc0a	0		
+?8c9b	0		
+?9c6b	0		
+?acb562	0		
+?9c4e	0		
+?dcc0	0		
+?bc7f	0		
+?cc3884	0		
+?8c9e	0		
+?2079f3	0		
+?fc7a81	0		
+?9c5c3b	0		
+?dc8b	0		
+?cc3fce	0		
+?ece0	0		
+?ecf51f	0		
+?8cec	0		
+?ac82	0		
+?ac7c	0		
+?bcfc	0		
+?dc3a05	0		
+?b2f5cb	0		
+?dc5b	0		
+?dcf5	0		
+?52f2cb	0		
+?fc98ca	0		
+?dc1925	0		
+?8c33	0		
+?9ce6	0		
+?cce1	0		
+?cc8306	0		
+?8cc8	0		
+?ecc65a	0		
+?fc15fb	0		
+?cc0155	0		
+?8cbdcd	0		
+?acd8	0		
+?b2fbd1	0		
+?cc45	0		
+?fce7c3	0		
+?fcdb	0		
+?2df0	0		
+?fc4c	0		
+?cc8ad6	0		
+?8ceba5	0		
+?8cd7f1	0		
+?8c4b2e	0		
+?42b148	0		
+?fc71	0		
+?e2b688	0		
+?9ce8b3	0		
+?2df4	0		
+?bc4a	0		
+?bc4abd	0		
+?ec06	0		
+?fc13e8	0		
+?dc55	0		
+?9c1c61	0		
+?32b512	0		
+?8cd6c9	0		
+?ecc737	0		
+?92f21c	0		
+?ccd1	0		
+?cc8761	0		
+?dc2d	0		
+?8cbb	0		
+?fcc60e	0		
+?fc8a	0		
+?ac1663	0		
+?bc77	0		
+?52f856	0		
+?fcfef2	0		
+?9cbe45	0		
+?ac0a	0		
+?bca2e5	0		
+?dcecc0	0		
+?cc61	0		
+?acfc	0		
+?cce7	0		
+?c2b0fb	0		
+?cc7e	0		
+?eccd	0		
+?ec69	0		
+?ecd386	0		
+?ac66	0		
+?8cdd2d	0		
+?ecafca	0		
+?bcde9f	0		
+?ec53d4	0		
+?9c4853	0		
+?ecf5	0		
+?dcf4	0		
+?fc3dcc	0		
+?bc4fd5	0		
+?8c5d	0		
+?fc8f	0		
+?8cd0	0		
+?9c34	0		
+?2011f3	0		
+?dc0dcf	0		
+?22ba9b	0		
+?fc04	0		
+?0df407	0		
+?bc9d	0		
+?acfdf1	0		
+?ccfa7d	0		
+?bc2ddb	0		
+?cc6a90	0		
+?acb6	0		
+?dc953c	0		
+?2dffc2	0		
+?bc6375	0		
+?8c07	0		
+?8c2b86	0		
+?40b5f3	0		
+?9ca3	0		
+?cc3d44	0		
+?dc1f94	0		
+?bcb9	0		
+?8c7240	0		
+?9cdb	0		
+?ec68	0		
+?ec54	0		
+?fc23	0		
+?9ca56b	0		
+?62f3eb	0		
+?bc0fc0	0		
+?9cdac5	0		
+?aceb	0		
+?9c08c2	0		
+?ec13c8	0		
+?dc68ce	0		
+?fcf1	0		
+?ac0d	0		
+?acc2	0		
+?f2f157	0		
+?8c5112	0		
+?cc89	0		
+?8cbd75	0		
+?9cdbcb	0		
+?fcfc	0		
+?d2b97a	0		
+?ecad58	0		
+?bc87	0		
+?9c78	0		
+?bc5f	0		
+?8cd9	0		
+?bc181b	0		
+?cc07	0		
+?f2f319	0		
+?bc1c78	0		
+?42ba34	0		
+?ec73	0		
+?f2fb3b	0		
+?12f70c	0		
+?dc4965	0		
+?fcda	0		
+?ecd8	0		
+?acf7	0		
+?72baf8	0		
+?ccb539	0		
+?dcbccd	0		
+?9cf609	0		
+?bc25	0		
+?ecea	0		
+?9cf8	0		
+?dcaf	0		
+?bc1f	0		
+?ccbd2e	0		
+?fcfb0b	0		
+?dc310c	0		
+?dcc4f4	0		
+?82bfdd	0		
+?ac39	0		
+?9c70	0		
+?02b404	0		
+?9cfe	0		
+?dc1b16	0		
+?9cf5	0		
+?8c77f6	0		
+?bc74	0		
+?dc49e5	0		
+?ac62	0		
+?ec1a	0		
+?fc6f	0		
+?ecc321	0		
+?cc2b23	0		
+?2cfa	2	break.n	0xa
+?ccab	0		
+?ace9	0		
+?acb801	0		
+?fcc454	0		
+?ecc3c0	0		
+?42f0c1	0		
+?42be78	0		
+?405cf3	0		
+?42b0a0	0		
+?ec8c49	0		
+?2cf7ff	2	break.n	7
+?ac586c	0		
+?cc855d	0		
+?8c32be	0		
+?cc737c	0		
+?ac2d	0		
+?acdc	0		
+?ac05dc	0		
+?8c38	0		
+?dc6f0b	0		
+?ecfe	0		
+?cc02	0		
+?8c1f	0		
+?fca053	0		
+?ec2e5a	0		
+?dcae	0		
+?bc0a05	0		
+?fcb194	0		
+?52f69f	0		
+?bcc2	0		
+?fcd14e	0		
+?ac5b5f	0		
+?8cafa7	0		
+?cc3c9d	0		
+?d2f92a	0		
+?bcb315	0		
+?ccc7	0		
+?8c3a13	0		
+?8c78ec	0		
+?cc0836	0		
+?9ca9	0		
+?9c04	0		
+?12ffdc	0		
+?9c06	0		
+?8c7696	0		
+?ccd629	0		
+?9c55e1	0		
+?ac05	0		
+?52b0b3	0		
+?ec17	0		
+?bc6e	0		
+?ec3b	0		
+?ecd4	0		
+?2cf1ae	2	break.n	1
+?cc4d	0		
+?ec4c67	0		
+?bc7677	0		
+?9c0b	0		
+?b2f851	0		
+?2df9	0		
+?eca4	0		
+?fc0d2b	0		
+?52b8e1	0		
+?a0b0f3	0		
+?bcc30f	0		
+?52bbb8	0		
+?22f736	0		
+?ac33ee	0		
+?8ca604	0		
+?9c25	0		
+?e2f0b6	0		
+?8c64b5	0		
+?ac33	0		
+?cc5d	0		
+?92b00c	0		
+?ec47eb	0		
+?9c9f	0		
+?8c2e6c	0		
+?ec2d2a	0		
+?ec4a	0		
+?bc86	0		
+?ec3ac3	0		
+?ec7107	0		
+?ac40	0		
+?dc56f5	0		
+?ccaf	0		
+?9c6e	0		
+?fc0940	0		
+?8ccb	0		
+?ac2694	0		
+?ec1cc6	0		
+?8c0b18	0		
+?dc41	0		
+?ccf6	0		
+?bc87	0		
+?8c73	0		
+?8cfcdf	0		
+?8c702e	0		
+?dc30d9	0		
+?bc4da5	0		
+?bc4bb9	0		
+?ccaff1	0		
+?bc10	0		
+?bc99	0		
+?9c92a0	0		
+?ecca7c	0		
+?bc42	0		
+?cc2b	0		
+?fc0a	0		
+?bc06	0		
+?cc3b95	0		
+?a2b94e	0		
+?ac8eeb	0		
+?fc6072	0		
+?d2fb93	0		
+?ac01	0		
+?ac7951	0		
+?ac5c	0		
+?d2f39b	0		
+?9cde	0		
+?ecf6	0		
+?9cb3	0		
+?bc97	0		
+?bc1b	0		
+?8c89	0		
+?9cfb46	0		
+?dc69	0		
+?ecd168	0		
+?bc6b8b	0		
+?8c8791	0		
+?8c69f4	0		
+?e2f422	0		
+?fc891a	0		
+?fca7	0		
+?bc34da	0		
+?bca8	0		
+?fca722	0		
+?8c5511	0		
+?9cf317	0		
+?ac2739	0		
+?dc51	0		
+?bc96	0		
+?cc56c9	0		
+?fcb3b3	0		
+?dc7061	0		
+?9c57	0		
+?bc2522	0		
+?dc12	0		
+?ecc6	0		
+?cc5e02	0		
+?8cf2eb	0		
+?fcfd	0		
+?2cfb71	2	break.n	0xb
+?8ca167	0		
+?bcc5	0		
+?ec36	0		
+?dc00ba	0		
+?bce567	0		
+?9c7e	0		
+?22ffb6	0		
+?ccb5	0		
+?8cdd	0		
+?dc48	0		
+?acd54f	0		
+?c2b9b2	0		
+?8c7563	0		
+?8c35	0		
+?72bced	0		
+?9cfd	0		
+?bc1707	0		
+?dc01	0		
+?cc64	0		
+?9c63	0		
+?fcab	0		
+?bc08	0		
+?8c370e	0		
+?cc8c8a	0		
+?cca6	0		
+?bc2b	0		
+?dc5f	0		
+?9c076b	0		
+?ecad	0		
+?ec4b36	0		
+?cc7b	0		
+?d2f2a9	0		
+?fcae	0		
+?32b0bb	0		
+?fca2c0	0		
+?dcfd6f	0		
+?ac57e4	0		
+?9ce6	0		
+?ec5c	0		
+?9c92a3	0		
+?02b8b6	0		
+?fce567	0		
+?9c42	0		
+?bc0e30	0		
+?8c93	0		
+?bc2bb2	0		
+?ec05	0		
+?bc14	0		
+?dc1fab	0		
+?8c1086	0		
+?bc1a64	0		
+?fc4410	0		
+?9cd7c6	0		
+?bcb5	0		
+?72bf37	0		
+?8cb1	0		
+?ec236b	0		
+?82f5f3	0		
+?ccec89	0		
+?bc35fd	0		
+?dc7614	0		
+?aca9ce	0		
+?ec8dce	0		
+?cca3c3	0		
+?ccc465	0		
+?ecf1a3	0		
+?12b1af	0		
+?dcc3	0		
+?8c91b2	0		
+?82b54b	0		
+?cc50e6	0		
+?bcd1ab	0		
+?bcd4	0		
+?cce0	0		
+?cc64	0		
+?8c73e8	0		
+?ece9d3	0		
+?fcc907	0		
+?22ff49	0		
+?cc819c	0		
+?cc3e	0		
+?ec9b58	0		
+?8c8b	0		
+?0df7	0		
+?cca524	0		
+?cc8900	0		
+?ec47	0		
+?2dfb	0		
+?3df082	0		
+?ac897c	0		
+?c2f6bb	0		
+?c2ffa8	0		
+?9c43	0		
+?bc8a	0		
+?0df8	0		
+?8c6ee7	0		
+?ec165b	0		
+?bca9	0		
+?dc64	0		
+?bc97	0		
+?9c5f	0		
+?aced	0		
+?cc88ba	0		
+?bc4c	0		
+?cc6d	0		
+?ac8174	0		
+?8cfb	0		
+?8c2a49	0		
+?ccf6	0		
+?9cee	0		
+?c2f214	0		
+?ecdb9b	0		
+?ac18	0		
+?ac6e	0		
+?fc86ad	0		
+?cc1f	0		
+?eccc	0		
+?9cc2	0		
+?fc5122	0		
+?bc18	0		
+?cc937c	0		
+?bcb1dc	0		
+?ecfa98	0		
+?bc11	0		
+?8c44	0		
+?ec1939	0		
+?9c48	0		
+?b2b08e	0		
+?9c35	0		
+?dc0361	0		
+?ccbe1f	0		
+?12f70e	0		
+?2cf2	2	break.n	2
+?dcc422	0		
+?dcc1	0		
+?acb129	0		
+?92f439	0		
+?ac2f	0		
+?ac1b	0		
+?fc76	0		
+?ecec	0		
+?8c5777	0		
+?acaaa4	0		
+?fc17	0		
+?e00706	3	clr_bit_gpio_out	0x7e
+?bc1294	0		
+?82fc0b	0		
+?cceabf	0		
+?ec24	0		
+?e2b8ef	0		
+?ccb88b	0		
+?8ca7	0		
+?92b957	0		
+?62bd09	0		
+?0df8c9	0		
+?ec42	0		
+?9c37e3	0		
+?8c2d	0		
+?fc13	0		
+?fc60	0		
+?ec5e	0		
+?82b5fb	0		
+?dcb219	0		
+?cc51	0		
+?ece2da	0		
+?fc088a	0		
+?dc7c	0		
+?cc8f	0		
+?ec65ca	0		
+?82f6b4	0		
+?9cb32d	0		
+?ec29b3	0		
+?ac0fe1	0		
+?fcd2da	0		
+?fcc4eb	0		
+?ecd161	0		
+?8c0d	0		
+?b2bf3d	0		
+?accfb6	0		
+?8c00	0		
+?ac84	0		
+?acae	0		
+?02f26f	0		
+?dc28	0		
+?8c1c	0		
+?8c53	0		
+?ec28b8	0		
+?8cbf	0		
+?fc9d81	0		
+?8c5a	0		
+?cc8607	0		
+?8cd394	0		
+?fce5	0		
+?acc7	0		
+?bc18	0		
+?dc16	0		
+?dcb4	0		
+?dcdc2c	0		
+?8c415f	0		
+?ac1a01	0		
+?dc61d5	0		
+?bca5	0		
+?ec3ad2	0		
+?dcddd9	0		
+?c2f2ca	0		
+?0df27d	0		
+?fcc3	0		
+?cce6e3	0		
+?fc6efa	0		
+?f2b9f6	0		
+?32be2e	0		
+?9c44	0		
+?9cc06b	0		
+?bc57	0		
+?cce2	0		
+?bc7b	0		
+?acb1	0		
+?ccbfbf	0		
+?fc3f	0		
+?9c614c	0		
+?bcd5	0		
+?acac	0		
+?ec3c23	0		
+?ec2042	0		
+?8cd3	0		
+?dcaf	0		
+?ec32a9	0		
+?8c7db9	0		
+?8c6917	0		
+?dcdfb7	0		
+?9c5fcf	0		
+?ecc88e	0		
+?dcae8d	0		
+?ac29fe	0		
+?9c07	0		
+?ec59	0		
+?ac2bdd	0		
+?bc567c	0		
+?8c23	0		
+?0df9	0		
+?8c453f	0		
+?ac52	0		
+?fc24	0		
+?dc4e	0		
+?dc23	0		
+?fc7d	0		
+?72fdce	0		
+?bc60	0		
+?dc75	0		
+?cc791e	0		
+?ec45	0		
+?fc8e8c	0		
+?cc33	0		
+?dc5553	0		
+?acd4	0		
+?fc95	0		
+?acbf	0		
+?9cbe92	0		
+?ccb8d2	0		
+?ccb9	0		
+?9c2f51	0		
+?ecb0	0		
+?8c6a54	0		
+?ecf71c	0		
+?cc1db5	0		
+?9c78	0		
+?ecf0	0		
+?bc65	0		
+?cc74	0		
+?c2bf55	0		
+?fc0c79	0		
+?8c85de	0		
+?9c2c8d	0		
+?9c1ce0	0		
+?bc86	0		
+?9c3e	0		
+?fcaf72	0		
+?accfa4	0		
+?dcc8	0		
+?b2f5ad	0		
+?bcb1	0		
+?bcdf	0		
+?9c5ffe	0		
+?8cca	0		
+?fc62	0		
+?fcb2	0		
+?8c7be1	0		
+?fc03d2	0		
+?ec06	0		
+?aca950	0		
+?9c42	0		
+?9c2d	0		
+?ecd2	0		
+?aca045	0		
+?8cb88f	0		
+?0df542	0		
+?c2f88f	0		
+?ccd8bd	0		
+?dc0f	0		
+?acb0	0		
+?cc9a2b	0		
+?cc35	0		
+?dcbb61	0		
+?8cb3cf	0		
+?02f57f	0		
+?ac5d	0		
+?8c70ec	0		
+?9c0e5d	0		
+?dc1b3f	0		
+?fcf3	0		
+?ec62cb	0		
+?9c509a	0		
+?ec11	0		
+?dcc723	0		
+?ac0b8b	0		
+?8c70	0		
+?fc581b	0		
+?ec5d97	0		
+?fcde	0		
+?8c2811	0		
+?9c6d	0		
+?bc939a	0		
+?f2fa18	0		
+?9c5f1a	0		
+?dc6e	0		
+?0df2	0		
+?fcfc59	0		
+?ac0d97	0		
+?fc42	0		
+?32b46d	0		
+?ecad	0		
+?dce8	0		
+?62bba1	0		
+?cc152a	0		
+?82bb05	0		
+?8c351a	0		
+?02b474	0		
+?52bcc5	0		
+?ecbf27	0		
+?ac7160	0		
+?ec14db	0		
+?dcd3	0		
+?82f4e4	0		
+?fca5	0		
+?ecd47c	0		
+?ace5	0		
+?ec13	0		
+?cc59fe	0		
+?9cf4a6	0		
+?9c849c	0		
+?bcd7ec	0		
+?9cd701	0		
+?ec47	0		
+?82fbb5	0		
+?dc3c02	0		
+?ec88b8	0		
+?fcdb34	0		
+?cc61	0		
+?9cf008	0		
+?acf4	0		
+?02ffa4	0		
+?bcb500	0		
+?dcfaf7	0		
+?b2f533	0		
+?f2facb	0		
+?ec17	0		
+?bce44c	0		
+?2cf2	2	break.n	2
+?cc6099	0		
+?dc10	0		
+?c2bdeb	0		
+?ec75	0		
+?bc0a	0		
+?fcf938	0		
+?c2fbbf	0		
+?92b667	0		
+?bcca42	0		
+?bc30	0		
+?ac1c	0		
+?fcf7	0		
+?ac974f	0		
+?8c4c	0		
+?cc65	0		
+?dcb0	0		
+?9ca352	0		
+?fcbaf0	0		
+?ac5340	0		
+?fc695a	0		
+?8c42	0		
+?dc439b	0		
+?8c7a	0		
+?ac5d	0		
+?aca8	0		
+?ec092a	0		
+?8c0d63	0		
+?bcfc41	0		
+?8c61c2	0		
+?bc7dc9	0		
+?72b09d	0		
+?cc489d	0		
+?9c7e	0		
+?8c36	0		
+?8c08	0		
+?8c521b	0		
+?bc3a	0		
+?02b872	0		
+?8c99	0		
+?dc16	0		
+?ec0a	0		
+?bcef0d	0		
+?acd9cf	0		
+?fc82d7	0		
+?fc61	0		
+?8c4b49	0		
+?22f5cd	0		
+?42f242	0		
+?fcfc	0		
+?9c32	0		
+?ac7633	0		
+?12fef8	0		
+?ec09	0		
+?cc7e	0		
+?ac14	0		
+?dcc68d	0		
+?acc21f	0		
+?ecf1	0		
+?aca5	0		
+?ec46	0		
+?cc1d	0		
+?fc74	0		
+?8c0a20	0		
+?9cda12	0		
+?c2bbf5	0		
+?9c17dd	0		
+?8c5386	0		
+?8cecaf	0		
+?fc22	0		
+?8c2656	0		
+?bcea	0		
+?2cf9bb	2	break.n	9
+?9c91a4	0		
+?bcd3	0		
+?9cd2e1	0		
+?fc5d63	0		
+?ece7a5	0		
+?bca4fa	0		
+?dc47c8	0		
+?8c59	0		
+?bcdb04	0		
+?ac229c	0		
+?cc42	0		
+?ccc9	0		
+?9c18	0		
+?bc61	0		
+?ecc4	0		
+?dc7d	0		
+?bce0	0		
+?ac7376	0		
+?fcbebb	0		
+?8cd476	0		
+?ac414a	0		
+?f2f11d	0		
+?acb238	0		
+?ccc3e0	0		
+?bcc4	0		
+?c2b490	0		
+?72f555	0		
+?fcdea7	0		
+?ac90	0		
+?8c15	0		
+?9c42	0		
+?bca990	0		
+?ac4894	0		
+?8c9f	0		
+?fc82c5	0		
+?9c4bf1	0		
+?9c0942	0		
+?22b437	0		
+?ec40	0		
+?9c07	0		
+?9cc5	0		
+?9c65f1	0		
+?bc1d4b	0		
+?9ca01e	0		
+?cc5496	0		
+?22b047	0		
+?acb98a	0		
+?accf	0		
+?52b8fd	0		
+?8c6e7d	0		
+?dcd77d	0		
+?cc2f6a	0		
+?9c7d27	0		
+?ec6138	0		
+?8cbf9d	0		
+?fc94	0		
+?ec7bf3	0		
+?dc82	0		
+?52b647	0		
+?bc3f23	0		
+?dcde	0		
+?8cce21	0		
+?cc14	0		
+?ec81dc	0		
+?8c3ad3	0		
+?0dfb0e	0		
+?ec1e	0		
+?9c6b	0		
+?8c6bfa	0		
+?02f1f3	0		
+?aca916	0		
+?9cc7	0		
+?cc8286	0		
+?fc68	0		
+?dc9d	0		
+?72f26f	0		
+?9caf	0		
+?fc6d	0		
+?ac2f	0		
+?fcb3d6	0		
+?dc3407	0		
+?8caf	0		
+?92b1d4	0		
+?fc6849	0		
+?ec4b	0		
+?bc24	0		
+?9cd028	0		
+?eceb	0		
+?8c5068	0		
+?9c248e	0		
+?fc2b	0		
+?9cf2	0		
+?ac030d	0		
+?dccd	0		
+?72f5c9	0		
+?dc39	0		
+?32b5ea	0		
+?ac74	0		
+?9cbc9a	0		
+?dcd4	0		
+?8ceb	0		

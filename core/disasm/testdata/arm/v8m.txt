@@ -1,0 +1,29 @@
+ 8000000:	e97f e97f 	sg
+ 8000004:	e841 f000 	tt	r0, r1
+ 8000008:	e841 f040 	ttt	r0, r1
+ 800000c:	e841 f080 	tta	r0, r1
+ 8000010:	e843 f2c0 	ttat	r2, r3
+ 8000014:	4774      	bxns	lr
+ 8000016:	479c      	blxns	r3
+ 8000018:	e8d1 0faf 	lda	r0, [r1]
+ 800001c:	e8d1 0f8f 	ldab	r0, [r1]
+ 8000020:	e8d1 0f9f 	ldah	r0, [r1]
+ 8000024:	e8c1 0faf 	stl	r0, [r1]
+ 8000028:	e8c1 0f8f 	stlb	r0, [r1]
+ 800002c:	e8c1 0f9f 	stlh	r0, [r1]
+ 8000030:	e8d1 0fef 	ldaex	r0, [r1]
+ 8000034:	e8d1 0fcf 	ldaexb	r0, [r1]
+ 8000038:	e8d1 0fdf 	ldaexh	r0, [r1]
+ 800003c:	e8c2 1fe0 	stlex	r0, r1, [r2]
+ 8000040:	e8c2 1fc0 	stlexb	r0, r1, [r2]
+ 8000044:	e8c2 1fd0 	stlexh	r0, r1, [r2]
+ 8000048:	f3ef 8088 	mrs	r0, MSP_NS
+ 800004c:	f380 8889 	msr	PSP_NS, r0
+ 8000050:	f3ef 800a 	mrs	r0, MSPLIM
+ 8000054:	f380 880b 	msr	PSPLIM, r0
+ 8000058:	f3ef 8094 	mrs	r0, CONTROL_NS
+ 800005c:	f240 0001 	movw	r0, #1
+ 8000060:	f2c0 0002 	movt	r0, #2
+ 8000064:	f000 b801 	b.w	0x800006a
+ 8000068:	bf00      	nop
+ 800006a:	bf00      	nop

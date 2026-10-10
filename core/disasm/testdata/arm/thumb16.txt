@@ -1,0 +1,129 @@
+ 8000000:	0008      	movs	r0, r1
+ 8000002:	0008      	movs	r0, r1
+ 8000004:	0151      	lsls	r1, r2, #5
+ 8000006:	0823      	lsrs	r3, r4, #32
+ 8000008:	0863      	lsrs	r3, r4, #1
+ 800000a:	1035      	asrs	r5, r6, #32
+ 800000c:	11f5      	asrs	r5, r6, #7
+ 800000e:	1888      	adds	r0, r1, r2
+ 8000010:	1b77      	subs	r7, r6, r5
+ 8000012:	1dc8      	adds	r0, r1, #7
+ 8000014:	1e08      	subs	r0, r1, #0
+ 8000016:	1c08      	adds	r0, r1, #0
+ 8000018:	27ff      	movs	r7, #255	@ 0xff
+ 800001a:	2000      	movs	r0, #0
+ 800001c:	2bc8      	cmp	r3, #200	@ 0xc8
+ 800001e:	3264      	adds	r2, #100	@ 0x64
+ 8000020:	3a01      	subs	r2, #1
+ 8000022:	4008      	ands	r0, r1
+ 8000024:	4048      	eors	r0, r1
+ 8000026:	4088      	lsls	r0, r1
+ 8000028:	40c8      	lsrs	r0, r1
+ 800002a:	4108      	asrs	r0, r1
+ 800002c:	4148      	adcs	r0, r1
+ 800002e:	4188      	sbcs	r0, r1
+ 8000030:	41c8      	rors	r0, r1
+ 8000032:	4208      	tst	r0, r1
+ 8000034:	4248      	negs	r0, r1
+ 8000036:	4288      	cmp	r0, r1
+ 8000038:	42c8      	cmn	r0, r1
+ 800003a:	4308      	orrs	r0, r1
+ 800003c:	4348      	muls	r0, r1
+ 800003e:	4388      	bics	r0, r1
+ 8000040:	43c8      	mvns	r0, r1
+ 8000042:	4440      	add	r0, r8
+ 8000044:	4480      	add	r8, r0
+ 8000046:	4485      	add	sp, r0
+ 8000048:	4468      	add	r0, sp
+ 800004a:	448f      	add	pc, r1
+ 800004c:	4580      	cmp	r8, r0
+ 800004e:	4548      	cmp	r0, r9
+ 8000050:	4680      	mov	r8, r0
+ 8000052:	4640      	mov	r0, r8
+ 8000054:	468d      	mov	sp, r1
+ 8000056:	46fe      	mov	lr, pc
+ 8000058:	4608      	mov	r0, r1
+ 800005a:	4770      	bx	lr
+ 800005c:	4700      	bx	r0
+ 800005e:	4798      	blx	r3
+ 8000060:	4800      	ldr	r0, [pc, #0]	@ (0x8000064)
+ 8000062:	49ff      	ldr	r1, [pc, #1020]	@ (0x8000460)
+ 8000064:	5088      	str	r0, [r1, r2]
+ 8000066:	5288      	strh	r0, [r1, r2]
+ 8000068:	5488      	strb	r0, [r1, r2]
+ 800006a:	5688      	ldrsb	r0, [r1, r2]
+ 800006c:	5888      	ldr	r0, [r1, r2]
+ 800006e:	5a88      	ldrh	r0, [r1, r2]
+ 8000070:	5c88      	ldrb	r0, [r1, r2]
+ 8000072:	5e88      	ldrsh	r0, [r1, r2]
+ 8000074:	6008      	str	r0, [r1, #0]
+ 8000076:	67c8      	str	r0, [r1, #124]	@ 0x7c
+ 8000078:	685a      	ldr	r2, [r3, #4]
+ 800007a:	77c8      	strb	r0, [r1, #31]
+ 800007c:	7848      	ldrb	r0, [r1, #1]
+ 800007e:	87c8      	strh	r0, [r1, #62]	@ 0x3e
+ 8000080:	8848      	ldrh	r0, [r1, #2]
+ 8000082:	9000      	str	r0, [sp, #0]
+ 8000084:	90ff      	str	r0, [sp, #1020]	@ 0x3fc
+ 8000086:	9f02      	ldr	r7, [sp, #8]
+ 8000088:	a01c      	add	r0, pc, #112	@ (adr r0, 0x80000fc)
+ 800008a:	a800      	add	r0, sp, #0
+ 800008c:	a8ff      	add	r0, sp, #1020	@ 0x3fc
+ 800008e:	b07f      	add	sp, #508	@ 0x1fc
+ 8000090:	b0ff      	sub	sp, #508	@ 0x1fc
+ 8000092:	b000      	add	sp, #0
+ 8000094:	b390      	cbz	r0, 0x80000fc
+ 8000096:	bb8f      	cbnz	r7, 0x80000fc
+ 8000098:	b208      	sxth	r0, r1
+ 800009a:	b248      	sxtb	r0, r1
+ 800009c:	b288      	uxth	r0, r1
+ 800009e:	b2c8      	uxtb	r0, r1
+ 80000a0:	b401      	push	{r0}
+ 80000a2:	b5f0      	push	{r4, r5, r6, r7, lr}
+ 80000a4:	b455      	push	{r0, r2, r4, r6}
+ 80000a6:	b500      	push	{lr}
+ 80000a8:	bd00      	pop	{pc}
+ 80000aa:	bdf0      	pop	{r4, r5, r6, r7, pc}
+ 80000ac:	bcff      	pop	{r0, r1, r2, r3, r4, r5, r6, r7}
+ 80000ae:	ba08      	rev	r0, r1
+ 80000b0:	ba48      	rev16	r0, r1
+ 80000b2:	bac8      	revsh	r0, r1
+ 80000b4:	be00      	bkpt	0x0000
+ 80000b6:	beff      	bkpt	0x00ff
+ 80000b8:	b662      	cpsie	i
+ 80000ba:	b672      	cpsid	i
+ 80000bc:	b661      	cpsie	f
+ 80000be:	b671      	cpsid	f
+ 80000c0:	b663      	cpsie	if
+ 80000c2:	bf00      	nop
+ 80000c4:	bf10      	yield
+ 80000c6:	bf20      	wfe
+ 80000c8:	bf30      	wfi
+ 80000ca:	bf40      	sev
+ 80000cc:	c006      	stmia	r0!, {r1, r2}
+ 80000ce:	c806      	ldmia	r0!, {r1, r2}
+ 80000d0:	c803      	ldmia	r0, {r0, r1}
+ 80000d2:	c7ff      	stmia	r7!, {r0, r1, r2, r3, r4, r5, r6, r7}
+ 80000d4:	d094      	beq.n	0x8000000
+ 80000d6:	d111      	bne.n	0x80000fc
+ 80000d8:	d292      	bcs.n	0x8000000
+ 80000da:	d391      	bcc.n	0x8000000
+ 80000dc:	d490      	bmi.n	0x8000000
+ 80000de:	d58f      	bpl.n	0x8000000
+ 80000e0:	d68e      	bvs.n	0x8000000
+ 80000e2:	d78d      	bvc.n	0x8000000
+ 80000e4:	d88c      	bhi.n	0x8000000
+ 80000e6:	d98b      	bls.n	0x8000000
+ 80000e8:	da8a      	bge.n	0x8000000
+ 80000ea:	db89      	blt.n	0x8000000
+ 80000ec:	dc88      	bgt.n	0x8000000
+ 80000ee:	dd87      	ble.n	0x8000000
+ 80000f0:	de00      	udf	#0
+ 80000f2:	defe      	udf	#254	@ 0xfe
+ 80000f4:	df00      	svc	0
+ 80000f6:	dfff      	svc	255	@ 0xff
+ 80000f8:	e782      	b.n	0x8000000
+ 80000fa:	e7ff      	b.n	0x80000fc
+ 80000fc:	bf00      	nop
+ 80000fe:	bf00      	nop
+ 8000100:	ffff ffff 			@ <UNDEFINED> instruction: 0xffffffff

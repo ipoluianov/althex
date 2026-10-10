@@ -26,6 +26,31 @@ type parser struct {
 	i     int
 	types map[string]bool // the names that are types, as declared so far
 	anon  int
+	// depth is how deep the tree being parsed is: the nested statements and
+	// expressions, and the operators of a chain (a + b + c...), which make
+	// a tree as deep as the chain is long
+	depth int
+}
+
+// maxNesting limits depth: the parser, the compiler and the interpreter
+// recurse over the tree, and a hostile template ((((((... would overflow
+// the stack, which a program cannot recover from
+const maxNesting = 1000
+
+// nest counts a level more of the tree
+func (p *parser) nest() error {
+	p.depth++
+	if p.depth > maxNesting {
+		return &Error{Pos: p.tok().pos, Msg: fmt.Sprintf("nested too deep (more than %d levels)", maxNesting)}
+	}
+	return nil
+}
+
+// enter counts a level and returns what puts the depth back at the end of
+// the function: defer p.enter()() with the error checked by nest
+func (p *parser) enter() func() {
+	d := p.depth
+	return func() { p.depth = d }
 }
 
 func parse(src string) ([]stmt, error) {
@@ -126,6 +151,10 @@ func (p *parser) atType() bool {
 
 // stmt parses a statement; a struct with variables after it gives two
 func (p *parser) stmt(top bool) ([]stmt, error) {
+	defer p.enter()()
+	if err := p.nest(); err != nil {
+		return nil, err
+	}
 	t := p.tok()
 	if t.kind == tOp {
 		switch t.text {
@@ -781,12 +810,19 @@ func (p *parser) attrs() ([]attr, error) {
 // ---- Expressions ----
 
 func (p *parser) expr() (expr, error) {
+	defer p.enter()()
+	if err := p.nest(); err != nil {
+		return nil, err
+	}
 	x, err := p.assignExpr()
 	if err != nil {
 		return nil, err
 	}
 	// The comma operator: the value of the last
 	for p.isOp(",") {
+		if err := p.nest(); err != nil {
+			return nil, err
+		}
 		op := p.next()
 		y, err := p.assignExpr()
 		if err != nil {
@@ -801,6 +837,10 @@ var assignOps = map[string]bool{"=": true, "+=": true, "-=": true, "*=": true, "
 	"&=": true, "|=": true, "^=": true, "<<=": true, ">>=": true}
 
 func (p *parser) assignExpr() (expr, error) {
+	defer p.enter()()
+	if err := p.nest(); err != nil {
+		return nil, err
+	}
 	x, err := p.condExpr()
 	if err != nil {
 		return nil, err
@@ -817,6 +857,10 @@ func (p *parser) assignExpr() (expr, error) {
 }
 
 func (p *parser) condExpr() (expr, error) {
+	defer p.enter()()
+	if err := p.nest(); err != nil {
+		return nil, err
+	}
 	c, err := p.binary(0)
 	if err != nil {
 		return nil, err
@@ -849,6 +893,7 @@ var precedence = [][]string{
 }
 
 func (p *parser) binary(level int) (expr, error) {
+	defer p.enter()()
 	if level == len(precedence) {
 		return p.unary()
 	}
@@ -869,6 +914,9 @@ func (p *parser) binary(level int) (expr, error) {
 		if !found {
 			return x, nil
 		}
+		if err := p.nest(); err != nil {
+			return nil, err
+		}
 		p.next()
 		y, err := p.binary(level + 1)
 		if err != nil {
@@ -879,6 +927,10 @@ func (p *parser) binary(level int) (expr, error) {
 }
 
 func (p *parser) unary() (expr, error) {
+	defer p.enter()()
+	if err := p.nest(); err != nil {
+		return nil, err
+	}
 	t := p.tok()
 	if t.kind == tOp {
 		switch t.text {
@@ -937,6 +989,7 @@ func (p *parser) unary() (expr, error) {
 }
 
 func (p *parser) postfix() (expr, error) {
+	defer p.enter()()
 	x, err := p.primary()
 	if err != nil {
 		return nil, err
@@ -945,6 +998,9 @@ func (p *parser) postfix() (expr, error) {
 		t := p.tok()
 		if t.kind != tOp {
 			return x, nil
+		}
+		if err := p.nest(); err != nil {
+			return nil, err
 		}
 		switch t.text {
 		case "[":

@@ -84,7 +84,12 @@ type parser struct {
 	text string // the token as written
 	num  uint64 // a number; may be 1<<63, which only a unary minus makes fit
 	err  *Error // a bad token
+
+	depth int // of the parentheses and the unary operators
 }
+
+// maxDepth limits the recursion of the parser: ((((((... would overflow the stack
+const maxDepth = 1000
 
 // next reads the next token
 func (p *parser) next() {
@@ -167,6 +172,11 @@ func (p *parser) sum() (int64, error)   { return p.binary(p.prod, "+", "-") }
 func (p *parser) prod() (int64, error)  { return p.binary(p.unary, "*", "/", "%") }
 
 func (p *parser) unary() (int64, error) {
+	p.depth++
+	defer func() { p.depth-- }()
+	if p.depth > maxDepth {
+		return 0, &Error{p.at, "nested too deep"}
+	}
 	if !p.isOp("-", "+", "~") {
 		return p.primary()
 	}

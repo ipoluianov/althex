@@ -15,18 +15,28 @@ import (
 type MainForm struct {
 	ui.Widget
 
-	tabBar  *TabBar
-	area    *ui.Panel // the box of the current tab, or the hint
-	lblHint *ui.Label
-	status  *StatusBar
+	tabBar *TabBar
+	// external serves the interfaces for other programs (EXT-6, 7)
+	external *external
+	area     *ui.Panel // the box of the current tab, or the hint
+	lblHint  *ui.Label
+	welcome  *welcome
+	status   *StatusBar
 
 	side      *SidePanel
 	sideSplit *ui.Splitter
-	pages     struct{ inspector, structure, console, bookmarks, hashes, search int }
+	pages     struct {
+		inspector, structure, console, bookmarks, hashes, history, search, disk, files, boot, disasm, firmware, functions int
+	}
 	inspector *InspectorPage
 	search    *SearchPage
 	structure *StructurePage
 	console   *ConsolePage
+	files     *FilesPage
+	disasm    *DisasmPage
+	firmware  *FirmwarePage
+	functions *FunctionsPage
+	history   *HistoryPage
 
 	tabs []*Tab
 	cur  int
@@ -81,17 +91,13 @@ func NewMainForm() *MainForm {
 	c.sideSplit.SetSecondSize(panelWidth)
 	c.AddWidget(1, 0, c.sideSplit)
 
-	c.lblHint = ui.NewLabel("")
-	c.lblHint.SetTextFunc(func() string { return T().DropHint })
-	c.lblHint.SetTextAlign(ui.HAlignCenter)
-	c.lblHint.SetForegroundColor(colorSecondaryText.get())
-	c.lblHint.SetXExpandable(true)
-	c.lblHint.SetYExpandable(true)
-	c.area.AddWidget(0, 0, c.lblHint)
+	c.welcome = newWelcome(&c)
+	c.showWelcome()
 
 	c.status = NewStatusBar()
 	c.AddWidget(2, 0, c.status)
 	c.AddTimer(2000, c.checkDocuments)
+	c.external = newExternal(&c)
 	lastCreatedMainWidget = &c
 	return &c
 }
@@ -153,6 +159,7 @@ func (c *MainForm) registerCommands() {
 	c.cmd("file.newSize", func() string { return t().MenuNewSize }, "", c.newDocumentOfSize)
 	c.cmd("file.newClipboard", func() string { return t().MenuNewClipboard }, "", c.newDocumentFromClipboard)
 	c.cmd("file.open", func() string { return t().MenuOpen }, "Ctrl+O", c.openDialog)
+	c.cmd("file.openDisk", func() string { return t().MenuOpenDisk }, "", func() { c.ShowDialog(NewOpenDiskDialog(c.openDisk)) })
 	c.cmd("file.save", func() string { return t().MenuSave }, "Ctrl+S", func() { c.save(c.tab(), false, nil) })
 	c.cmd("file.saveAs", func() string { return t().MenuSaveAs }, "Ctrl+Shift+S", func() { c.save(c.tab(), true, nil) })
 	c.cmd("file.close", func() string { return t().MenuClose }, "Ctrl+W", func() { c.closeTab(c.cur, nil) })
@@ -170,9 +177,16 @@ func (c *MainForm) registerCommands() {
 	}))
 	insert.Checked = func() bool { return c.view() != nil && c.view().InsertMode() }
 	readOnly := c.cmd("edit.readOnly", func() string { return t().MenuReadOnly }, "", func() {
-		if d := c.doc(); d != nil {
-			d.SetReadOnly(!d.ReadOnly())
+		d := c.doc()
+		if d == nil {
+			return
 		}
+		// A disk becomes writable after two questions (6.2)
+		if d.ReadOnly() && d.IsDevice() {
+			c.confirmDeviceWrite(d, T().DiskWriteEdits, func() { d.SetReadOnly(false) })
+			return
+		}
+		d.SetReadOnly(!d.ReadOnly())
 	})
 	readOnly.Checked = func() bool { return c.doc() != nil && c.doc().ReadOnly() }
 
@@ -201,12 +215,14 @@ func (c *MainForm) registerCommands() {
 		c.ShowDialog(NewPaletteDialog(c.commands, func(cmd *Command) { cmd.Run() }))
 	})
 	c.cmd("options.settings", func() string { return t().MenuSettings }, "", c.ShowSettings)
+	c.cmd("options.external", func() string { return t().MenuExternal }, "", c.ShowExternal)
 	c.cmd("help.docs", func() string { return t().MenuDocs }, "F1", func() { openDocs(c, "help_f1") })
 	c.cmd("help.about", func() string { return t().MenuAbout }, "", func() { c.ShowDialog(NewAboutDialog()) })
 }
 
 // BuildMenuBar makes the main menu of the window
 func (c *MainForm) BuildMenuBar() *ui.MenuBar {
+	c.requireDocument()
 	t := T
 	bar := ui.NewMenuBar()
 	add := func(text func() string) *ui.ContextMenu {
@@ -220,7 +236,7 @@ func (c *MainForm) BuildMenuBar() *ui.MenuBar {
 	file := add(func() string { return t().MenuFile })
 	c.addItems(file, "file.new")
 	c.subMenu(file, func() string { return t().MenuNewMore }, "file.newSize", "file.newClipboard")
-	c.addItems(file, "file.open")
+	c.addItems(file, "file.open", "file.openDisk")
 	c.recentMenu(file)
 	c.addItems(file, "file.save", "file.saveAs", "-")
 	c.buildImportExportMenu(file)
@@ -247,7 +263,7 @@ func (c *MainForm) BuildMenuBar() *ui.MenuBar {
 		"nav.exportBookmarks", "nav.importBookmarks", "-", "nav.nextTab", "nav.prevTab")
 
 	options := add(func() string { return t().MenuOptions })
-	c.addItems(options, "options.settings")
+	c.addItems(options, "options.settings", "options.external")
 
 	help := add(func() string { return t().MenuHelp })
 	c.addItems(help, "help.palette", "-", "help.docs", "-", "help.about")
@@ -383,6 +399,7 @@ func (c *MainForm) RequestClose() bool {
 // exit closes the window after the documents
 func (c *MainForm) exit() {
 	c.closeAll(func() {
+		c.external.stop()
 		c.SaveWindowState()
 		c.Form().Close()
 	})

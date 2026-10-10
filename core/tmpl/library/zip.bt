@@ -499,7 +499,7 @@ struct LOCAL_FILE_HEADER(int64 known) {
 string Summary(string name, int64 original, int64 compressed, COMPRESSION &method) {
     local string m = ToLower(EnumToString(method));
     if (m == "") m = Str("method %d", method);
-    return Str("%s (%d → %d bytes, %s)", name, original, compressed, m);
+    return Str("%s (%d -> %d bytes, %s)", name, original, compressed, m);
 }
 
 string LocalRead(LOCAL_FILE_HEADER &h) {

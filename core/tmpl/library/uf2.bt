@@ -1,0 +1,97 @@
+//! name: UF2 firmware
+//! extensions: uf2
+//! magic: 0 "55 46 32 0A 57 51 5D 9E"
+
+// UF2, Microsoft's USB flashing format (github.com/microsoft/uf2): 512-byte
+// blocks, each with the flash address and up to 476 bytes of payload. The
+// family ID tells the chip; a file may carry images of several families.
+// At most MAX_BLOCKS blocks are shown.
+
+LittleEndian();
+
+local int MAX_BLOCKS = 4096;
+
+enum <uint32> UF2_FAMILY {
+    ATMEGA32 = 0x16573617, SAML21 = 0x1851780A, NRF52 = 0x1B57745F,
+    ESP32 = 0x1C5F21B0, STM32L1 = 0x1E1F432D, STM32L0 = 0x202E3A91,
+    STM32WL = 0x21460FF0, LPC55 = 0x2ABC77EC, STM32G0 = 0x300F5633,
+    GD32F350 = 0x31D228C6, STM32L5 = 0x04240BDF, STM32G4 = 0x4C71240A,
+    MIMXRT10XX = 0x4FB2D5BD, STM32F7 = 0x53B80F00, SAMD51 = 0x55114460,
+    STM32F4 = 0x57755A57, FX2 = 0x5A18069B, STM32F2 = 0x5D1A0A2E,
+    STM32F1 = 0x5EE21072, NRF52833 = 0x621E937A, STM32F0 = 0x647824B6,
+    SAMD21 = 0x68ED2B88, STM32F3 = 0x6B846188, STM32F407 = 0x6D0922FA,
+    STM32H7 = 0x6DB66082, STM32WB = 0x70D16653, ESP8266 = 0x7EAB61ED,
+    KL32L2 = 0x7F83E793, STM32F407VG = 0x8FB060FE, NRF52840 = 0xADA52840,
+    ESP32S2 = 0xBFDD4EEE, ESP32S3 = 0xC47E5767, ESP32C3 = 0xD42BA06C,
+    ESP32C2 = 0x2B88D29C, ESP32H2 = 0x332726F6, ESP32C6 = 0x540DDF62,
+    ESP32P4 = 0x3D308E94, RP2040 = 0xE48BFF56, RP2XXX_ABSOLUTE = 0xE48BFF57,
+    RP2XXX_DATA = 0xE48BFF58, RP2350_ARM_S = 0xE48BFF59,
+    RP2350_RISCV = 0xE48BFF5A, RP2350_ARM_NS = 0xE48BFF5B,
+    STM32L4 = 0x00FF6919, GD32VF103 = 0x9AF03E33, CSK4 = 0x4F6ACE52,
+    CSK6 = 0x6E7348A8, M0SENSE = 0x11DE784A
+};
+
+string FlagsComment(uint32 &f) {
+    local string s = "";
+    if (f & 0x00000001) s += "not main flash, ";
+    if (f & 0x00001000) s += "file container, ";
+    if (f & 0x00002000) s += "family ID present, ";
+    if (f & 0x00004000) s += "MD5 checksum present, ";
+    if (f & 0x00008000) s += "extension tags present, ";
+    if (s == "")
+        return "none";
+    return SubStr(s, 0, Strlen(s) - 2);
+}
+
+struct UF2_BLOCK {
+    uint32 magicStart0 <format=hex, comment="0x0A324655, \"UF2\\n\"">;
+    uint32 magicStart1 <format=hex, comment="0x9E5D5157">;
+    uint32 flags <format=hex, comment=FlagsComment>;
+    uint32 targetAddr <format=hex, comment="where the payload is written">;
+    uint32 payloadSize <comment="usually 256, at most 476">;
+    uint32 blockNo;
+    uint32 numBlocks;
+    if (flags & 0x2000)
+        UF2_FAMILY familyID;
+    else if (flags & 0x1000)
+        uint32 fileSize <comment="the size of the file in the container">;
+    else
+        uint32 reserved;
+    if (payloadSize <= 476) {
+        uchar data[payloadSize];
+        if (payloadSize < 476)
+            uchar padding[476 - payloadSize];
+    } else
+        uchar data[476] <comment="payloadSize is too big">;
+    uint32 magicEnd <format=hex, comment="0x0AB16F30">;
+} <read=BlockRead>;
+
+string BlockRead(UF2_BLOCK &b) {
+    local string fam = "";
+    if (b.flags & 0x2000) {
+        fam = EnumToString(b.familyID);
+        if (fam == "")
+            fam = Str("0x%08X", b.familyID);
+        fam = ", " + fam;
+    }
+    return Str("%u/%u: %u bytes at 0x%08X%s", b.blockNo + 1, b.numBlocks, b.payloadSize, b.targetAddr, fam);
+}
+
+local int64 n = FileSize() / 512;
+if (n > MAX_BLOCKS) {
+    Warning("%d blocks, only %d shown", n, MAX_BLOCKS);
+    n = MAX_BLOCKS;
+}
+local int64 i;
+for (i = 0; i < n; i++) {
+    if (ReadUInt(i * 512) != 0x0A324655 || ReadUInt(i * 512 + 4) != 0x9E5D5157) {
+        Warning("block %d has no UF2 magic", i);
+        break;
+    }
+    FSeek(i * 512);
+    UF2_BLOCK block;
+}
+if (FileSize() % 512 != 0) {
+    FSeek(FileSize() / 512 * 512);
+    uchar tail[FileSize() - FTell()] <comment="not a whole block">;
+}

@@ -239,3 +239,45 @@ func TestTextInEncoding(t *testing.T) {
 		t.Fatalf("text %q", s)
 	}
 }
+
+// A row width that does not fit (a side panel opened) is narrowed, not cut
+// off; the first byte on the screen stays there
+func TestNarrowedRows(t *testing.T) {
+	v, _ := newTestView(t, string(make([]byte, 1<<16)))
+	o := v.Options()
+	o.BytesPerRow = 16
+	v.SetOptions(o)
+	v.layout(1600, 400)
+	if v.bpr != 16 {
+		t.Fatalf("wide: %d bytes a row", v.bpr)
+	}
+	v.setTop(100) // byte 1600 at the top
+	v.layout(400, 400)
+	if v.bpr != 8 {
+		t.Fatalf("narrow: %d bytes a row, want 8 (rows at round offsets)", v.bpr)
+	}
+	if first := v.topRow * int64(v.bpr); first > 1600 || first+int64(v.bpr) <= 1600 {
+		t.Errorf("the top row starts at %d, not around 1600", first)
+	}
+	if right := v.xText + v.bpr*v.font.CharWidth; right > 400 {
+		t.Errorf("the text column ends at %d of 400", right)
+	}
+	v.layout(1600, 400)
+	if v.bpr != 16 {
+		t.Errorf("wide again: %d", v.bpr)
+	}
+}
+
+// A field or a difference chosen elsewhere: the caret at its start, so the
+// status bar and the inspector show its bytes; clipped at the end
+func TestSelectCaretAtStart(t *testing.T) {
+	v, _ := newTestView(t, "0123456789")
+	v.Select(3, 4)
+	if s, n := v.Selection(); s != 3 || n != 4 || v.Caret() != 3 {
+		t.Errorf("select: %d+%d, caret %d", s, n, v.Caret())
+	}
+	v.Select(8, 5)
+	if s, n := v.Selection(); s != 8 || n != 2 || v.Caret() != 8 {
+		t.Errorf("clipped: %d+%d, caret %d", s, n, v.Caret())
+	}
+}

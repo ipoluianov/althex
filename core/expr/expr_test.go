@@ -3,7 +3,10 @@ package expr
 import (
 	"errors"
 	"math"
+	"strings"
 	"testing"
+
+	"github.com/ipoluianov/althex/internal/fuzzguard"
 )
 
 var vars = map[string]int64{"cursor": 100, "Size": 4096, "sel": 16}
@@ -164,6 +167,7 @@ func FuzzEval(f *testing.F) {
 		f.Add(s, int64(0))
 	}
 	f.Fuzz(func(t *testing.T, s string, base int64) {
+		defer fuzzguard.Start(t.Name())()
 		v, err := Eval(s, vars)
 		if err != nil {
 			var e *Error
@@ -177,4 +181,16 @@ func FuzzEval(f *testing.F) {
 			t.Fatalf("%q: offset %d", s, o)
 		}
 	})
+}
+
+// Deep nesting is an error, not a stack overflow
+func TestNestingLimit(t *testing.T) {
+	for _, s := range []string{strings.Repeat("(", 1_000_000) + "1", strings.Repeat("-", 1_000_000) + "1"} {
+		if _, err := Eval(s, nil); err == nil || !strings.Contains(err.Error(), "nested too deep") {
+			t.Errorf("%.10s...: %v", s, err)
+		}
+	}
+	if v, err := Eval(strings.Repeat("(", 500)+"1"+strings.Repeat(")", 500), nil); err != nil || v != 1 {
+		t.Fatal(v, err)
+	}
 }

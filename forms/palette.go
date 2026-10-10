@@ -25,7 +25,7 @@ func NewPaletteDialog(commands map[string]*Command, run func(cmd *Command)) *Pal
 	for _, cmd := range commands {
 		c.all = append(c.all, cmd)
 	}
-	sort.Slice(c.all, func(i, j int) bool { return c.all[i].Text() < c.all[j].Text() })
+	sort.Slice(c.all, func(i, j int) bool { return c.all[i].paletteText() < c.all[j].paletteText() })
 	c.txt = ui.NewTextBox()
 	c.txt.SetXExpandable(true)
 	c.txt.SetOnTextChanged(c.filter)
@@ -62,7 +62,7 @@ func (c *PaletteDialog) filter() {
 	words := strings.Fields(strings.ToLower(c.txt.Text()))
 	c.shown = c.shown[:0]
 	for _, cmd := range c.all {
-		text := strings.ToLower(cmd.Text() + " " + cmd.ID)
+		text := strings.ToLower(cmd.paletteText() + " " + cmd.ID)
 		match := true
 		for _, w := range words {
 			if !strings.Contains(text, w) {
@@ -76,7 +76,7 @@ func (c *PaletteDialog) filter() {
 	}
 	c.table.SetRowCount(len(c.shown))
 	for i, cmd := range c.shown {
-		c.table.SetCellText2(i, 0, cmd.Text())
+		c.table.SetCellText2(i, 0, cmd.paletteText())
 		keys := ""
 		if len(cmd.Keys) > 0 {
 			keys = cmd.Keys[0].String()

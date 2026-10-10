@@ -23,6 +23,9 @@ contents:
     dst: /usr/share/icons/hicolor/scalable/apps/althex.svg
   - src: icon.png
     dst: /usr/share/icons/hicolor/256x256/apps/althex.png
+  # The licences of what is built in ask for their notices to go with the binary
+  - src: app/notices.txt
+    dst: /usr/share/doc/althex/NOTICES
 
 scripts:
   preremove: build/preremove.sh

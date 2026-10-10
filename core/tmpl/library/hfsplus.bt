@@ -1,0 +1,108 @@
+//! name: HFS+ volume
+//! extensions: hfs, hfsx
+//! magic: 0x400 "48 2B"
+//! magic: 0x400 "48 58"
+
+// Mac OS Extended (HFS+, HFSX - case-sensitive): the volume header at 1024
+// with the forks of the special files (allocation bitmap, extents overflow,
+// catalog, attributes, startup). Big-endian. The alternate header is at
+// 1024 from the end.
+
+BigEndian();
+
+// "2024-05-01 12:00:00" of seconds since 1970 (UTC)
+string UnixDate(int64 t) {
+    local int64 days = t / 86400, secs = t % 86400;
+    if (secs < 0) {
+        secs += 86400;
+        days--;
+    }
+    // The civil date of a day number (H. Hinnant)
+    local int64 z = days + 719468;
+    local int64 era = (z >= 0 ? z : z - 146096) / 146097;
+    local int64 doe = z - era * 146097;
+    local int64 yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
+    local int64 y = yoe + era * 400;
+    local int64 doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    local int64 mp = (5 * doy + 2) / 153;
+    local int64 d = doy - (153 * mp + 2) / 5 + 1;
+    local int64 m = mp < 10 ? mp + 3 : mp - 9;
+    if (m <= 2)
+        y++;
+    return Str("%04d-%02d-%02d %02d:%02d:%02d", y, m, d, secs / 3600, secs / 60 % 60, secs % 60);
+}
+
+// Seconds since 1904-01-01; the creation date is local time, the others UTC
+string HFSDate(uint32 &t) {
+    if (t == 0)
+        return "0";
+    return UnixDate((int64)t - 2082844800);
+}
+
+string VolAttrComment(uint32 &a) {
+    local string s = "";
+    if (a & 0x80) s += "unmounted ";
+    if (a & 0x100) s += "spared_blocks ";
+    if (a & 0x200) s += "no_cache ";
+    if (a & 0x400) s += "inconsistent ";
+    if (a & 0x800) s += "cnids_reused ";
+    if (a & 0x2000) s += "journaled ";
+    if (a & 0x8000) s += "software_lock ";
+    return s;
+}
+
+struct HFS_EXTENT {
+    uint32 startBlock;
+    uint32 blockCount;
+} <read=ExtentRead>;
+
+string ExtentRead(HFS_EXTENT &e) {
+    return Str("%u blocks at %u", e.blockCount, e.startBlock);
+}
+
+struct HFS_FORK {
+    uint64 logicalSize;
+    uint32 clumpSize;
+    uint32 totalBlocks;
+    HFS_EXTENT extents[8];
+} <read=ForkRead>;
+
+string ForkRead(HFS_FORK &f) {
+    return Str("%u bytes, %u blocks", f.logicalSize, f.totalBlocks);
+}
+
+struct HFS_VOLUME_HEADER {
+    char   signature[2] <comment="H+ or HX">;
+    uint16 version <comment="4 HFS+, 5 HFSX">;
+    uint32 attributes <format=hex, comment=VolAttrComment>;
+    char   lastMountedVersion[4] <comment="10.0 macOS, HFSJ journaled, fsck">;
+    uint32 journalInfoBlock;
+    uint32 createDate <read=HFSDate, comment="local time">;
+    uint32 modifyDate <read=HFSDate>;
+    uint32 backupDate <read=HFSDate>;
+    uint32 checkedDate <read=HFSDate>;
+    uint32 fileCount;
+    uint32 folderCount;
+    uint32 blockSize;
+    uint32 totalBlocks;
+    uint32 freeBlocks;
+    uint32 nextAllocation;
+    uint32 rsrcClumpSize;
+    uint32 dataClumpSize;
+    uint32 nextCatalogID;
+    uint32 writeCount;
+    uint64 encodingsBitmap <format=hex>;
+    uint32 finderInfo[8] <comment="[0] the blessed folder, [5] of OS 9; [6..7] the volume ID">;
+    HFS_FORK allocationFile;
+    HFS_FORK extentsFile;
+    HFS_FORK catalogFile;
+    HFS_FORK attributesFile;
+    HFS_FORK startupFile;
+};
+
+if (FileSize() < 1024 + 512) {
+    Warning("the volume header is cut");
+    Exit(0);
+}
+FSeek(1024);
+HFS_VOLUME_HEADER volumeHeader <open=true>;

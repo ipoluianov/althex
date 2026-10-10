@@ -200,12 +200,12 @@ func (j *journal) logDelete(id int, off, n int64) {
 	j.known[id] = true
 }
 
-func (j *journal) logGoto(n *HistNode) {
+func (j *journal) logGoto(n *HistNode, saved bool) {
 	if j == nil {
 		return
 	}
 	if !j.known[n.ID] {
-		j.logCheckpoint(n, false)
+		j.logCheckpoint(n, saved)
 		return
 	}
 	j.write(appendInt([]byte{recGoto}, int64(n.ID)))

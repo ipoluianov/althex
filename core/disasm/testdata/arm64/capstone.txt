@@ -1,0 +1,2002 @@
+# random words, Capstone AArch64 at 0x400000: word, mnemonic, operands, ours
+# 100000 words: valid for capstone 37974, for us 30310, both 30310; same mnemonic 92333
+2ad3f3c5			.inst 0x2ad3f3c5
+43da9955			.inst 0x43da9955
+0d2e51b8			.inst 0x0d2e51b8
+1e754db1	fcsel	d17, d13, d21, mi	fcsel d17, d13, d21, mi
+9d40d6d1			.inst 0x9d40d6d1
+ed7acb9d			.inst 0xed7acb9d
+6cccd605	ldp	d5, d21, [x16], #0xc8	ldp d5, d21, [x16], #200
+34c68709	cbz	w9, 0x38d0e0	cbz w9, 0x38d0e0
+36427cee	tbz	w14, #8, 0x404f9c	tbz w14, #8, 0x404f9c
+207c51f0			.inst 0x207c51f0
+9ea9c6dc			.inst 0x9ea9c6dc
+dcbae486			.inst 0xdcbae486
+5e5f5e02			.inst 0x5e5f5e02
+6159b481			.inst 0x6159b481
+9f295228			.inst 0x9f295228
+e910f136			.inst 0xe910f136
+6e21ba06	fcvtmu	v6.4s, v16.4s	fcvtmu v6.4s, v16.4s
+0337c801			.inst 0x0337c801
+8933ad52			.inst 0x8933ad52
+?e51feb4a	stnt1w	{ z10.s }, p2, [x26, #-1, mul vl]	.inst 0xe51feb4a
+82d0cc8d			.inst 0x82d0cc8d
+289256f4	stp	w20, w21, [x23], #0x90	stp w20, w21, [x23], #144
+8dcf2f1a			.inst 0x8dcf2f1a
+7806a395	sturh	w21, [x28, #0x6a]	sturh w21, [x28, #106]
+8755a4cd			.inst 0x8755a4cd
+f0c5a9df	adrp	xzr, 0xffffffff8b93b000	adrp xzr, 0xffffffff8b93b000
+be8f1cbf			.inst 0xbe8f1cbf
+5942f5e7			.inst 0x5942f5e7
+92876089	mov	x9, #-0x3b05	mov x9, #0xffffffffffffc4fb
+4b15d3c5			.inst 0x4b15d3c5
+c5a01b07			.inst 0xc5a01b07
+5b5c96d4			.inst 0x5b5c96d4
+526829d9			.inst 0x526829d9
+15ec361e	b	0x7f0d878	b 0x7f0d878
+a0b25df7			.inst 0xa0b25df7
+c00eaf20			.inst 0xc00eaf20
+d392033a			.inst 0xd392033a
+6d17559b	stp	d27, d21, [x12, #0x170]	stp d27, d21, [x12, #368]
+76b8bb12			.inst 0x76b8bb12
+5fbc1030	fmla	s16, s1, v28.s[1]	fmla s16, s1, v28.s[1]
+54ef8e4a	b.ge	0x3df1c8	b.ge 0x3df1c8
+8b072cd9	add	x25, x6, x7, lsl #11	add x25, x6, x7, lsl #11
+2cdff670	ldp	s16, s29, [x19], #0xfc	ldp s16, s29, [x19], #252
+6ca82475	stp	d21, d9, [x3], #-0x180	stp d21, d9, [x3], #-384
+87d7e252			.inst 0x87d7e252
+0fdacc9b			.inst 0x0fdacc9b
+31c249f1			.inst 0x31c249f1
+6dd687af	ldp	d15, d1, [x29, #0x168]!	ldp d15, d1, [x29, #360]!
+d1311af9	sub	x25, x23, #0xc46	sub x25, x23, #0xc46
+6852d367			.inst 0x6852d367
+1515b2b3	b	0x496cacc	b 0x496cacc
+16386b18	b	0xfffffffff921ac60	b 0xfffffffff921ac60
+33853f7b			.inst 0x33853f7b
+0a56a1d8			.inst 0x0a56a1d8
+c0078ec6			.inst 0xc0078ec6
+176841ea	b	0xfffffffffde107a8	b 0xfffffffffde107a8
+6b26f2be	subs	w30, w21, w6, sxtx #4	subs w30, w21, w6, sxtx #4
+0547aa42			.inst 0x0547aa42
+ab866946	adds	x6, x10, x6, asr #26	adds x6, x10, x6, asr #26
+985f76be	ldrsw	x30, 0x4beed4	ldrsw x30, 0x4beed4
+8641fd3d			.inst 0x8641fd3d
+fee5df2a			.inst 0xfee5df2a
+f6958339			.inst 0xf6958339
+1e5eda62			.inst 0x1e5eda62
+43626bf2			.inst 0x43626bf2
+43da0608			.inst 0x43da0608
+a3c25b3d			.inst 0xa3c25b3d
+1bd8bc9f			.inst 0x1bd8bc9f
+bc7fa594			.inst 0xbc7fa594
+3e11555d			.inst 0x3e11555d
+33a00f34			.inst 0x33a00f34
+a353fb3d			.inst 0xa353fb3d
+1c0ffcea	ldr	s10, 0x41ff9c	ldr s10, 0x41ff9c
+06ba7fbe			.inst 0x06ba7fbe
+bf734582			.inst 0xbf734582
+3cbbcbf3	str	q19, [sp, w27, sxtw]	str q19, [sp, w27, sxtw]
+?84aec655	ld1h	{ z21.s }, p1/z, [z18.s, #0x1c]	.inst 0x84aec655
+3072a77d	adr	x29, 0x4e54ed	adr x29, 0x4e54ed
+2acc937b			.inst 0x2acc937b
+804c9e9f			.inst 0x804c9e9f
+cd11f988			.inst 0xcd11f988
+a635ef7c			.inst 0xa635ef7c
+b5e1c950	cbnz	x16, 0x3c3928	cbnz x16, 0x3c3928
+c6ab4ab6			.inst 0xc6ab4ab6
+564e7886			.inst 0x564e7886
+b08d3725	adrp	x5, 0xffffffff1aae5000	adrp x5, 0xffffffff1aae5000
+433fac3e			.inst 0x433fac3e
+b91bea82	str	w2, [x20, #0x1be8]	str w2, [x20, #7144]
+068c7780			.inst 0x068c7780
+4c623cf4			.inst 0x4c623cf4
+1bbe8b5c			.inst 0x1bbe8b5c
+753c093e			.inst 0x753c093e
+5df348c9			.inst 0x5df348c9
+b9564d51	ldr	w17, [x10, #0x164c]	ldr w17, [x10, #5708]
+418f367f			.inst 0x418f367f
+9203ea75	and	x21, x19, #0xeeeeeeeeeeeeeeee	and x21, x19, #0xeeeeeeeeeeeeeeee
+?a064b9b0	st1h	{ z16.h - z19.h }, pn14, [x13, #0x10, mul vl]	.inst 0xa064b9b0
+ed03442e			.inst 0xed03442e
+96529bfc	bl	0xfffffffff98a6ff0	bl 0xfffffffff98a6ff0
+483be5a3			.inst 0x483be5a3
+?692554e0	stgp	x0, x21, [x7, #-0x360]	.inst 0x692554e0
+4689b3f9			.inst 0x4689b3f9
+d8cd6538	prfm	#0x18, 0x39aca4	prfm #0x18, 0x39aca4
+565eb1b1			.inst 0x565eb1b1
+d047aabb	adrp	x27, 0x8f956000	adrp x27, 0x8f956000
+df273b2e			.inst 0xdf273b2e
+106e2878	adr	x24, 0x4dc50c	adr x24, 0x4dc50c
+2c37bf70	stnp	s16, s15, [x27, #-0x44]	stnp s16, s15, [x27, #-68]
+?f8365d19	ldraa	x25, [x8, #0xb28]!	.inst 0xf8365d19
+9f5fc580			.inst 0x9f5fc580
+bd0f08d8	str	s24, [x6, #0xf08]	str s24, [x6, #3848]
+caa083e3	eon	x3, xzr, x0, asr #32	eon x3, xzr, x0, asr #32
+c8d69a8a	ldar	x10, [x20]	ldar x10, [x20]
+cfe098ce			.inst 0xcfe098ce
+1be14bf0			.inst 0x1be14bf0
+0ba8ed2b			.inst 0x0ba8ed2b
+5a363445			.inst 0x5a363445
+a82a6575	stnp	x21, x25, [x11, #-0x160]	stnp x21, x25, [x11, #-352]
+6bd63a7a			.inst 0x6bd63a7a
+209c8ea1			.inst 0x209c8ea1
+ff7702ab			.inst 0xff7702ab
+49880eed			.inst 0x49880eed
+70fa6d31	adr	x17, 0x3f4da7	adr x17, 0x3f4da7
+aad21994	orr	x20, x12, x18, ror #6	orr x20, x12, x18, ror #6
+5b588959			.inst 0x5b588959
+5d4510ed			.inst 0x5d4510ed
+?e005fee3	ld1b	{za0v.b[w15, 3]}, p7/z, [x23, x5]	.inst 0xe005fee3
+07ad2905			.inst 0x07ad2905
+6837a34e			.inst 0x6837a34e
+f7e54633			.inst 0xf7e54633
+45cede19			.inst 0x45cede19
+f18b88fc			.inst 0xf18b88fc
+092b2cc1			.inst 0x092b2cc1
+3fe5812c			.inst 0x3fe5812c
+b524011f	cbnz	xzr, 0x448020	cbnz xzr, 0x448020
+ad3f69e1	stp	q1, q26, [x15, #-0x20]	stp q1, q26, [x15, #-32]
+1d5c2054			.inst 0x1d5c2054
+734d7d7c			.inst 0x734d7d7c
+f3a9a3af			.inst 0xf3a9a3af
+?84ca22ce	ldff1sh	{ z14.s }, p0/z, [x22, z10.s, sxtw]	.inst 0x84ca22ce
+?8583cf87	prfd	#7, p3, [x28, x3, lsl #3]	.inst 0x8583cf87
+9ce0f8d8	ldr	q24, 0x3c1f18	ldr q24, 0x3c1f18
+3415e014	cbz	w20, 0x42bc00	cbz w20, 0x42bc00
+?e441c3b6	st1b	{ z22.s }, p0, [x29, z1.s, sxtw]	.inst 0xe441c3b6
+7adfdfea			.inst 0x7adfdfea
+7a9e91c9			.inst 0x7a9e91c9
+43465dca			.inst 0x43465dca
+0ebb37f6	cmgt	v22.2s, v31.2s, v27.2s	cmgt v22.2s, v31.2s, v27.2s
+567d193f			.inst 0x567d193f
+4f0fdbd8			.inst 0x4f0fdbd8
+5269124e			.inst 0x5269124e
+6ca18cd2	stp	d18, d3, [x6], #-0x1e8	stp d18, d3, [x6], #-488
+d91e5e7a			.inst 0xd91e5e7a
+aa27ad48	orn	x8, x10, x7, lsl #43	orn x8, x10, x7, lsl #43
+a656a768			.inst 0xa656a768
+11943be0			.inst 0x11943be0
+378afc7f	tbnz	wzr, #0x11, 0x405f8c	tbnz wzr, #17, 0x405f8c
+b5dac26e	cbnz	x14, 0x3b584c	cbnz x14, 0x3b584c
+43b55991			.inst 0x43b55991
+3d8f72b9	str	q25, [x21, #0x3dc0]	str q25, [x21, #15808]
+289e91b8	stp	w24, w4, [x13], #0xf4	stp w24, w4, [x13], #244
+eeaa5d32			.inst 0xeeaa5d32
+8c663082			.inst 0x8c663082
+?65880142	fadd	z2.s, z10.s, z8.s	.inst 0x65880142
+bc1aac91	str	s17, [x4, #-0x56]!	str s17, [x4, #-86]!
+09ba461b			.inst 0x09ba461b
+fb269510			.inst 0xfb269510
+14891536	b	0x26454d8	b 0x26454d8
+f9c12ab6			.inst 0xf9c12ab6
+88a4beba			.inst 0x88a4beba
+54ca1b4d	b.le	0x394368	b.le 0x394368
+f343afda			.inst 0xf343afda
+0e20b55a			.inst 0x0e20b55a
+ba063d50			.inst 0xba063d50
+64438c58			.inst 0x64438c58
+88746ccf	ldxp	w15, w27, [x6]	ldxp w15, w27, [x6]
+6dd59da5	ldp	d5, d7, [x13, #0x158]!	ldp d5, d7, [x13, #344]!
+d59a4479			.inst 0xd59a4479
+8352b31c			.inst 0x8352b31c
+880d6b13	stxr	w13, w19, [x24]	stxr w13, w19, [x24]
+a4d60c43			.inst 0xa4d60c43
+5574ad8b			.inst 0x5574ad8b
+00952ca6			.inst 0x00952ca6
+b6f8a6ca	tbz	x10, #0x3f, 0x4014d8	tbz x10, #63, 0x4014d8
+?843cb896	ldff1sb	{ z22.s }, p6/z, [z4.s, #0x1c]	.inst 0x843cb896
+92c18f7f	mov	xzr, #-0xc7b00000001	mov xzr, #0xfffff384ffffffff
+377b229a	tbnz	w26, #0xf, 0x406450	tbnz w26, #15, 0x406450
+ba569e35			.inst 0xba569e35
+5be4c9d0			.inst 0x5be4c9d0
+7a9205a8			.inst 0x7a9205a8
+0d306caf			.inst 0x0d306caf
+eeb470d4			.inst 0xeeb470d4
+6c320c7f	stnp	d31, d3, [x3, #-0xe0]	stnp d31, d3, [x3, #-224]
+6dafe259	stp	d25, d24, [x18, #-0x108]!	stp d25, d24, [x18, #-264]!
+be3cc360			.inst 0xbe3cc360
+18c5dd77	ldr	w23, 0x38bbac	ldr w23, 0x38bbac
+92f6d4bf	mov	xzr, #0x495affffffffffff	mov xzr, #0x495affffffffffff
+6188b943			.inst 0x6188b943
+adfe673f	ldp	q31, q25, [x25, #-0x40]!	ldp q31, q25, [x25, #-64]!
+24c03008			.inst 0x24c03008
+30057aba	adr	x26, 0x40af55	adr x26, 0x40af55
+0c9d913d			.inst 0x0c9d913d
+3ac6b590			.inst 0x3ac6b590
+a89426e3	stp	x3, x9, [x23], #0x140	stp x3, x9, [x23], #320
+2a6d7b8c	orn	w12, w28, w13, lsr #30	orn w12, w28, w13, lsr #30
+fb3c4d32			.inst 0xfb3c4d32
+83aaa379			.inst 0x83aaa379
+03111bec			.inst 0x03111bec
+3369e34a			.inst 0x3369e34a
+e6a03213			.inst 0xe6a03213
+973df487	bl	0xfffffffffd37d21c	bl 0xfffffffffd37d21c
+1ef6711a			.inst 0x1ef6711a
+f083ec68	adrp	x8, 0xffffffff0818f000	adrp x8, 0xffffffff0818f000
+50227660	adr	x0, 0x444ece	adr x0, 0x444ece
+7e24ed7e	facge	s30, s11, s4	facge s30, s11, s4
+a1f47c9f			.inst 0xa1f47c9f
+be297563			.inst 0xbe297563
+28c2b9ba	ldp	w26, w14, [x13], #0x14	ldp w26, w14, [x13], #20
+9dad39bb			.inst 0x9dad39bb
+22bef8b0			.inst 0x22bef8b0
+b94534aa	ldr	w10, [x5, #0x534]	ldr w10, [x5, #1332]
+17962bd1	b	0xfffffffffe98af44	b 0xfffffffffe98af44
+4bf17c6a			.inst 0x4bf17c6a
+eca0406c			.inst 0xeca0406c
+114ca413	add	w19, w0, #0x329, lsl #12	add w19, w0, #0x329, lsl #12
+09b33728			.inst 0x09b33728
+d8cf9e64	prfm	pldl3keep, 0x39f3cc	prfm pldl3keep, 0x39f3cc
+40ca9c6e			.inst 0x40ca9c6e
+9b29e501	smsubl	x1, w8, w9, x25	smsubl x1, w8, w9, x25
+5b8b4335			.inst 0x5b8b4335
+bc5fe9e3			.inst 0xbc5fe9e3
+?d1ae2d9d	subg	x29, x12, #0x2e0, #0xb	.inst 0xd1ae2d9d
+?849ff22b	prfh	pstl2strm, p4, [z17.s, #0x3e]	.inst 0x849ff22b
+da42b561			.inst 0xda42b561
+83c78a54			.inst 0x83c78a54
+7509acf4			.inst 0x7509acf4
+2697ab6c			.inst 0x2697ab6c
+74d566d5			.inst 0x74d566d5
+d9db5d65			.inst 0xd9db5d65
+108f119a	adr	x26, 0x31e230	adr x26, 0x31e230
+0d33bc05			.inst 0x0d33bc05
+c3ab0637			.inst 0xc3ab0637
+3d3bfc22	str	b2, [x1, #0xeff]	str b2, [x1, #3839]
+755b48bb			.inst 0x755b48bb
+e99a352c			.inst 0xe99a352c
+713f1d9d	subs	w29, w12, #0xfc7	subs w29, w12, #0xfc7
+479853e4			.inst 0x479853e4
+2a54e3ba			.inst 0x2a54e3ba
+460c275f			.inst 0x460c275f
+a6490d8e			.inst 0xa6490d8e
+33d15472			.inst 0x33d15472
+c6717994			.inst 0xc6717994
+7a3b9060			.inst 0x7a3b9060
+b727c4a1	tbnz	x1, #0x24, 0x3ff894	tbnz x1, #36, 0x3ff894
+0be341d9			.inst 0x0be341d9
+c807df1d	stlxr	w7, x29, [x24]	stlxr w7, x29, [x24]
+4d303448			.inst 0x4d303448
+d6200b6b			.inst 0xd6200b6b
+6f59efbb			.inst 0x6f59efbb
+16c60863	b	0xfffffffffb58218c	b 0xfffffffffb58218c
+ec43f4c3			.inst 0xec43f4c3
+7cb3793b			.inst 0x7cb3793b
+40646acc			.inst 0x40646acc
+6b3b54e4			.inst 0x6b3b54e4
+f77f5802			.inst 0xf77f5802
+6e882730			.inst 0x6e882730
+0c3da561			.inst 0x0c3da561
+4ac19980			.inst 0x4ac19980
+e3fb3208			.inst 0xe3fb3208
+6272de00			.inst 0x6272de00
+4a72726f	eon	w15, w19, w18, lsr #28	eon w15, w19, w18, lsr #28
+fbf72f9b			.inst 0xfbf72f9b
+55ee6478			.inst 0x55ee6478
+56fbe8f8			.inst 0x56fbe8f8
+e9e8ace2			.inst 0xe9e8ace2
+be009db6			.inst 0xbe009db6
+4cd1a0d0	ld1	{ v16.16b, v17.16b }, [x6], x17	ld1 {v16.16b, v17.16b}, [x6], x17
+0b018082			.inst 0x0b018082
+b6f13708	tbz	x8, #0x3e, 0x4026e0	tbz x8, #62, 0x4026e0
+ddf8d315			.inst 0xddf8d315
+93fdd803			.inst 0x93fdd803
+d39267f0			.inst 0xd39267f0
+0ad86885	and	w5, w4, w24, ror #26	and w5, w4, w24, ror #26
+be3bb22f			.inst 0xbe3bb22f
+107e7688	adr	x8, 0x4fced0	adr x8, 0x4fced0
+22823e21			.inst 0x22823e21
+?65cf0912	fmul	z18.d, z8.d, z15.d	.inst 0x65cf0912
+967584f8	bl	0xfffffffffa1613e0	bl 0xfffffffffa1613e0
+b66a2982	tbz	x2, #0x2d, 0x404530	tbz x2, #45, 0x404530
+20b513ed			.inst 0x20b513ed
+6d6e4a7f	ldp	d31, d18, [x19, #-0x120]	ldp d31, d18, [x19, #-288]
+a7bc8244			.inst 0xa7bc8244
+0b072fe9	add	w9, wzr, w7, lsl #11	add w9, wzr, w7, lsl #11
+1badc0d8			.inst 0x1badc0d8
+791f87c1	strh	w1, [x30, #0xfc2]	strh w1, [x30, #4034]
+5b0b5e5b			.inst 0x5b0b5e5b
+826c94fa			.inst 0x826c94fa
+602bb857			.inst 0x602bb857
+2be2d8eb			.inst 0x2be2d8eb
+e9ec2e76			.inst 0xe9ec2e76
+a6ca49ee			.inst 0xa6ca49ee
+?658fd300	fcmuo	p0.s, p4/z, z24.s, z15.s	.inst 0x658fd300
+2d75b8da	ldp	s26, s14, [x6, #-0x54]	ldp s26, s14, [x6, #-84]
+afcbfe76			.inst 0xafcbfe76
+?9b63afe2	msubpt	x2, xzr, x3, x11	.inst 0x9b63afe2
+d5be0d39			.inst 0xd5be0d39
+8a11f41e	and	x30, x0, x17, lsl #61	and x30, x0, x17, lsl #61
+07434a64			.inst 0x07434a64
+3bb3b8f1			.inst 0x3bb3b8f1
+943e1794	bl	0x1385e50	bl 0x1385e50
+b2798c2b	orr	x11, x1, #0x7ffffffff80	orr x11, x1, #0x7ffffffff80
+48e05ca1			.inst 0x48e05ca1
+eec6b588			.inst 0xeec6b588
+d9cc8de0			.inst 0xd9cc8de0
+a818ef82	stnp	x2, x27, [x28, #0x188]	stnp x2, x27, [x28, #392]
+da57a876			.inst 0xda57a876
+c084dcdb			.inst 0xc084dcdb
+a7208f40			.inst 0xa7208f40
+f903dee4	str	x4, [x23, #0x7b8]	str x4, [x23, #1976]
+2a78297f	orn	wzr, w11, w24, lsr #10	orn wzr, w11, w24, lsr #10
+5c56afa0	ldr	d0, 0x4ad5f4	ldr d0, 0x4ad5f4
+?a0920381	smopa	za1.s, p0/m, p0/m, z28.b, z18.b	.inst 0xa0920381
+27d56d64			.inst 0x27d56d64
+3334b9b5			.inst 0x3334b9b5
+be58310d			.inst 0xbe58310d
+f8bfaa05			.inst 0xf8bfaa05
+dee29d01			.inst 0xdee29d01
+5649feb0			.inst 0x5649feb0
+bb86dc8e			.inst 0xbb86dc8e
+0d0202f7			.inst 0x0d0202f7
+23e4194f			.inst 0x23e4194f
+1f7c7fcc	fnmadd	d12, d30, d28, d31	fnmadd d12, d30, d28, d31
+6d828a9c	stp	d28, d2, [x20, #0x28]!	stp d28, d2, [x20, #40]!
+1c6aa38f	ldr	s15, 0x4d5470	ldr s15, 0x4d5470
+0ddb3771	ld3	{ v17.b, v18.b, v19.b }[5], [x27], x27	ld3 {v17.b-v19.b}[5], [x27], x27
+f9387ba8	str	x8, [x29, #0x70f0]	str x8, [x29, #28912]
+66f36540			.inst 0x66f36540
+ab52fd72	adds	x18, x11, x18, lsr #63	adds x18, x11, x18, lsr #63
+099ed1c8			.inst 0x099ed1c8
+35f0647e	cbnz	w30, 0x3e0c8c	cbnz w30, 0x3e0c8c
+1ca7bfa1	ldr	s1, 0x34f7f4	ldr s1, 0x34f7f4
+8738954a			.inst 0x8738954a
+f303ac45			.inst 0xf303ac45
+4bc6e0ea			.inst 0x4bc6e0ea
+27de6095			.inst 0x27de6095
+d73ae928			.inst 0xd73ae928
+?69254c8e	stgp	x14, x19, [x4, #-0x360]	.inst 0x69254c8e
+fa86e952			.inst 0xfa86e952
+4b06b41e			.inst 0x4b06b41e
+6a8c2f39	ands	w25, w25, w12, asr #11	ands w25, w25, w12, asr #11
+70299eb8	adr	x24, 0x4533d7	adr x24, 0x4533d7
+003cbc82			.inst 0x003cbc82
+d25cc3a9	eor	x9, x29, #0xfffffff0001fffff	eor x9, x29, #0xfffffff0001fffff
+13052bc7	sbfx	w7, w30, #5, #6	sbfx w7, w30, #5, #6
+9e71003e	fcvtmu	x30, d1	fcvtmu x30, d1
+9b16d77e	msub	x30, x27, x22, x21	msub x30, x27, x22, x21
+cb64aadf			.inst 0xcb64aadf
+351fc864	cbnz	w4, 0x43f90c	cbnz w4, 0x43f90c
+102fb986	adr	x6, 0x45f730	adr x6, 0x45f730
+f9314119	str	x25, [x8, #0x6280]	str x25, [x8, #25216]
+bfc617fb			.inst 0xbfc617fb
+0556fa72			.inst 0x0556fa72
+f54a537b			.inst 0xf54a537b
+6ae62b51	bics	w17, w26, w6, ror #10	bics w17, w26, w6, ror #10
+acc9701c	ldp	q28, q28, [x0], #0x120	ldp q28, q28, [x0], #288
+c104fbdc			.inst 0xc104fbdc
+4b37da59			.inst 0x4b37da59
+e05da1fd			.inst 0xe05da1fd
+ff457fce			.inst 0xff457fce
+8a97da90	and	x16, x20, x23, asr #54	and x16, x20, x23, asr #54
+faea3be7			.inst 0xfaea3be7
+de07b678			.inst 0xde07b678
+3222de9b			.inst 0x3222de9b
+41fe20ee			.inst 0x41fe20ee
+83d7290c			.inst 0x83d7290c
+9a5bc3f9			.inst 0x9a5bc3f9
+c1d09ef9			.inst 0xc1d09ef9
+56903311			.inst 0x56903311
+5268c448			.inst 0x5268c448
+efa16ec1			.inst 0xefa16ec1
+2013a127			.inst 0x2013a127
+96ab54ba	bl	0xfffffffffaed52e8	bl 0xfffffffffaed52e8
+01d43bcd			.inst 0x01d43bcd
+b6688bd1	tbz	x17, #0x2d, 0x401178	tbz x17, #45, 0x401178
+cd7d9879			.inst 0xcd7d9879
+95d3334d	bl	0x78ccd34	bl 0x78ccd34
+aa0bb469	orr	x9, x3, x11, lsl #45	orr x9, x3, x11, lsl #45
+26f66faa			.inst 0x26f66faa
+4bdff6ec			.inst 0x4bdff6ec
+705c27bb	adr	x27, 0x4b84f7	adr x27, 0x4b84f7
+69c761b3	ldpsw	x19, x24, [x13, #0x38]!	ldpsw x19, x24, [x13, #56]!
+e3a2bba7			.inst 0xe3a2bba7
+172682c0	b	0xfffffffffcda0b00	b 0xfffffffffcda0b00
+8636f0aa			.inst 0x8636f0aa
+0b3c0058	add	w24, w2, w28, uxtb	add w24, w2, w28, uxtb
+21225b47			.inst 0x21225b47
+?84ee5f19	ld1h	{ z25.s }, p7/z, [x24, z14.s, sxtw #1]	.inst 0x84ee5f19
+93079945			.inst 0x93079945
+dcc615c3			.inst 0xdcc615c3
+786f1a55			.inst 0x786f1a55
+02572374			.inst 0x02572374
+e475858e			.inst 0xe475858e
+35c0a138	cbnz	w24, 0x381424	cbnz w24, 0x381424
+a62fa241			.inst 0xa62fa241
+56b3f3fa			.inst 0x56b3f3fa
+abe14313			.inst 0xabe14313
+16c2c40f	b	0xfffffffffb4b103c	b 0xfffffffffb4b103c
+20016ab8			.inst 0x20016ab8
+0a1664ad	and	w13, w5, w22, lsl #25	and w13, w5, w22, lsl #25
+?2436ea66	cmplo	p6.b, p2/z, z19.b, #0x5b	.inst 0x2436ea66
+55c0dcb9			.inst 0x55c0dcb9
+e27f7ace			.inst 0xe27f7ace
+0fe1bc16			.inst 0x0fe1bc16
+?1d161956	stlur	b22, [x10, #-0x9f]	.inst 0x1d161956
+a48c9fa2			.inst 0xa48c9fa2
+ad0bee81	stp	q1, q27, [x20, #0x170]	stp q1, q27, [x20, #368]
+?e4362e17	st1q	{ z23.q }, p3, [z16.d, x22]	.inst 0xe4362e17
+f30c6066			.inst 0xf30c6066
+bc5492a2	ldur	s2, [x21, #-0xb7]	ldur s2, [x21, #-183]
+7d22d0ae	str	h14, [x5, #0x1168]	str h14, [x5, #4456]
+234a6a28			.inst 0x234a6a28
+?2566ca1b	sqsub	z27.h, z27.h, #0x50	.inst 0x2566ca1b
+1e66c796	fccmpe	d28, d6, #6, gt	fccmpe d28, d6, #0x6, gt
+?a023051d	stnt1b	{ z28.b, z29.b }, pn9, [x8, x3]	.inst 0xa023051d
+?68b3167b	stgp	x27, x5, [x19], #-0x1a0	.inst 0x68b3167b
+9f5d77e5			.inst 0x9f5d77e5
+9f028ce2			.inst 0x9f028ce2
+04063bb8			.inst 0x04063bb8
+1d3f9afe			.inst 0x1d3f9afe
+1ac00e3f	sdiv	wzr, w17, w0	sdiv wzr, w17, w0
+2618eeda			.inst 0x2618eeda
+334fc02c			.inst 0x334fc02c
+94030d9d	bl	0x4c3674	bl 0x4c3674
+d30b4536			.inst 0xd30b4536
+da0c0a3c			.inst 0xda0c0a3c
+0c861c5f			.inst 0x0c861c5f
+259faf88			.inst 0x259faf88
+67c475ff			.inst 0x67c475ff
+e5b337c5			.inst 0xe5b337c5
+e351b131			.inst 0xe351b131
+f8439dd2	ldr	x18, [x14, #0x39]!	ldr x18, [x14, #57]!
+?8196bf22	bfmopa	za2.s, p7/m, p5/m, z25.h, z22.h	.inst 0x8196bf22
+1a4cf9c3			.inst 0x1a4cf9c3
+32d9edad			.inst 0x32d9edad
+5788c942			.inst 0x5788c942
+6ce573a3	ldp	d3, d28, [x29], #-0x1b0	ldp d3, d28, [x29], #-432
+0d363366			.inst 0x0d363366
+1292899d	mov	w29, #-0x944d	mov w29, #0xffff6bb3
+6d3b047c	stp	d28, d1, [x3, #-0x50]	stp d28, d1, [x3, #-80]
+bd1122e5	str	s5, [x23, #0x1120]	str s5, [x23, #4384]
+d91488da			.inst 0xd91488da
+76b9cc5e			.inst 0x76b9cc5e
+1278f774			.inst 0x1278f774
+6b72ed4d			.inst 0x6b72ed4d
+e9232b91			.inst 0xe9232b91
+12102fb3	and	w19, w29, #0xfff0000	and w19, w29, #0xfff0000
+f579b65d			.inst 0xf579b65d
+cda93f6b			.inst 0xcda93f6b
+08711181			.inst 0x08711181
+260cd80a			.inst 0x260cd80a
+c629b042			.inst 0xc629b042
+66b85eac			.inst 0x66b85eac
+3ab7edbc			.inst 0x3ab7edbc
+dcde3529			.inst 0xdcde3529
+cb4a4c1c	sub	x28, x0, x10, lsr #19	sub x28, x0, x10, lsr #19
+ac0923cc	stnp	q12, q8, [x30, #0x120]	stnp q12, q8, [x30, #288]
+fa3ab1b2			.inst 0xfa3ab1b2
+95ced795	bl	0x77b5e54	bl 0x77b5e54
+5dc6f749			.inst 0x5dc6f749
+db2a181e			.inst 0xdb2a181e
+b2cff371			.inst 0xb2cff371
+19183f9d			.inst 0x19183f9d
+08aeacea			.inst 0x08aeacea
+b0421a4e	adrp	x14, 0x84749000	adrp x14, 0x84749000
+1b588107			.inst 0x1b588107
+183a8712	ldr	w18, 0x4750e0	ldr w18, 0x4750e0
+ab5d3c2a	adds	x10, x1, x29, lsr #15	adds x10, x1, x29, lsr #15
+ec30c2a0			.inst 0xec30c2a0
+46f621ee			.inst 0x46f621ee
+995a8658			.inst 0x995a8658
+bdcd0dc9			.inst 0xbdcd0dc9
+af5d0751			.inst 0xaf5d0751
+?a401c8e8	ldnt1b	{ z8.b }, p2/z, [x7, x1]	.inst 0xa401c8e8
+77e5b11e			.inst 0x77e5b11e
+d9c7298e			.inst 0xd9c7298e
+317e2b63	adds	w3, w27, #0xf8a, lsl #12	adds w3, w27, #0xf8a, lsl #12
+9a12b27f			.inst 0x9a12b27f
+b2cce622			.inst 0xb2cce622
+0ea01540	srhadd	v0.2s, v10.2s, v0.2s	srhadd v0.2s, v10.2s, v0.2s
+1e850f4c			.inst 0x1e850f4c
+dd68660b			.inst 0xdd68660b
+513d27ec	sub	w12, wsp, #0xf49	sub w12, wsp, #0xf49
+5b7d5b2a			.inst 0x5b7d5b2a
+9fa9729a			.inst 0x9fa9729a
+ae6fc56a			.inst 0xae6fc56a
+a739ea84			.inst 0xa739ea84
+74b0ce84			.inst 0x74b0ce84
+?a1177047	ld1d	{ z7.d, z15.d }, pn12/z, [x2, x23, lsl #3]	.inst 0xa1177047
+bab66709			.inst 0xbab66709
+26c257a0			.inst 0x26c257a0
+af4bc9ca			.inst 0xaf4bc9ca
+7d2d7157	str	h23, [x10, #0x16b8]	str h23, [x10, #5816]
+50b7bb47	adr	x7, 0x36f76a	adr x7, 0x36f76a
+ce7fa4bc			.inst 0xce7fa4bc
+561a1f14			.inst 0x561a1f14
+?243fdebf	cmphi	p15.b, p7/z, z21.b, #0x7f	.inst 0x243fdebf
+2f3c7a32			.inst 0x2f3c7a32
+eb27a65d	subs	x29, x18, w7, sxth #1	subs x29, x18, w7, sxth #1
+adbaef7d	stp	q29, q27, [x27, #-0xb0]!	stp q29, q27, [x27, #-176]!
+53120040	ubfiz	w0, w2, #0xe, #1	ubfiz w0, w2, #14, #1
+79c1fe26	ldrsh	w6, [x17, #0xfe]	ldrsh w6, [x17, #254]
+?1d4ed520	cpymwtn	[x0]!, [x14]!, x9!	.inst 0x1d4ed520
+e91bd611			.inst 0xe91bd611
+f416397f			.inst 0xf416397f
+97369863	bl	0xfffffffffd1a618c	bl 0xfffffffffd1a618c
+4ae24b9a	eon	w26, w28, w2, ror #18	eon w26, w28, w2, ror #18
+0dbc25c9	st4	{ v9.b, v10.b, v11.b, v12.b }[1], [x14], x28	st4 {v9.b-v12.b}[1], [x14], x28
+20482895			.inst 0x20482895
+2db3b117	stp	s23, s12, [x8, #-0x64]!	stp s23, s12, [x8, #-100]!
+?1ee6e6eb	fccmp	h23, h6, #0xb, al	.inst 0x1ee6e6eb
+f1220255	subs	x21, x18, #0x880	subs x21, x18, #0x880
+a7b7e32f			.inst 0xa7b7e32f
+f7b075b9			.inst 0xf7b075b9
+3ee82ae4			.inst 0x3ee82ae4
+?a4032f92	ld1rqb	{ z18.b }, p3/z, [x28, #0x30]	.inst 0xa4032f92
+98dc2d5c	ldrsw	x28, 0x3b85a8	ldrsw x28, 0x3b85a8
+?2e3fcdfa	fmlal2	v26.2s, v15.2h, v31.2h	.inst 0x2e3fcdfa
+f9e8c225			.inst 0xf9e8c225
+61f7318e			.inst 0x61f7318e
+4be43a60			.inst 0x4be43a60
+89e7a632			.inst 0x89e7a632
+2d01c346	stp	s6, s16, [x26, #0xc]	stp s6, s16, [x26, #12]
+9a3a7e71			.inst 0x9a3a7e71
+f78e449a			.inst 0xf78e449a
+dd5d840d			.inst 0xdd5d840d
+63a06289			.inst 0x63a06289
+611b4024			.inst 0x611b4024
+6e39d925			.inst 0x6e39d925
+550eb1ab			.inst 0x550eb1ab
+377aa9af	tbnz	w15, #0xf, 0x405534	tbnz w15, #15, 0x405534
+b3525e00	bfxil	x0, x16, #18, #6	bfxil x0, x16, #18, #6
+0aa11f6c	bic	w12, w27, w1, asr #7	bic w12, w27, w1, asr #7
+d7dc819c			.inst 0xd7dc819c
+349e5f08	cbz	w8, 0x33cbe0	cbz w8, 0x33cbe0
+63fcd5a9			.inst 0x63fcd5a9
+835b899f			.inst 0x835b899f
+57b11d5f			.inst 0x57b11d5f
+fa9964f8			.inst 0xfa9964f8
+717c3aa7	subs	w7, w21, #0xf0e, lsl #12	subs w7, w21, #0xf0e, lsl #12
+c9c7d0d6			.inst 0xc9c7d0d6
+70a67874	adr	x20, 0x34cf0f	adr x20, 0x34cf0f
+?19c3a3b0	ldapursb	w16, [x29, #0x3a]	.inst 0x19c3a3b0
+6813bfd0			.inst 0x6813bfd0
+d39c7f9a			.inst 0xd39c7f9a
+7151927f	cmp	w19, #0x464, lsl #12	cmp w19, #0x464, lsl #12
+ea76eae4	bics	x4, x23, x22, lsr #58	bics x4, x23, x22, lsr #58
+bdbe1342			.inst 0xbdbe1342
+4982c563			.inst 0x4982c563
+40b99213			.inst 0x40b99213
+d464ede7			.inst 0xd464ede7
+8d691fb7			.inst 0x8d691fb7
+a4498d36			.inst 0xa4498d36
+7bca1ba0			.inst 0x7bca1ba0
+d158bed6	sub	x22, x22, #0x62f, lsl #12	sub x22, x22, #0x62f, lsl #12
+62eb2913			.inst 0x62eb2913
+586ca692	ldr	x18, 0x4d94d0	ldr x18, 0x4d94d0
+2d72cd31	ldp	s17, s19, [x9, #-0x6c]	ldp s17, s19, [x9, #-108]
+3dee0052	ldr	q18, [x2, #0xb800]	ldr q18, [x2, #47104]
+9a8fc44e	csinc	x14, x2, x15, gt	csinc x14, x2, x15, gt
+5a869660	csneg	w0, w19, w6, ls	csneg w0, w19, w6, ls
+812988db			.inst 0x812988db
+?c586c267	ldnt1d	{ z7.d }, p0/z, [z19.d, x6]	.inst 0xc586c267
+?449120a7	cmla	z7.s, z5.s, z17.s, #0	.inst 0x449120a7
+42a4c46e			.inst 0x42a4c46e
+23a9c7fb			.inst 0x23a9c7fb
+f4846699			.inst 0xf4846699
+e2241e82			.inst 0xe2241e82
+?2445f8e1	cmplo	p1.h, p6/z, z7.h, z5.d	.inst 0x2445f8e1
+eb1c0ec8	subs	x8, x22, x28, lsl #3	subs x8, x22, x28, lsl #3
+22fda084			.inst 0x22fda084
+7068ffb6	adr	x22, 0x4d1ff7	adr x22, 0x4d1ff7
+e9467823			.inst 0xe9467823
+f6657503			.inst 0xf6657503
+2a91c53d			.inst 0x2a91c53d
+4d48f93b			.inst 0x4d48f93b
+8922b08e			.inst 0x8922b08e
+bb4b5bc8			.inst 0xbb4b5bc8
+0ce08db8			.inst 0x0ce08db8
+2cbfd2bf	stp	s31, s20, [x21], #-4	stp s31, s20, [x21], #-4
+435c595b			.inst 0x435c595b
+d4fd2a1c			.inst 0xd4fd2a1c
+3e81f63a			.inst 0x3e81f63a
+5dbe9116			.inst 0x5dbe9116
+600f0c22			.inst 0x600f0c22
+87c9f773			.inst 0x87c9f773
+685064d3			.inst 0x685064d3
+d02fb2c5	adrp	x5, 0x5fa5a000	adrp x5, 0x5fa5a000
+0aafd014			.inst 0x0aafd014
+b0069e7c	adrp	x28, 0xd7cd000	adrp x28, 0xd7cd000
+9a8633d3	csel	x19, x30, x6, lo	csel x19, x30, x6, cc
+b90102ec	str	w12, [x23, #0x100]	str w12, [x23, #256]
+7b6cedb6			.inst 0x7b6cedb6
+1682b771	b	0xfffffffffa4addc4	b 0xfffffffffa4addc4
+a673810f			.inst 0xa673810f
+6d79dd11	ldp	d17, d23, [x8, #-0x68]	ldp d17, d23, [x8, #-104]
+903b9d29	adrp	x9, 0x777a4000	adrp x9, 0x777a4000
+24c667cb			.inst 0x24c667cb
+38af2b37			.inst 0x38af2b37
+3d1314fd	str	b29, [x7, #0x4c5]	str b29, [x7, #1221]
+7421b6f9			.inst 0x7421b6f9
+c9c84b24			.inst 0xc9c84b24
+a6dfa89a			.inst 0xa6dfa89a
+236b301c			.inst 0x236b301c
+897495a6			.inst 0x897495a6
+bbff1c54			.inst 0xbbff1c54
+29462934	ldp	w20, w10, [x9, #0x30]	ldp w20, w10, [x9, #48]
+6c4332db	ldnp	d27, d12, [x22, #0x30]	ldnp d27, d12, [x22, #48]
+c6882772			.inst 0xc6882772
+b3f5cdae			.inst 0xb3f5cdae
+c784aa91			.inst 0xc784aa91
+5be09dd4			.inst 0x5be09dd4
+ea300646	bics	x6, x18, x16, lsl #1	bics x6, x18, x16, lsl #1
+539d206f			.inst 0x539d206f
+de4b58be			.inst 0xde4b58be
+03748483			.inst 0x03748483
+5b9070fc			.inst 0x5b9070fc
+?f8251712	ldraa	x18, [x24, #0x288]	.inst 0xf8251712
+2141cccc			.inst 0x2141cccc
+c3a92e72			.inst 0xc3a92e72
+5933d9f9			.inst 0x5933d9f9
+ad266bf9	stp	q25, q26, [sp, #-0x340]	stp q25, q26, [sp, #-832]
+97855e53	bl	0xfffffffffe55794c	bl 0xfffffffffe55794c
+e9f6eaf9			.inst 0xe9f6eaf9
+7e5534bb			.inst 0x7e5534bb
+5e99f059			.inst 0x5e99f059
+87d1b404			.inst 0x87d1b404
+b5fbff17	cbnz	x23, 0x3f7fe0	cbnz x23, 0x3f7fe0
+72698b23			.inst 0x72698b23
+1c6192b0	ldr	s16, 0x4c3254	ldr s16, 0x4c3254
+9da00432			.inst 0x9da00432
+f649d81b			.inst 0xf649d81b
+9ff7ddc5			.inst 0x9ff7ddc5
+4aa689b0			.inst 0x4aa689b0
+ce7c3f21			.inst 0xce7c3f21
+4b1f0c13	sub	w19, w0, wzr, lsl #3	sub w19, w0, wzr, lsl #3
+a8db99ad	ldp	x13, x6, [x13], #0x1b8	ldp x13, x6, [x13], #440
+a1ba311e			.inst 0xa1ba311e
+d8c6b757	prfm	pstslcstrm, 0x38d6e8	prfm #0x17, 0x38d6e8
+2562f0d3			.inst 0x2562f0d3
+eeb09569			.inst 0xeeb09569
+c3385787			.inst 0xc3385787
+da40a69b			.inst 0xda40a69b
+ff7c3b5d			.inst 0xff7c3b5d
+51d5eb19			.inst 0x51d5eb19
+?0481dc6a	mad	z10.s, p7/m, z1.s, z3.s	.inst 0x0481dc6a
+d30556c6			.inst 0xd30556c6
+1ebb5f39			.inst 0x1ebb5f39
+e2934b2d			.inst 0xe2934b2d
+ac0b9e65	stnp	q5, q7, [x19, #0x170]	stnp q5, q7, [x19, #368]
+dd90f3e5			.inst 0xdd90f3e5
+314d1183	adds	w3, w12, #0x344, lsl #12	adds w3, w12, #0x344, lsl #12
+0be785b2			.inst 0x0be785b2
+87c469a6			.inst 0x87c469a6
+d4ee5472			.inst 0xd4ee5472
+e8ea65ea			.inst 0xe8ea65ea
+c2acec06			.inst 0xc2acec06
+1e966768			.inst 0x1e966768
+917dfd95	add	x21, x12, #0xf7f, lsl #12	add x21, x12, #0xf7f, lsl #12
+20083a72			.inst 0x20083a72
+7b83e252			.inst 0x7b83e252
+b16673a8	adds	x8, x29, #0x99c, lsl #12	adds x8, x29, #0x99c, lsl #12
+202881b5			.inst 0x202881b5
+bc49205e	ldur	s30, [x2, #0x92]	ldur s30, [x2, #146]
+a6197eb2			.inst 0xa6197eb2
+004e422d			.inst 0x004e422d
+f24046cd	ands	x13, x22, #0x3ffff	ands x13, x22, #0x3ffff
+?e440f79e	st1b	{ z30.s }, p5, [x28]	.inst 0xe440f79e
+8a54032e	and	x14, x25, x20, lsr #0	and x14, x25, x20, lsr #0
+4f353e50			.inst 0x4f353e50
+32d2c0f9			.inst 0x32d2c0f9
+26bbea77			.inst 0x26bbea77
+c989aa30			.inst 0xc989aa30
+60f2b659			.inst 0x60f2b659
+da6fa30f			.inst 0xda6fa30f
+12f2224c			.inst 0x12f2224c
+3aae4f92			.inst 0x3aae4f92
+9d62b7f6			.inst 0x9d62b7f6
+719e992b			.inst 0x719e992b
+5341ddfe			.inst 0x5341ddfe
+9a17f768			.inst 0x9a17f768
+b9b7ab1d	ldrsw	x29, [x24, #0x37a8]	ldrsw x29, [x24, #14248]
+12a30b28	mov	w8, #-0x18590001	mov w8, #0xe7a6ffff
+2db007d4	stp	s20, s1, [x30, #-0x80]!	stp s20, s1, [x30, #-128]!
+668a1667			.inst 0x668a1667
+de82b49d			.inst 0xde82b49d
+?24f33f16	cmpls	p6.d, p7/z, z24.d, #0x4c	.inst 0x24f33f16
+ec854211			.inst 0xec854211
+?8471a1d7	ld1rb	{ z23.h }, p0/z, [x14, #0x31]	.inst 0x8471a1d7
+14998123	b	0x2a6048c	b 0x2a6048c
+fcf5d5ab			.inst 0xfcf5d5ab
+bd5c8909	ldr	s9, [x8, #0x1c88]	ldr s9, [x8, #7304]
+5eced17d			.inst 0x5eced17d
+acc3f8b5	ldp	q21, q30, [x5], #0x70	ldp q21, q30, [x5], #112
+c67da88b			.inst 0xc67da88b
+2053045b			.inst 0x2053045b
+2a55a99a			.inst 0x2a55a99a
+1b472ad9			.inst 0x1b472ad9
+43315f1c			.inst 0x43315f1c
+530fd059			.inst 0x530fd059
+fe6d14c0			.inst 0xfe6d14c0
+be2327b0			.inst 0xbe2327b0
+b5fae281	cbnz	x1, 0x3f5c50	cbnz x1, 0x3f5c50
+c278ec60			.inst 0xc278ec60
+08b1c64b			.inst 0x08b1c64b
+adce7e93	ldp	q19, q31, [x20, #0x1c0]!	ldp q19, q31, [x20, #448]!
+128356dc	mov	w28, #-0x1ab7	mov w28, #0xffffe549
+d239b32d	eor	x13, x25, #0xff8fff8fff8fff8f	eor x13, x25, #0xff8fff8fff8fff8f
+1497d21b	b	0x29f486c	b 0x29f486c
+3785f787	tbnz	w7, #0x10, 0x3fbef0	tbnz w7, #16, 0x3fbef0
+d60ccdf0			.inst 0xd60ccdf0
+e273226b			.inst 0xe273226b
+891c506d			.inst 0x891c506d
+c8ba1010			.inst 0xc8ba1010
+334abd1f			.inst 0x334abd1f
+1ee431d3			.inst 0x1ee431d3
+7e4f31ef			.inst 0x7e4f31ef
+8c0f7bef			.inst 0x8c0f7bef
+e89a2e3c			.inst 0xe89a2e3c
+5b983ea0			.inst 0x5b983ea0
+6674238f			.inst 0x6674238f
+787b58ff	ldrh	wzr, [x7, w27, uxtw #1]	ldrh wzr, [x7, w27, uxtw #1]
+63c99ada			.inst 0x63c99ada
+8351e8f8			.inst 0x8351e8f8
+a62faf26			.inst 0xa62faf26
+6e6587b2	sub	v18.8h, v29.8h, v5.8h	sub v18.8h, v29.8h, v5.8h
+a2ef910a			.inst 0xa2ef910a
+d4c37b5c			.inst 0xd4c37b5c
+11192a36	add	w22, w17, #0x64a	add w22, w17, #0x64a
+9d94acc8			.inst 0x9d94acc8
+0365de73			.inst 0x0365de73
+d5b458c2			.inst 0xd5b458c2
+12eaf869			.inst 0x12eaf869
+88698200	ldaxp	w0, w0, [x16]	ldaxp w0, w0, [x16]
+d02c13c5	adrp	x5, 0x5867a000	adrp x5, 0x5867a000
+8c65bd1a			.inst 0x8c65bd1a
+fc58509a	ldur	d26, [x4, #-0x7b]	ldur d26, [x4, #-123]
+350c3d1d	cbnz	w29, 0x4187a0	cbnz w29, 0x4187a0
+a0dc508e			.inst 0xa0dc508e
+b51b7fea	cbnz	x10, 0x436ffc	cbnz x10, 0x436ffc
+df731c3f			.inst 0xdf731c3f
+d0728656	adrp	x22, 0xe54ca000	adrp x22, 0xe54ca000
+?c1d601d9	udot	za.d[w8, 1, vgx2], { z14.h, z15.h }, z6.h[0]	.inst 0xc1d601d9
+13f91822			.inst 0x13f91822
+01136b93			.inst 0x01136b93
+be183f47			.inst 0xbe183f47
+fa7ee227			.inst 0xfa7ee227
+c6f58cf7			.inst 0xc6f58cf7
+2c303bdc	stnp	s28, s14, [x30, #-0x80]	stnp s28, s14, [x30, #-128]
+9e1fb835			.inst 0x9e1fb835
+733110f9			.inst 0x733110f9
+5cf4936a	ldr	d10, 0x3e926c	ldr d10, 0x3e926c
+b4f6bca9	cbz	x9, 0x3ed794	cbz x9, 0x3ed794
+30194b2d	adr	x13, 0x432965	adr x13, 0x432965
+14f3628a	b	0x40d8a28	b 0x40d8a28
+0717ea5b			.inst 0x0717ea5b
+9f32b4bc			.inst 0x9f32b4bc
+dd38e554			.inst 0xdd38e554
+d70e5723			.inst 0xd70e5723
+95e447b6	bl	0x7d11ed8	bl 0x7d11ed8
+0116ff07			.inst 0x0116ff07
+069f7189			.inst 0x069f7189
+76d1139b			.inst 0x76d1139b
+307c9dbc	adr	x28, 0x4f93b5	adr x28, 0x4f93b5
+aa725eda	orn	x26, x22, x18, lsr #23	orn x26, x22, x18, lsr #23
+?91b6868d	addg	x13, x20, #0x360, #1	.inst 0x91b6868d
+4a78e5fd			.inst 0x4a78e5fd
+57246376			.inst 0x57246376
+aae43a61	orn	x1, x19, x4, ror #14	orn x1, x19, x4, ror #14
+17838e9a	b	0xfffffffffe4e3a68	b 0xfffffffffe4e3a68
+3d5d2f8d	ldr	b13, [x28, #0x74b]	ldr b13, [x28, #1867]
+?a52de3ad	ld2w	{ z13.s, z14.s }, p0/z, [x29, #-6, mul vl]	.inst 0xa52de3ad
+11fe7bd6			.inst 0x11fe7bd6
+db866d0f			.inst 0xdb866d0f
+e7979bcb			.inst 0xe7979bcb
+f2e9199a	movk	x26, #0x48cc, lsl #48	movk x26, #0x48cc, lsl #48
+6c6e892e	ldnp	d14, d2, [x9, #-0x118]	ldnp d14, d2, [x9, #-280]
+7c23a493			.inst 0x7c23a493
+3c0ca4a7	str	b7, [x5], #0xca	str b7, [x5], #202
+a056f926			.inst 0xa056f926
+0e51526f			.inst 0x0e51526f
+d740cf5f			.inst 0xd740cf5f
+b1f069ad			.inst 0xb1f069ad
+b1a8766b			.inst 0xb1a8766b
+289d24ef	stp	w15, w9, [x7], #0xe8	stp w15, w9, [x7], #232
+620e8165			.inst 0x620e8165
+53953f8a			.inst 0x53953f8a
+b97a308c	ldr	w12, [x4, #0x3a30]	ldr w12, [x4, #14896]
+b1339c41	adds	x1, x2, #0xce7	adds x1, x2, #0xce7
+87909e30			.inst 0x87909e30
+9a71da79			.inst 0x9a71da79
+6798a47f			.inst 0x6798a47f
+2033f4ef			.inst 0x2033f4ef
+?64aa17d8	fcmla	z24.h, z30.h, z2.h[1], #90	.inst 0x64aa17d8
+1cde7af2	ldr	s18, 0x3bcf5c	ldr s18, 0x3bcf5c
+8e8a7c89			.inst 0x8e8a7c89
+4838e5b0			.inst 0x4838e5b0
+1c4e74a2	ldr	s2, 0x49ce94	ldr s2, 0x49ce94
+0d62fec8			.inst 0x0d62fec8
+703df3c6	adr	x6, 0x47be7b	adr x6, 0x47be7b
+9be1f5b5			.inst 0x9be1f5b5
+16ce0008	b	0xfffffffffb780020	b 0xfffffffffb780020
+7f7c2d38			.inst 0x7f7c2d38
+32b6f6e1			.inst 0x32b6f6e1
+36fd017a	tbz	w26, #0x1f, 0x3fa02c	tbz w26, #31, 0x3fa02c
+0db23b58	st4	{ v24.b, v25.b, v26.b, v27.b }[6], [x26], x18	st4 {v24.b-v27.b}[6], [x26], x18
+0b4664e7	add	w7, w7, w6, lsr #25	add w7, w7, w6, lsr #25
+1b3e911b			.inst 0x1b3e911b
+fb3aca30			.inst 0xfb3aca30
+a251fab9			.inst 0xa251fab9
+483509c7			.inst 0x483509c7
+4abbdb59			.inst 0x4abbdb59
+efa12825			.inst 0xefa12825
+6bbc4d76			.inst 0x6bbc4d76
+2ecfedd7			.inst 0x2ecfedd7
+42865d6b			.inst 0x42865d6b
+?05c0f98c	mov	z12.s, #0x3ffe	.inst 0x05c0f98c
+f65b784a			.inst 0xf65b784a
+2a96c72a			.inst 0x2a96c72a
+020d16b6			.inst 0x020d16b6
+09af8fad			.inst 0x09af8fad
+362305cf	tbz	w15, #4, 0x4060b8	tbz w15, #4, 0x4060b8
+52063626	eor	w6, w17, #0xfc0000ff	eor w6, w17, #0xfc0000ff
+de182510			.inst 0xde182510
+6638be1c			.inst 0x6638be1c
+?e51429a4	stnt1w	{ z4.d }, p2, [z13.d, x20]	.inst 0xe51429a4
+16f400a2	b	0xfffffffffc100288	b 0xfffffffffc100288
+2ce4020c	ldp	s12, s0, [x16], #-0xe0	ldp s12, s0, [x16], #-224
+1f4b12f6	fmadd	d22, d23, d11, d4	fmadd d22, d23, d11, d4
+2a1ad42f			.inst 0x2a1ad42f
+b212bf5c			.inst 0xb212bf5c
+1830b5b3	ldr	w19, 0x4616b4	ldr w19, 0x4616b4
+1e574ea2			.inst 0x1e574ea2
+cf904355			.inst 0xcf904355
+a7c13447			.inst 0xa7c13447
+3a5c293c			.inst 0x3a5c293c
+1e6c7e0d	fcsel	d13, d16, d12, vc	fcsel d13, d16, d12, vc
+5333d608			.inst 0x5333d608
+30dd8401	adr	x1, 0x3bb081	adr x1, 0x3bb081
+b82f6cd1			.inst 0xb82f6cd1
+1f601aa5	fnmadd	d5, d21, d0, d6	fnmadd d5, d21, d0, d6
+99a1419c			.inst 0x99a1419c
+d4b643f5			.inst 0xd4b643f5
+943cbe22	bl	0x132f888	bl 0x132f888
+b801539a	stur	w26, [x28, #0x15]	stur w26, [x28, #21]
+139b5bdd	extr	w29, w30, w27, #0x16	extr w29, w30, w27, #22
+3c719c62			.inst 0x3c719c62
+d0dad2cb	adrp	x11, 0xffffffffb5e5a000	adrp x11, 0xffffffffb5e5a000
+811a4dad			.inst 0x811a4dad
+4f942a22	smlal2	v2.2d, v17.4s, v20.s[2]	smlal2 v2.2d, v17.4s, v20.s[2]
+3586ec29	cbnz	w9, 0x30dd84	cbnz w9, 0x30dd84
+?c408525a	ld1b	{ z26.d }, p4/z, [x18, z8.d, uxtw]	.inst 0xc408525a
+38a31499			.inst 0x38a31499
+0b643879			.inst 0x0b643879
+222d5e65			.inst 0x222d5e65
+14a201a6	b	0x2c80698	b 0x2c80698
+cd1880d2			.inst 0xcd1880d2
+76d51486			.inst 0x76d51486
+740dec37			.inst 0x740dec37
+?e503de0f	st1w	{ z15.d }, p7, [x16, z3.d, sxtw]	.inst 0xe503de0f
+10941d92	adr	x18, 0x3283b0	adr x18, 0x3283b0
+75eb24f8			.inst 0x75eb24f8
+a785f67e			.inst 0xa785f67e
+090e5b04			.inst 0x090e5b04
+?c53ea84e	ldff1sw	{ z14.d }, p2/z, [z2.d, #0x78]	.inst 0xc53ea84e
+c62e8737			.inst 0xc62e8737
+fa7de979			.inst 0xfa7de979
+08e65f10			.inst 0x08e65f10
+b7ec4f80	tbnz	x0, #0x3d, 0x3f89f0	tbnz x0, #61, 0x3f89f0
+8c32ccc5			.inst 0x8c32ccc5
+7ab4cc43			.inst 0x7ab4cc43
+8fab142f			.inst 0x8fab142f
+26fbc1e0			.inst 0x26fbc1e0
+322254b0	orr	w16, w5, #0xc00fffff	orr w16, w5, #0xc00fffff
+1699ebf5	b	0xfffffffffaa7afd4	b 0xfffffffffaa7afd4
+b1e1291c			.inst 0xb1e1291c
+da5c6724			.inst 0xda5c6724
+676d68bc			.inst 0x676d68bc
+4ffcf457			.inst 0x4ffcf457
+fcd89124			.inst 0xfcd89124
+771b9b60			.inst 0x771b9b60
+?84c3d9a2	ld1rh	{ z2.s }, p6/z, [x13, #6]	.inst 0x84c3d9a2
+c4744437			.inst 0xc4744437
+ea06e8b2	ands	x18, x5, x6, lsl #58	ands x18, x5, x6, lsl #58
+c1afa6e7			.inst 0xc1afa6e7
+80a58b3f			.inst 0x80a58b3f
+0a0749f1	and	w17, w15, w7, lsl #18	and w17, w15, w7, lsl #18
+ff006cac			.inst 0xff006cac
+70e2cf03	adr	x3, 0x3c59e3	adr x3, 0x3c59e3
+034cf340			.inst 0x034cf340
+032c46fb			.inst 0x032c46fb
+3cef8da4			.inst 0x3cef8da4
+3cc8b634	ldr	q20, [x17], #0x8b	ldr q20, [x17], #139
+b43f3855	cbz	x21, 0x47e708	cbz x21, 0x47e708
+2f9300f4	mla	v20.2s, v7.2s, v19.s[0]	mla v20.2s, v7.2s, v19.s[0]
+f7b116ab			.inst 0xf7b116ab
+15d9c3e4	b	0x7a70f90	b 0x7a70f90
+68416331			.inst 0x68416331
+?05643a48	insr	z8.h, w18	.inst 0x05643a48
+ed618705			.inst 0xed618705
+e371b7f1			.inst 0xe371b7f1
+2235899a			.inst 0x2235899a
+b7c54293	tbnz	x19, #0x38, 0x3fa850	tbnz x19, #56, 0x3fa850
+735e116c			.inst 0x735e116c
+805bcc3a			.inst 0x805bcc3a
+a73b282a			.inst 0xa73b282a
+865a42a1			.inst 0x865a42a1
+62ba56b6			.inst 0x62ba56b6
+fd98983f			.inst 0xfd98983f
+f1bbf64f			.inst 0xf1bbf64f
+9080e6a7	adrp	x7, 0xffffffff020d4000	adrp x7, 0xffffffff020d4000
+b2934537			.inst 0xb2934537
+cd7be055			.inst 0xcd7be055
+c9083de0			.inst 0xc9083de0
+83bd3462			.inst 0x83bd3462
+816135dc			.inst 0x816135dc
+f8801a41			.inst 0xf8801a41
+7c4e1498	ldr	h24, [x4], #0xe1	ldr h24, [x4], #225
+60d88c0a			.inst 0x60d88c0a
+73975a47			.inst 0x73975a47
+4690cc9e			.inst 0x4690cc9e
+15c804e3	b	0x760138c	b 0x760138c
+6a63cf73			.inst 0x6a63cf73
+d6509deb			.inst 0xd6509deb
+102fae84	adr	x4, 0x45f5d0	adr x4, 0x45f5d0
+62318462			.inst 0x62318462
+434b4634			.inst 0x434b4634
+?e1f0576a	st1q	{za10h.q[w14, 0]}, p5, [x27, x16, lsl #4]	.inst 0xe1f0576a
+0cce7f39	ld1	{ v25.1d }, [x25], x14	ld1 {v25.1d}, [x25], x14
+e2296bd3			.inst 0xe2296bd3
+8c18f205			.inst 0x8c18f205
+ade8a124	ldp	q4, q8, [x9, #-0x2f0]!	ldp q4, q8, [x9, #-752]!
+2de371e3	ldp	s3, s28, [x15, #-0xe8]!	ldp s3, s28, [x15, #-232]!
+74bc5dfa			.inst 0x74bc5dfa
+1859d8e9	ldr	w9, 0x4b3b1c	ldr w9, 0x4b3b1c
+cb7b7f28			.inst 0xcb7b7f28
+?c5e7f226	ldff1d	{ z6.d }, p4/z, [x17, z7.d, lsl #3]	.inst 0xc5e7f226
+dc09e330			.inst 0xdc09e330
+1cf601cf	ldr	s15, 0x3ec038	ldr s15, 0x3ec038
+7978dc17	ldrh	w23, [x0, #0x1c6e]	ldrh w23, [x0, #7278]
+d744a3e4			.inst 0xd744a3e4
+d61ae419			.inst 0xd61ae419
+77139ee5			.inst 0x77139ee5
+0a0daa22			.inst 0x0a0daa22
+8fe13706			.inst 0x8fe13706
+?c4109382	ldnt1sb	{ z2.d }, p4/z, [z28.d, x16]	.inst 0xc4109382
+abf96a77			.inst 0xabf96a77
+?44fbd248	umullb	z8.d, z18.s, z11.s[2]	.inst 0x44fbd248
+831bc104			.inst 0x831bc104
+3aeb0c14			.inst 0x3aeb0c14
+6fbf7b9f			.inst 0x6fbf7b9f
+?84a3c4f2	ld1h	{ z18.s }, p1/z, [z7.s, #6]	.inst 0x84a3c4f2
+f1b2de3c			.inst 0xf1b2de3c
+352ecee6	cbnz	w6, 0x45d9dc	cbnz w6, 0x45d9dc
+?851c55fc	ld1w	{ z28.s }, p5/z, [x15, z28.s, uxtw]	.inst 0x851c55fc
+47c2d38d			.inst 0x47c2d38d
+3ddfc15b	ldr	q27, [x10, #0x7f00]	ldr q27, [x10, #32512]
+5fbb5781			.inst 0x5fbb5781
+9e48cc99			.inst 0x9e48cc99
+2a4a3988	orr	w8, w12, w10, lsr #14	orr w8, w12, w10, lsr #14
+?e1cf958d	ld1q	{za13v.q[w12, 0]}, p5/z, [x12, x15, lsl #4]	.inst 0xe1cf958d
+ef57cd29			.inst 0xef57cd29
+c162f13f			.inst 0xc162f13f
+bdfad188			.inst 0xbdfad188
+?08946362	stllrb	w2, [x27]	.inst 0x08946362
+3f2c737a			.inst 0x3f2c737a
+ac097883	stnp	q3, q30, [x4, #0x120]	stnp q3, q30, [x4, #288]
+5115831b	sub	w27, w24, #0x560	sub w27, w24, #0x560
+1b3d4042			.inst 0x1b3d4042
+085d6012	ldxrb	w18, [x0]	ldxrb w18, [x0]
+4d6a0975			.inst 0x4d6a0975
+852f800a			.inst 0x852f800a
+d6e6f966			.inst 0xd6e6f966
+98c8d8ba	ldrsw	x26, 0x391b14	ldrsw x26, 0x391b14
+7ff3c6a9			.inst 0x7ff3c6a9
+0c8b1592			.inst 0x0c8b1592
+14e1b0a8	b	0x3c6c2a0	b 0x3c6c2a0
+f853350c	ldr	x12, [x8], #-0xcd	ldr x12, [x8], #-205
+cde21fba			.inst 0xcde21fba
+a92eab97	stp	x23, x10, [x28, #-0x118]	stp x23, x10, [x28, #-280]
+d40deefa			.inst 0xd40deefa
+cb005dec	sub	x12, x15, x0, lsl #23	sub x12, x15, x0, lsl #23
+?05039001	orr	z1.d, z1.d, #0x4000	.inst 0x05039001
+6be0013e			.inst 0x6be0013e
+8c7ed6d5			.inst 0x8c7ed6d5
+b012c017	adrp	x23, 0x25c01000	adrp x23, 0x25c01000
+149a06fc	b	0x2a81bf0	b 0x2a81bf0
+a3a6e4da			.inst 0xa3a6e4da
+88ab9387			.inst 0x88ab9387
+61f1ed97			.inst 0x61f1ed97
+a335feaf			.inst 0xa335feaf
+?6ed11ee6	famin	v6.8h, v23.8h, v17.8h	.inst 0x6ed11ee6
+66d43ef8			.inst 0x66d43ef8
+87967ed7			.inst 0x87967ed7
+fd69b819	ldr	d25, [x0, #0x5370]	ldr d25, [x0, #21360]
+f6d13420			.inst 0xf6d13420
+6017febb			.inst 0x6017febb
+1e9ec97c			.inst 0x1e9ec97c
+70bcab27	adr	x7, 0x379567	adr x7, 0x379567
+87651699			.inst 0x87651699
+0a841c95	and	w21, w4, w4, asr #7	and w21, w4, w4, asr #7
+b748cc77	tbnz	x23, #0x29, 0x40198c	tbnz x23, #41, 0x40198c
+f448a0c3			.inst 0xf448a0c3
+af472187			.inst 0xaf472187
+ec771cd1			.inst 0xec771cd1
+32ec6322			.inst 0x32ec6322
+927fe6ad	and	x13, x21, #0x7fffffffffffffe	and x13, x21, #0x7fffffffffffffe
+f462fe2c			.inst 0xf462fe2c
+e22699d3			.inst 0xe22699d3
+ded7cb69			.inst 0xded7cb69
+?44edf933	mul	z19.d, z9.d, z13.d[0]	.inst 0x44edf933
+bdf269e5			.inst 0xbdf269e5
+59a81f8c			.inst 0x59a81f8c
+8c7f0ac0			.inst 0x8c7f0ac0
+b4a8b46e	cbz	x14, 0x35168c	cbz x14, 0x35168c
+b4e26240	cbz	x0, 0x3c4c48	cbz x0, 0x3c4c48
+d04daac4	adrp	x4, 0x9b95a000	adrp x4, 0x9b95a000
+7e363c42			.inst 0x7e363c42
+e162a970			.inst 0xe162a970
+?1fe5ac42	fnmsub	h2, h2, h5, h11	.inst 0x1fe5ac42
+?e55c548d	st1w	{ z13.s }, p5, [x4, x28, lsl #2]	.inst 0xe55c548d
+cc5340fa			.inst 0xcc5340fa
+06d2ceb1			.inst 0x06d2ceb1
+128e88de	mov	w30, #-0x7447	mov w30, #0xffff8bb9
+fbf7204d			.inst 0xfbf7204d
+b8fcf861			.inst 0xb8fcf861
+4d58e62b			.inst 0x4d58e62b
+2fb370ca			.inst 0x2fb370ca
+2d30d935	stp	s21, s22, [x9, #-0x7c]	stp s21, s22, [x9, #-124]
+d28274e9	mov	x9, #0x13a7	mov x9, #0x13a7
+713bf2f2	subs	w18, w23, #0xefc	subs w18, w23, #0xefc
+aa199c59	orr	x25, x2, x25, lsl #39	orr x25, x2, x25, lsl #39
+6ff051f2			.inst 0x6ff051f2
+0d9d1b66	st1	{ v6.b }[6], [x27], x29	st1 {v6.b}[6], [x27], x29
+2c3f2111	stnp	s17, s8, [x8, #-8]	stnp s17, s8, [x8, #-8]
+de95899a			.inst 0xde95899a
+162fd581	b	0xfffffffff8ff5604	b 0xfffffffff8ff5604
+8dc4100c			.inst 0x8dc4100c
+89fa2460			.inst 0x89fa2460
+cc0fa520			.inst 0xcc0fa520
+71715d39	subs	w25, w9, #0xc57, lsl #12	subs w25, w9, #0xc57, lsl #12
+ddbe280e			.inst 0xddbe280e
+6f0c57dd	sli	v29.16b, v30.16b, #4	sli v29.16b, v30.16b, #4
+aa42a330	orr	x16, x25, x2, lsr #40	orr x16, x25, x2, lsr #40
+b2641713	orr	x19, x24, #0x3f0000000	orr x19, x24, #0x3f0000000
+?24910573	cmphi	p3.s, p1/z, z11.s, z17.s	.inst 0x24910573
+?48c1718c	ldlarh	w12, [x12]	.inst 0x48c1718c
+?a4a8beb1	ld1h	{ z17.h }, p7/z, [x21, #-8, mul vl]	.inst 0xa4a8beb1
+cbfda274			.inst 0xcbfda274
+e328558c			.inst 0xe328558c
+8e9c9c08			.inst 0x8e9c9c08
+a77f91f4			.inst 0xa77f91f4
+897a24b7			.inst 0x897a24b7
+20618222			.inst 0x20618222
+ccba85bc			.inst 0xccba85bc
+7f99a919			.inst 0x7f99a919
+?ba1987ec	rmif	xzr, #0x33, #0xc	.inst 0xba1987ec
+4ea9fcfa	frsqrts	v26.4s, v7.4s, v9.4s	frsqrts v26.4s, v7.4s, v9.4s
+283831a8	stnp	w8, w12, [x13, #-0x40]	stnp w8, w12, [x13, #-64]
+ba4d9e37			.inst 0xba4d9e37
+f4321e48			.inst 0xf4321e48
+8e11d16a			.inst 0x8e11d16a
+52daea4d			.inst 0x52daea4d
+467afe46			.inst 0x467afe46
+61d35632			.inst 0x61d35632
+b602cc84	tbz	x4, #0x20, 0x405990	tbz x4, #32, 0x405990
+c2710f22			.inst 0xc2710f22
+f8089310	stur	x16, [x24, #0x89]	stur x16, [x24, #137]
+415a6ffb			.inst 0x415a6ffb
+6151254d			.inst 0x6151254d
+?24fd218c	cmplo	p12.d, p0/z, z12.d, #0x74	.inst 0x24fd218c
+bda51916			.inst 0xbda51916
+8b9674cd	add	x13, x6, x22, asr #29	add x13, x6, x22, asr #29
+b41c7cc7	cbz	x7, 0x438f98	cbz x7, 0x438f98
+c22b3c33			.inst 0xc22b3c33
+6bacefd8			.inst 0x6bacefd8
+79ad18d0	ldrsh	x16, [x6, #0x168c]	ldrsh x16, [x6, #5772]
+d05787d2	adrp	x18, 0xaf4fa000	adrp x18, 0xaf4fa000
+cb7f4921			.inst 0xcb7f4921
+baa36c38			.inst 0xbaa36c38
+bf405a04			.inst 0xbf405a04
+73207b4f			.inst 0x73207b4f
+7c192447	str	h7, [x2], #-0x6e	str h7, [x2], #-110
+79b3352b	ldrsh	x11, [x9, #0x199a]	ldrsh x11, [x9, #6554]
+?e4ce8dd8	st1h	{ z24.s }, p3, [x14, z14.s, uxtw]	.inst 0xe4ce8dd8
+a26e0e47			.inst 0xa26e0e47
+7a5c62b6			.inst 0x7a5c62b6
+4d54fd23			.inst 0x4d54fd23
+?1feec376	fnmsub	h22, h27, h14, h16	.inst 0x1feec376
+56fe2178			.inst 0x56fe2178
+51d8d375			.inst 0x51d8d375
+ca4039c5	eor	x5, x14, x0, lsr #14	eor x5, x14, x0, lsr #14
+b07cdc21	adrp	x1, 0xf9f85000	adrp x1, 0xf9f85000
+b0e97a31	adrp	x17, 0xffffffffd3345000	adrp x17, 0xffffffffd3345000
+aad3d454	orr	x20, x2, x19, ror #53	orr x20, x2, x19, ror #53
+f31da66e			.inst 0xf31da66e
+98ce8c19	ldrsw	x25, 0x39d180	ldrsw x25, 0x39d180
+8cfb15bc			.inst 0x8cfb15bc
+945ff36e	bl	0x1bfcdb8	bl 0x1bfcdb8
+942171f9	bl	0xc5c7e4	bl 0xc5c7e4
+7d9bbd53			.inst 0x7d9bbd53
+edcab7b3			.inst 0xedcab7b3
+8034f344			.inst 0x8034f344
+d6529e1c			.inst 0xd6529e1c
+476d2fe6			.inst 0x476d2fe6
+097ef4ff			.inst 0x097ef4ff
+7d4b32d3	ldr	h19, [x22, #0x598]	ldr h19, [x22, #1432]
+fad33487			.inst 0xfad33487
+b41e2763	cbz	x3, 0x43c4ec	cbz x3, 0x43c4ec
+3bbb532d			.inst 0x3bbb532d
+3c4fac19	ldr	b25, [x0, #0xfa]!	ldr b25, [x0, #250]!
+?24f3bd81	cmplo	p1.d, p7/z, z12.d, #0x4e	.inst 0x24f3bd81
+4f660535	sshr	v21.2d, v9.2d, #0x1a	sshr v21.2d, v9.2d, #26
+6a42663f	tst	w17, w2, lsr #25	tst w17, w2, lsr #25
+a75d6765			.inst 0xa75d6765
+f4fe6c8a			.inst 0xf4fe6c8a
+c1f06f39			.inst 0xc1f06f39
+d6e83a86			.inst 0xd6e83a86
+04bd5e32			.inst 0x04bd5e32
+?e4297f92	st2b	{ z18.b, z19.b }, p7, [x28, x9]	.inst 0xe4297f92
+?c88b4884	stllr	x4, [x4]	.inst 0xc88b4884
+?c0027891	mov	z17.b, p6/m, za0h.b[w15, 4]	.inst 0xc0027891
+f39759b4			.inst 0xf39759b4
+ce631985			.inst 0xce631985
+f2482054	ands	x20, x2, #0xff00000000000001	ands x20, x2, #0xff00000000000001
+328bd6bf			.inst 0x328bd6bf
+6d5b6a08	ldp	d8, d26, [x16, #0x1b0]	ldp d8, d26, [x16, #432]
+6e1198c5			.inst 0x6e1198c5
+9e89a7d8			.inst 0x9e89a7d8
+fa1a4418			.inst 0xfa1a4418
+110f92f7	add	w23, w23, #0x3e4	add w23, w23, #0x3e4
+6b9c30d2	subs	w18, w6, w28, asr #12	subs w18, w6, w28, asr #12
+c261621c			.inst 0xc261621c
+7434801b			.inst 0x7434801b
+d706651d			.inst 0xd706651d
+15bfcfa3	b	0x73f3e8c	b 0x73f3e8c
+5e1d0cb0			.inst 0x5e1d0cb0
+fcb951fd			.inst 0xfcb951fd
+7980e537	ldrsh	x23, [x9, #0x72]	ldrsh x23, [x9, #114]
+?051f08e5	mov	z5.b, p15/z, #0x47	.inst 0x051f08e5
+?e0c2e0ac	ld1d	{za6v.d[w15, 0]}, p0/z, [x5, x2, lsl #3]	.inst 0xe0c2e0ac
+ec8aae88			.inst 0xec8aae88
+f02fa26e	adrp	x14, 0x5f84f000	adrp x14, 0x5f84f000
+fe1055e2			.inst 0xfe1055e2
+e75c318e			.inst 0xe75c318e
+219526d9			.inst 0x219526d9
+a39e8f57			.inst 0xa39e8f57
+?e061bccc	st1h	{za1v.h[w13, 4]}, p7, [x6, x1, lsl #1]	.inst 0xe061bccc
+2287a190			.inst 0x2287a190
+f4200ad5			.inst 0xf4200ad5
+cf81288d			.inst 0xcf81288d
+239973f2			.inst 0x239973f2
+6e2a23a4	usubl2	v4.8h, v29.16b, v10.16b	usubl2 v4.8h, v29.16b, v10.16b
+61928645			.inst 0x61928645
+4281ece4			.inst 0x4281ece4
+0df7099a	ld2	{ v26.b, v27.b }[2], [x12], x23	ld2 {v26.b, v27.b}[2], [x12], x23
+2ac07ac5	orr	w5, w22, w0, ror #30	orr w5, w22, w0, ror #30
+961494ce	bl	0xfffffffff8925338	bl 0xfffffffff8925338
+0e0eaaf7			.inst 0x0e0eaaf7
+ae50d728			.inst 0xae50d728
+7aca884d			.inst 0x7aca884d
+423b8dd9			.inst 0x423b8dd9
+66381c54			.inst 0x66381c54
+5b98ed8d			.inst 0x5b98ed8d
+6a625ad5	bics	w21, w22, w2, lsr #22	bics w21, w22, w2, lsr #22
+7ab6b686			.inst 0x7ab6b686
+?4ecefca4	fmlalt	v4.8h, v5.16b, v14.16b	.inst 0x4ecefca4
+8a199754	and	x20, x26, x25, lsl #37	and x20, x26, x25, lsl #37
+78da9f87	ldrsh	w7, [x28, #-0x57]!	ldrsh w7, [x28, #-87]!
+db60864c			.inst 0xdb60864c
+acd283d9	ldp	q25, q0, [x30], #0x250	ldp q25, q0, [x30], #592
+4808feb6	stlxrh	w8, w22, [x21]	stlxrh w8, w22, [x21]
+110b4f01	add	w1, w24, #0x2d3	add w1, w24, #0x2d3
+d7f61e8b			.inst 0xd7f61e8b
+?0459a81d	clz	z29.h, p2/m, z0.h	.inst 0x0459a81d
+dc0b3b74			.inst 0xdc0b3b74
+5e7a2035			.inst 0x5e7a2035
+a3596cbf			.inst 0xa3596cbf
+17a427e0	b	0xfffffffffed09f80	b 0xfffffffffed09f80
+6fa0bac5			.inst 0x6fa0bac5
+591fcbb9			.inst 0x591fcbb9
+282a5d7c	stnp	w28, w23, [x11, #-0xb0]	stnp w28, w23, [x11, #-176]
+3f04ef8b			.inst 0x3f04ef8b
+19a39736			.inst 0x19a39736
+6ddea100	ldp	d0, d8, [x8, #0x1e8]!	ldp d0, d8, [x8, #488]!
+da5c6e0e			.inst 0xda5c6e0e
+f5c810a0			.inst 0xf5c810a0
+c7198dbe			.inst 0xc7198dbe
+565e5ff9			.inst 0x565e5ff9
+3702107c	tbnz	w28, #0, 0x40420c	tbnz w28, #0, 0x40420c
+da0ca5af			.inst 0xda0ca5af
+c0e7982c			.inst 0xc0e7982c
+fb6151bb			.inst 0xfb6151bb
+aee13171			.inst 0xaee13171
+e5f7b7a9			.inst 0xe5f7b7a9
+75139f87			.inst 0x75139f87
+86573c67			.inst 0x86573c67
+aab5e257	orn	x23, x18, x21, asr #56	orn x23, x18, x21, asr #56
+1b32874f			.inst 0x1b32874f
+beb833ea			.inst 0xbeb833ea
+?f8730edb	ldraa	x27, [x22, #-0x680]!	.inst 0xf8730edb
+b3420049	bfi	x9, x2, #62, #1	bfi x9, x2, #62, #1
+?4fa348e4	fmlsl	v4.4s, v7.4h, v3.h[6]	.inst 0x4fa348e4
+1c548f2f	ldr	s15, 0x4a91e4	ldr s15, 0x4a91e4
+d2af08f0	mov	x16, #0x78470000	mov x16, #0x78470000
+66929d1a			.inst 0x66929d1a
+b1cf72f8			.inst 0xb1cf72f8
+8c7b8fe2			.inst 0x8c7b8fe2
+9543ca4d	bl	0x54f2934	bl 0x54f2934
+6cc79ac0	ldp	d0, d6, [x22], #0x78	ldp d0, d6, [x22], #120
+ff75134d			.inst 0xff75134d
+a66a9776			.inst 0xa66a9776
+3577f86c	cbnz	w12, 0x4eff0c	cbnz w12, 0x4eff0c
+008acd19			.inst 0x008acd19
+425e16f4			.inst 0x425e16f4
+3d9bc658	str	q24, [x18, #0x6f10]	str q24, [x18, #28432]
+be0377d1			.inst 0xbe0377d1
+5765e197			.inst 0x5765e197
+?1ff13156	fnmadd	h22, h10, h17, h12	.inst 0x1ff13156
+962970be	bl	0xfffffffff8e5c2f8	bl 0xfffffffff8e5c2f8
+9898f2b8	ldrsw	x24, 0x331e54	ldrsw x24, 0x331e54
+616719c3			.inst 0x616719c3
+3e5f9097			.inst 0x3e5f9097
+cb4fec9b	sub	x27, x4, x15, lsr #59	sub x27, x4, x15, lsr #59
+7cc8dc05			.inst 0x7cc8dc05
+12f4ab08			.inst 0x12f4ab08
+f8d7fd59			.inst 0xf8d7fd59
+de502ff6			.inst 0xde502ff6
+f4e93f87			.inst 0xf4e93f87
+d5651faf			.inst 0xd5651faf
+49b2427b			.inst 0x49b2427b
+1c9e0154	ldr	s20, 0x33c028	ldr s20, 0x33c028
+88e429e2			.inst 0x88e429e2
+?69a14992	stgp	x18, x18, [x12, #-0x3e0]!	.inst 0x69a14992
+?a553cc40	ld3w	{ z0.s - z2.s }, p3/z, [x2, x19, lsl #2]	.inst 0xa553cc40
+33cc7c63			.inst 0x33cc7c63
+da5c6439			.inst 0xda5c6439
+a6346795			.inst 0xa6346795
+35764b96	cbnz	w22, 0x4ec970	cbnz w22, 0x4ec970
+4c015649			.inst 0x4c015649
+9bbc0ccc	umaddl	x12, w6, w28, x3	umaddl x12, w6, w28, x3
+e9b97f64			.inst 0xe9b97f64
+537c6c26			.inst 0x537c6c26
+f645a323			.inst 0xf645a323
+26e9b129			.inst 0x26e9b129
+afadb0bd			.inst 0xafadb0bd
+be2bc98d			.inst 0xbe2bc98d
+6ea45c13	uqrshl	v19.4s, v0.4s, v4.4s	uqrshl v19.4s, v0.4s, v4.4s
+cfc36d1a			.inst 0xcfc36d1a
+ef225744			.inst 0xef225744
+f7cf7069			.inst 0xf7cf7069
+1fb80ad3			.inst 0x1fb80ad3
+adb08801	stp	q1, q2, [x0, #-0x1f0]!	stp q1, q2, [x0, #-496]!
+a71345c1			.inst 0xa71345c1
+e9bbbd26			.inst 0xe9bbbd26
+e796db2e			.inst 0xe796db2e
+17eb9fa4	b	0xffffffffffee7e90	b 0xffffffffffee7e90
+6a0fcaba			.inst 0x6a0fcaba
+e15fd19a			.inst 0xe15fd19a
+20818caf			.inst 0x20818caf
+2b6b4e80			.inst 0x2b6b4e80
+5d99e7fa			.inst 0x5d99e7fa
+4adc5381	eor	w1, w28, w28, ror #20	eor w1, w28, w28, ror #20
+?65e2eab6	fnmsb	z22.d, p2/m, z21.d, z2.d	.inst 0x65e2eab6
+8d67864f			.inst 0x8d67864f
+f8523c8d	ldr	x13, [x4, #-0xdd]!	ldr x13, [x4, #-221]!
+a79eb949			.inst 0xa79eb949
+78ed9a6b			.inst 0x78ed9a6b
+a837a7c8	stnp	x8, x9, [x30, #-0x88]	stnp x8, x9, [x30, #-136]
+80408071			.inst 0x80408071
+dae7e9da			.inst 0xdae7e9da
+16d629d9	b	0xfffffffffb98a764	b 0xfffffffffb98a764
+87b358c7			.inst 0x87b358c7
+fcc46362			.inst 0xfcc46362
+9b89c416			.inst 0x9b89c416
+7e9ca3f1			.inst 0x7e9ca3f1
+fe7c5fd8			.inst 0xfe7c5fd8
+1f49ddcb	fmsub	d11, d14, d9, d23	fmsub d11, d14, d9, d23
+59a84d99			.inst 0x59a84d99
+5c0990dd	ldr	d29, 0x413218	ldr d29, 0x413218
+5555b485			.inst 0x5555b485
+bc963ce2			.inst 0xbc963ce2
+f1c9edb5			.inst 0xf1c9edb5
+7f9c48c5			.inst 0x7f9c48c5
+5b5521db			.inst 0x5b5521db
+cb46b8b8	sub	x24, x5, x6, lsr #46	sub x24, x5, x6, lsr #46
+dfc0e8be			.inst 0xdfc0e8be
+4ec0abd6			.inst 0x4ec0abd6
+6e9a0d5e			.inst 0x6e9a0d5e
+e2f0b5ed			.inst 0xe2f0b5ed
+abe64416			.inst 0xabe64416
+47ecbfd8			.inst 0x47ecbfd8
+fe6860df			.inst 0xfe6860df
+0a4f93a3			.inst 0x0a4f93a3
+b8d8830c			.inst 0xb8d8830c
+8b447089	add	x9, x4, x4, lsr #28	add x9, x4, x4, lsr #28
+27280a01			.inst 0x27280a01
+?f8ecf5f9	ldrab	x25, [x15, #-0x988]	.inst 0xf8ecf5f9
+7659816b			.inst 0x7659816b
+ac27b7a8	stnp	q8, q13, [x29, #-0x310]	stnp q8, q13, [x29, #-784]
+dc77697f			.inst 0xdc77697f
+f3ae81c1			.inst 0xf3ae81c1
+f2d57944	movk	x4, #0xabca, lsl #32	movk x4, #0xabca, lsl #32
+9b919c8c			.inst 0x9b919c8c
+?c560c732	ld1w	{ z18.d }, p1/z, [x25, z0.d, lsl #2]	.inst 0xc560c732
+b321b10f			.inst 0xb321b10f
+60acebbf			.inst 0x60acebbf
+2aac35d2	orn	w18, w14, w12, asr #13	orn w18, w14, w12, asr #13
+9cb8b14a	ldr	q10, 0x371628	ldr q10, 0x371628
+cc2ab802			.inst 0xcc2ab802
+503cfc6c	adr	x12, 0x479f8e	adr x12, 0x479f8e
+92abeaac	mov	x12, #-0x5f550001	mov x12, #0xffffffffa0aaffff
+79de23b3	ldrsh	w19, [x29, #0xf10]	ldrsh w19, [x29, #3856]
+83f4b416			.inst 0x83f4b416
+aff7db3c			.inst 0xaff7db3c
+83a429f8			.inst 0x83a429f8
+e1c89ab8			.inst 0xe1c89ab8
+8870e504	ldaxp	w4, w25, [x8]	ldaxp w4, w25, [x8]
+070427df			.inst 0x070427df
+d1ddc1f9			.inst 0xd1ddc1f9
+6d62cec1	ldp	d1, d19, [x22, #-0x1d8]	ldp d1, d19, [x22, #-472]
+ff485f94			.inst 0xff485f94
+020c8760			.inst 0x020c8760
+0cebcdf8			.inst 0x0cebcdf8
+338f0de3			.inst 0x338f0de3
+721452f4	ands	w20, w23, #0xfffff001	ands w20, w23, #0xfffff001
+7bf9c0c2			.inst 0x7bf9c0c2
+332ea94b			.inst 0x332ea94b
+f8150219	stur	x25, [x16, #-0xb0]	stur x25, [x16, #-176]
+1de322c6			.inst 0x1de322c6
+d1fbe5f2			.inst 0xd1fbe5f2
+ce67e0ce			.inst 0xce67e0ce
+28b325e9	stp	w9, w9, [x15], #-0x68	stp w9, w9, [x15], #-104
+9721af53	bl	0xfffffffffcc6bd4c	bl 0xfffffffffcc6bd4c
+62d54cc7			.inst 0x62d54cc7
+63f41484			.inst 0x63f41484
+?e40fab0f	st1b	{ z15.d }, p2, [x24, z15.d]	.inst 0xe40fab0f
+?653934a5	bfmls	z5.h, p5/m, z5.h, z25.h	.inst 0x653934a5
+8bb72546			.inst 0x8bb72546
+?d55c078c	msrr	s3_4_c0_c7_4, x12, x13	.inst 0xd55c078c
+80721510			.inst 0x80721510
+118683c1			.inst 0x118683c1
+edb6e267			.inst 0xedb6e267
+21557227			.inst 0x21557227
+f2b15633	movk	x19, #0x8ab1, lsl #16	movk x19, #0x8ab1, lsl #16
+2c72c55c	ldnp	s28, s17, [x10, #-0x6c]	ldnp s28, s17, [x10, #-108]
+?6937fcb1	stgp	x17, xzr, [x5, #-0x110]	.inst 0x6937fcb1
+?a19e5872	usmops	za2.s, p6/m, p2/m, z3.b, z30.b	.inst 0xa19e5872
+3c1f762e	str	b14, [x17], #-9	str b14, [x17], #-9
+3b831aaa			.inst 0x3b831aaa
+?e4509ff5	st1b	{ z21.s }, p7, [sp, z16.s, uxtw]	.inst 0xe4509ff5
+cc92b4b5			.inst 0xcc92b4b5
+78bbab80			.inst 0x78bbab80
+b9bf3c2b	ldrsw	x11, [x1, #0x3f3c]	ldrsw x11, [x1, #16188]
+3a160846			.inst 0x3a160846
+a8496024	ldnp	x4, x24, [x1, #0x90]	ldnp x4, x24, [x1, #144]
+17d2ed61	b	0xffffffffff8bb584	b 0xffffffffff8bb584
+57ff9ed2			.inst 0x57ff9ed2
+ff62a1b2			.inst 0xff62a1b2
+2f531f5f			.inst 0x2f531f5f
+7d6e4850	ldr	h16, [x2, #0x1724]	ldr h16, [x2, #5924]
+34e22601	cbz	w1, 0x3c44c0	cbz w1, 0x3c44c0
+5e160bd4			.inst 0x5e160bd4
+f10b8831	subs	x17, x1, #0x2e2	subs x17, x1, #0x2e2
+a7791f19			.inst 0xa7791f19
+878b3344			.inst 0x878b3344
+46cdc1e8			.inst 0x46cdc1e8
+abead35b			.inst 0xabead35b
+f9bd17f7	prfm	pstslcstrm, [sp, #0x7a28]	prfm #0x17, [sp, #31272]
+0f9f9fb4			.inst 0x0f9f9fb4
+bd77b378	ldr	s24, [x27, #0x37b0]	ldr s24, [x27, #14256]
+3ed25249			.inst 0x3ed25249
+25d7f887			.inst 0x25d7f887
+c814a350	stlxr	w20, x16, [x26]	stlxr w20, x16, [x26]
+44ef1b2a			.inst 0x44ef1b2a
+2b192da5	adds	w5, w13, w25, lsl #11	adds w5, w13, w25, lsl #11
+edd62cb6			.inst 0xedd62cb6
+?84ca5f73	ld1h	{ z19.s }, p7/z, [x27, z10.s, sxtw]	.inst 0x84ca5f73
+aeacd8ad			.inst 0xaeacd8ad
+8f49aea9			.inst 0x8f49aea9
+d659a196			.inst 0xd659a196
+9bb5c32e	umsubl	x14, w25, w21, x16	umsubl x14, w25, w21, x16
+2ea46cc7	umin	v7.2s, v6.2s, v4.2s	umin v7.2s, v6.2s, v4.2s
+a8be3547	stp	x7, x13, [x10], #-0x20	stp x7, x13, [x10], #-32
+?a1176214	ld1d	{ z20.d, z28.d }, pn8/z, [x16, x23, lsl #3]	.inst 0xa1176214
+8b72a9dc			.inst 0x8b72a9dc
+0a995f66	and	w6, w27, w25, asr #23	and w6, w27, w25, asr #23
+b5aeb9d5	cbnz	x21, 0x35d738	cbnz x21, 0x35d738
+cc3f3be9			.inst 0xcc3f3be9
+73e0d8e6			.inst 0x73e0d8e6
+8890b0f1	stlr	w17, [x7]	stlr w17, [x7]
+2d5a8322	ldp	s2, s0, [x25, #0xd4]	ldp s2, s0, [x25, #212]
+463800f7			.inst 0x463800f7
+1c20880f	ldr	s15, 0x441100	ldr s15, 0x441100
+797ca91e	ldrh	w30, [x8, #0x1e54]	ldrh w30, [x8, #7764]
+?a4caf5f6	ld3h	{ z22.h - z24.h }, p5/z, [x15, #-0x12, mul vl]	.inst 0xa4caf5f6
+55f3b7b6			.inst 0x55f3b7b6
+8cb9face			.inst 0x8cb9face
+9a247b3f			.inst 0x9a247b3f
+8d8f5ef8			.inst 0x8d8f5ef8
+d2bbb09e	mov	x30, #0xdd840000	mov x30, #0xdd840000
+bb6822cb			.inst 0xbb6822cb
+88a4c0a2			.inst 0x88a4c0a2
+594878a7			.inst 0x594878a7
+87eaa575			.inst 0x87eaa575
+cfc460e4			.inst 0xcfc460e4
+?e47273e1	st4b	{ z1.b - z4.b }, p4, [sp, x18]	.inst 0xe47273e1
+72e85ad2			.inst 0x72e85ad2
+2c8dcfac	stp	s12, s19, [x29], #0x6c	stp s12, s19, [x29], #108
+dd9939e8			.inst 0xdd9939e8
+2f7048df	mls	v31.4h, v6.4h, v0.h[7]	mls v31.4h, v6.4h, v0.h[7]
+b07de6b2	adrp	x18, 0xfc0d5000	adrp x18, 0xfc0d5000
+12d1443e			.inst 0x12d1443e
+ec094594			.inst 0xec094594
+07c93fa4			.inst 0x07c93fa4
+eb6a6c9f			.inst 0xeb6a6c9f
+?a062509c	st1w	{ z28.s, z29.s }, pn12, [x4, #4, mul vl]	.inst 0xa062509c
+2f913b56			.inst 0x2f913b56
+6c510232	ldnp	d18, d0, [x17, #0x110]	ldnp d18, d0, [x17, #272]
+933fb77c			.inst 0x933fb77c
+4c1e0a42			.inst 0x4c1e0a42
+51578f68	sub	w8, w27, #0x5e3, lsl #12	sub w8, w27, #0x5e3, lsl #12
+36a66840	tbz	w0, #0x14, 0x3fcd08	tbz w0, #20, 0x3fcd08
+d5422219			.inst 0xd5422219
+19f4ec3c			.inst 0x19f4ec3c
+98c0eace	ldrsw	x14, 0x381d58	ldrsw x14, 0x381d58
+639f9cfc			.inst 0x639f9cfc
+4c317c91			.inst 0x4c317c91
+441a0f6a			.inst 0x441a0f6a
+7cc6b0ec			.inst 0x7cc6b0ec
+742cb9de			.inst 0x742cb9de
+74476913			.inst 0x74476913
+936500cc	sbfiz	x12, x6, #0x1b, #1	sbfiz x12, x6, #27, #1
+?91be88f0	addg	x16, x7, #0x3e0, #2	.inst 0x91be88f0
+6f1f8fe6	sqrshrun2	v6.8h, v31.4s, #1	sqrshrun2 v6.8h, v31.4s, #1
+85832f4b			.inst 0x85832f4b
+85b3c1bd			.inst 0x85b3c1bd
+1c751a31	ldr	s17, 0x4ea344	ldr s17, 0x4ea344
+92e76c3a	mov	x26, #-0x3b61000000000001	mov x26, #0xc49effffffffffff
+6d264b46	stp	d6, d18, [x26, #-0x1a0]	stp d6, d18, [x26, #-416]
+59a9daaa			.inst 0x59a9daaa
+209bd3ce			.inst 0x209bd3ce
+15bcaf88	b	0x732be20	b 0x732be20
+cb3f01e6	sub	x6, x15, wzr, uxtb	sub x6, x15, wzr, uxtb
+9b3cd4be	smsubl	x30, w5, w28, x21	smsubl x30, w5, w28, x21
+41e8d302			.inst 0x41e8d302
+90258b5c	adrp	x28, 0x4b568000	adrp x28, 0x4b568000
+23b9c2c2			.inst 0x23b9c2c2
+75ac7d11			.inst 0x75ac7d11
+3330642a			.inst 0x3330642a
+37962ae1	tbnz	w1, #0x12, 0x3fc55c	tbnz w1, #18, 0x3fc55c
+cfa57b7b			.inst 0xcfa57b7b
+833c16a2			.inst 0x833c16a2
+9591681b	bl	0x685a06c	bl 0x685a06c
+f9053048	str	x8, [x2, #0xa60]	str x8, [x2, #2656]
+c01f3d38			.inst 0xc01f3d38
+?6937c158	stgp	x24, x16, [x10, #-0x110]	.inst 0x6937c158
+a3658d29			.inst 0xa3658d29
+9e64c068			.inst 0x9e64c068
+2e6b253a	uhsub	v26.4h, v9.4h, v11.4h	uhsub v26.4h, v9.4h, v11.4h
+d27dc638	eor	x24, x17, #0x1ffffffffffff8	eor x24, x17, #0x1ffffffffffff8
+788bbe5e	ldrsh	x30, [x18, #0xbb]!	ldrsh x30, [x18, #187]!
+4ba41222			.inst 0x4ba41222
+a7252681			.inst 0xa7252681
+37bcacb2	tbnz	w18, #0x17, 0x3f9594	tbnz w18, #23, 0x3f9594
+6f6f3df3			.inst 0x6f6f3df3
+93e50f81			.inst 0x93e50f81
+f68bd53b			.inst 0xf68bd53b
+eafec480	bics	x0, x4, x30, ror #49	bics x0, x4, x30, ror #49
+2ddd32e6	ldp	s6, s12, [x23, #0xe8]!	ldp s6, s12, [x23, #232]!
+b3c43d5b			.inst 0xb3c43d5b
+e0712f9d			.inst 0xe0712f9d
+?84e6bb21	ld1rh	{ z1.h }, p6/z, [x25, #0x4c]	.inst 0x84e6bb21
+f2f0f855	movk	x21, #0x87c2, lsl #48	movk x21, #0x87c2, lsl #48
+bc285f59			.inst 0xbc285f59
+078f9864			.inst 0x078f9864
+a8875bf4	stp	x20, x22, [sp], #0x70	stp x20, x22, [sp], #112
+4d63d533			.inst 0x4d63d533
+f63db14a			.inst 0xf63db14a
+d8cb34d9	prfm	#0x19, 0x396698	prfm #0x19, 0x396698
+be9de493			.inst 0xbe9de493
+abddb642			.inst 0xabddb642
+1ea8c3dd			.inst 0x1ea8c3dd
+d9d17a72			.inst 0xd9d17a72
+0dd80032	ld1	{ v18.b }[0], [x1], x24	ld1 {v18.b}[0], [x1], x24
+?8574ecc3	ld1rw	{ z3.d }, p3/z, [x6, #0xd0]	.inst 0x8574ecc3
+fd635e3e	ldr	d30, [x17, #0x46b8]	ldr d30, [x17, #18104]
+b979b255	ldr	w21, [x18, #0x39b0]	ldr w21, [x18, #14768]
+c25f9ffa			.inst 0xc25f9ffa
+8277bc08			.inst 0x8277bc08
+416cca49			.inst 0x416cca49
+e1a0d83d			.inst 0xe1a0d83d
+16cefbfe	b	0xfffffffffb7beff8	b 0xfffffffffb7beff8
+a2a03caa			.inst 0xa2a03caa
+60678670			.inst 0x60678670
+af425f9b			.inst 0xaf425f9b
+?ce9cdfdc	xar	v28.2d, v30.2d, v28.2d, #0x37	.inst 0xce9cdfdc
+7ff52300			.inst 0x7ff52300
+4fe438ac			.inst 0x4fe438ac
+35a0b38e	cbnz	w14, 0x341670	cbnz w14, 0x341670
+928f684b	mov	x11, #-0x7b43	mov x11, #0xffffffffffff84bd
+?247c407b	cmphi	p11.h, p0/z, z3.h, #0x71	.inst 0x247c407b
+cd16365b			.inst 0xcd16365b
+5f8c065f			.inst 0x5f8c065f
+?84df6486	ldff1h	{ z6.s }, p1/z, [x4, z31.s, sxtw]	.inst 0x84df6486
+8e48642a			.inst 0x8e48642a
+5702d097			.inst 0x5702d097
+88c58432	ldar	w18, [x1]	ldar w18, [x1]
+560205fd			.inst 0x560205fd
+9221a6cc	and	x12, x22, #0x81ff81ff81ff81ff	and x12, x22, #0x81ff81ff81ff81ff
+19927901			.inst 0x19927901
+b5d217d1	cbnz	x17, 0x3a42f8	cbnz x17, 0x3a42f8
+f33c7e73			.inst 0xf33c7e73
+22164f6e			.inst 0x22164f6e
+4c73d61a			.inst 0x4c73d61a
+51150465	sub	w5, w3, #0x541	sub w5, w3, #0x541
+e8019972			.inst 0xe8019972
+b76a97d0	tbnz	x16, #0x2d, 0x4052f8	tbnz x16, #45, 0x4052f8
+6240f5f4			.inst 0x6240f5f4
+8ba7a9e3			.inst 0x8ba7a9e3
+37ac99f4	tbnz	w20, #0x15, 0x3f933c	tbnz w20, #21, 0x3f933c
+5380a17c			.inst 0x5380a17c
+70838d20	adr	x0, 0x3071a7	adr x0, 0x3071a7
+f04f8aab	adrp	x11, 0x9f557000	adrp x11, 0x9f557000
+9c061f6c	ldr	q12, 0x40c3ec	ldr q12, 0x40c3ec
+0e89140b			.inst 0x0e89140b
+1aaaa008			.inst 0x1aaaa008
+304c89c4	adr	x4, 0x499139	adr x4, 0x499139
+fd5ee012	ldr	d18, [x0, #0x3dc0]	ldr d18, [x0, #15808]
+824f6f17			.inst 0x824f6f17
+406068a6			.inst 0x406068a6
+f18f801f			.inst 0xf18f801f
+82b31112			.inst 0x82b31112
+6eb694b5	mls	v21.4s, v5.4s, v22.4s	mls v21.4s, v5.4s, v22.4s
+3f8a3f64			.inst 0x3f8a3f64
+57aad2bb			.inst 0x57aad2bb
+480c568a	stxrh	w12, w10, [x20]	stxrh w12, w10, [x20]
+19807855			.inst 0x19807855
+a63addb2			.inst 0xa63addb2
+d5822b2d			.inst 0xd5822b2d
+eda9f866			.inst 0xeda9f866
+c09180b2			.inst 0xc09180b2
+4bbbff9a			.inst 0x4bbbff9a
+?a0cfdc01	smopa	za1.d, p7/m, p6/m, z0.h, z15.h	.inst 0xa0cfdc01
+f2e00d0a	movk	x10, #0x68, lsl #48	movk x10, #0x68, lsl #48
+?a4a95a96	ld1h	{ z22.h }, p6/z, [x20, x9, lsl #1]	.inst 0xa4a95a96
+763d3f7a			.inst 0x763d3f7a
+72ce67fb			.inst 0x72ce67fb
+54b7880b	b.lt	0x36f100	b.lt 0x36f100
+758ffebe			.inst 0x758ffebe
+295787ed	ldp	w13, w1, [sp, #0xbc]	ldp w13, w1, [sp, #188]
+e989849f			.inst 0xe989849f
+201a2460			.inst 0x201a2460
+014f1efd			.inst 0x014f1efd
+01920f2b			.inst 0x01920f2b
+74e5aeba			.inst 0x74e5aeba
+ba8754d9			.inst 0xba8754d9
+cb149d7b	sub	x27, x11, x20, lsl #39	sub x27, x11, x20, lsl #39
+4fea7dab			.inst 0x4fea7dab
+d173c6fb	sub	x27, x23, #0xcf1, lsl #12	sub x27, x23, #0xcf1, lsl #12
+83ef7abd			.inst 0x83ef7abd
+f3b6635a			.inst 0xf3b6635a
+2ab3897a			.inst 0x2ab3897a
+e9c60572			.inst 0xe9c60572
+a7a8175a			.inst 0xa7a8175a
+9cb12d79	ldr	q25, 0x3625ac	ldr q25, 0x3625ac
+3499cd2c	cbz	w12, 0x3339a4	cbz w12, 0x3339a4
+9aa81899			.inst 0x9aa81899
+7a9c3db3			.inst 0x7a9c3db3
+e88afb41			.inst 0xe88afb41
+b6e7c781	tbz	x1, #0x3c, 0x3ff8f0	tbz x1, #60, 0x3ff8f0
+7eede4cd	fcmgt	d13, d6, d13	fcmgt d13, d6, d13
+eb542b23	subs	x3, x25, x20, lsr #10	subs x3, x25, x20, lsr #10
+8880e202	stlr	w2, [x16]	stlr w2, [x16]
+?44c404dc	udot	z28.d, z6.h, z4.h	.inst 0x44c404dc
+0e12b986			.inst 0x0e12b986
+a3eefc9f			.inst 0xa3eefc9f
+12cad0a8			.inst 0x12cad0a8
+38513119	ldurb	w25, [x8, #-0xed]	ldurb w25, [x8, #-237]
+3793e525	tbnz	w5, #0x12, 0x407ca4	tbnz w5, #18, 0x407ca4
+c3750e8d			.inst 0xc3750e8d
+1cac77f4	ldr	s20, 0x358efc	ldr s20, 0x358efc
+d8b5cd95	prfm	pstl3strm, 0x36b9b0	prfm pstl3strm, 0x36b9b0
+?651ead15	flogb	z21.d, p3/m, z8.d	.inst 0x651ead15
+8aff1fb9	bic	x25, x29, xzr, ror #7	bic x25, x29, xzr, ror #7
+47c0436d			.inst 0x47c0436d
+2d235fad	stp	s13, s23, [x29, #-0xe8]	stp s13, s23, [x29, #-232]
+8405ca36			.inst 0x8405ca36
+4ea487e5	add	v5.4s, v31.4s, v4.4s	add v5.4s, v31.4s, v4.4s
+e6cc2ab9			.inst 0xe6cc2ab9
+f450e643			.inst 0xf450e643
+9382feb4			.inst 0x9382feb4
+81f08211			.inst 0x81f08211
+81fcd5be			.inst 0x81fcd5be
+a2ef446f			.inst 0xa2ef446f
+8ab81ae8	bic	x8, x23, x24, asr #6	bic x8, x23, x24, asr #6
+6eddbb8f			.inst 0x6eddbb8f
+d6c50c93			.inst 0xd6c50c93
+e0e571db			.inst 0xe0e571db
+e2cdffbb			.inst 0xe2cdffbb
+bac52822			.inst 0xbac52822
+f57eba32			.inst 0xf57eba32
+14b456e7	b	0x3115b9c	b 0x3115b9c
+3213e4ad	orr	w13, w5, #0x66666666	orr w13, w5, #0x66666666
+ed06aa4b			.inst 0xed06aa4b
+996fd111			.inst 0x996fd111
+1e86c5ed			.inst 0x1e86c5ed
+6d59695d	ldp	d29, d26, [x10, #0x190]	ldp d29, d26, [x10, #400]
+1b3ce0fb			.inst 0x1b3ce0fb
+d8584bd2	prfm	pstl2keep, 0x4b0978	prfm pstl2keep, 0x4b0978
+1480562d	b	0x24158b4	b 0x24158b4
+?782e4218	ldsmaxh	w14, w24, [x16]	.inst 0x782e4218
+08486aae	ldxrb	w14, [x21]	ldxrb w14, [x21]
+12f1fbbe			.inst 0x12f1fbbe
+?05e981ed	clastb	z13.d, p0, z13.d, z15.d	.inst 0x05e981ed
+cfdd7c3b			.inst 0xcfdd7c3b
+002d3d90			.inst 0x002d3d90
+379f4f67	tbnz	w7, #0x13, 0x3fe9ec	tbnz w7, #19, 0x3fe9ec
+ea652f42	bics	x2, x26, x5, lsr #11	bics x2, x26, x5, lsr #11
+c2e01c3e			.inst 0xc2e01c3e
+2e1d6333			.inst 0x2e1d6333
+f0c82a9d	adrp	x29, 0xffffffff90953000	adrp x29, 0xffffffff90953000
+f0657cea	adrp	x10, 0xcb39f000	adrp x10, 0xcb39f000
+b49e4ab9	cbz	x25, 0x33c954	cbz x25, 0x33c954
+4ac8f0f7			.inst 0x4ac8f0f7
+5a1e54f1			.inst 0x5a1e54f1
+?d9a4e86e	st2g	x14, [x3, #0x4e0]	.inst 0xd9a4e86e
+1f725cd4	fnmadd	d20, d6, d18, d23	fnmadd d20, d6, d18, d23
+749ca11e			.inst 0x749ca11e
+1ea5bc13			.inst 0x1ea5bc13
+6a8e27b0	ands	w16, w29, w14, asr #9	ands w16, w29, w14, asr #9
+fb59c1ff			.inst 0xfb59c1ff
+e85017c1			.inst 0xe85017c1
+cac72e7b	eor	x27, x19, x7, ror #11	eor x27, x19, x7, ror #11
+?649596cb	fminnmp	z11.s, p5/m, z11.s, z22.s	.inst 0x649596cb
+8b46e509	add	x9, x8, x6, lsr #57	add x9, x8, x6, lsr #57
+c38dfd1a			.inst 0xc38dfd1a
+18b5120b	ldr	w11, 0x36a240	ldr w11, 0x36a240
+31a4cf9d			.inst 0x31a4cf9d
+b6be13db	tbz	x27, #0x37, 0x3fc278	tbz x27, #55, 0x3fc278
+b987eec1	ldrsw	x1, [x22, #0x7ec]	ldrsw x1, [x22, #2028]
+25fc3909			.inst 0x25fc3909
+ee35294f			.inst 0xee35294f
+d3a788f9			.inst 0xd3a788f9
+cc966255			.inst 0xcc966255
+afd21ce8			.inst 0xafd21ce8
+94244870	bl	0xd121c0	bl 0xd121c0
+b6607863	tbz	x3, #0x2c, 0x400f0c	tbz x3, #44, 0x400f0c
+?08d755b4	ldlarb	w20, [x13]	.inst 0x08d755b4
+5ce28494	ldr	d20, 0x3c5090	ldr d20, 0x3c5090
+2f0d02a4			.inst 0x2f0d02a4
+6110efc1			.inst 0x6110efc1
+b3dab41c			.inst 0xb3dab41c
+1f1b1322	fmadd	s2, s25, s27, s4	fmadd s2, s25, s27, s4
+405e81df			.inst 0x405e81df
+faa20f3c			.inst 0xfaa20f3c
+8be68ad4			.inst 0x8be68ad4
+2fb3fe1d			.inst 0x2fb3fe1d
+32f23bd0			.inst 0x32f23bd0
+9413841e	bl	0x8e1078	bl 0x8e1078
+d6103bf7			.inst 0xd6103bf7
+98f9c1a5	ldrsw	x5, 0x3f3834	ldrsw x5, 0x3f3834
+f37a8200			.inst 0xf37a8200
+42aa38dd			.inst 0x42aa38dd
+7c04801d	stur	h29, [x0, #0x48]	stur h29, [x0, #72]
+6e70329f	usubw2	v31.4s, v20.4s, v16.8h	usubw2 v31.4s, v20.4s, v16.8h
+d66e2646			.inst 0xd66e2646
+6daec767	stp	d7, d17, [x27, #-0x118]!	stp d7, d17, [x27, #-280]!
+32dcc760			.inst 0x32dcc760
+a8cea203	ldp	x3, x8, [x16], #0xe8	ldp x3, x8, [x16], #232
+d334f914			.inst 0xd334f914
+fbf7d171			.inst 0xfbf7d171
+43922b7c			.inst 0x43922b7c
+952cbfc0	bl	0x4f2ff00	bl 0x4f2ff00
+b370b5db	bfi	x27, x14, #16, #46	bfi x27, x14, #16, #46
+c9ff309d			.inst 0xc9ff309d
+ba999df5			.inst 0xba999df5
+ace7c702	ldp	q2, q17, [x24], #-0x310	ldp q2, q17, [x24], #-784
+8d6979fb			.inst 0x8d6979fb
+7008e8af	adr	x15, 0x411d17	adr x15, 0x411d17
+2704d79a			.inst 0x2704d79a
+eeb90bdf			.inst 0xeeb90bdf
+494629c0			.inst 0x494629c0
+a91d61af	stp	x15, x24, [x13, #0x1d0]	stp x15, x24, [x13, #464]
+?80d56e84	fmopa	za4.d, p3/m, p3/m, z20.d, z21.d	.inst 0x80d56e84
+de508d5f			.inst 0xde508d5f
+a6acb1cd			.inst 0xa6acb1cd
+c70999a8			.inst 0xc70999a8
+5e8ae7ee			.inst 0x5e8ae7ee
+1c7b74e3	ldr	s3, 0x4f6e9c	ldr s3, 0x4f6e9c
+a9447081	ldp	x1, x28, [x4, #0x40]	ldp x1, x28, [x4, #64]
+511f900b	sub	w11, w0, #0x7e4	sub w11, w0, #0x7e4
+35adc5c4	cbnz	w4, 0x35b8b8	cbnz w4, 0x35b8b8
+c67a6cf8			.inst 0xc67a6cf8
+9eac8c8c			.inst 0x9eac8c8c
+56952bb7			.inst 0x56952bb7
+2c404392	ldnp	s18, s16, [x28]	ldnp s18, s16, [x28]
+6bcdbfb1			.inst 0x6bcdbfb1
+63012494			.inst 0x63012494
+141c791d	b	0xb1e474	b 0xb1e474
+fd1af6c3	str	d3, [x22, #0x35e8]	str d3, [x22, #13800]
+eeede3bf			.inst 0xeeede3bf
+6fe4575a			.inst 0x6fe4575a
+0cfb45f8			.inst 0x0cfb45f8
+01427ecf			.inst 0x01427ecf
+27c4f43b			.inst 0x27c4f43b
+25dffaea			.inst 0x25dffaea
+ecbb4d39			.inst 0xecbb4d39
+734de6fe			.inst 0x734de6fe
+?05e8b501	mov	z1.d, p5/m, x8	.inst 0x05e8b501
+f2c7b84d	movk	x13, #0x3dc2, lsl #32	movk x13, #0x3dc2, lsl #32
+da549c20			.inst 0xda549c20
+76a54046			.inst 0x76a54046
+d6f50d7d			.inst 0xd6f50d7d
+1b6f0855			.inst 0x1b6f0855
+c9dad6ec			.inst 0xc9dad6ec
+06fa5514			.inst 0x06fa5514
+d78c80d8			.inst 0xd78c80d8
+66dc9083			.inst 0x66dc9083
+df8b9091			.inst 0xdf8b9091
+8dfc2902			.inst 0x8dfc2902
+?1d09e477	cpyprtn	[x23]!, [x9]!, x3!	.inst 0x1d09e477
+282ed0b4	stnp	w20, w20, [x5, #-0x8c]	stnp w20, w20, [x5, #-140]
+f9869a1a	prfm	#0x1a, [x16, #0xd30]	prfm #0x1a, [x16, #3376]
+a68db602			.inst 0xa68db602
+87f974d5			.inst 0x87f974d5
+79bae7ae	ldrsh	x14, [x29, #0x1d72]	ldrsh x14, [x29, #7538]
+?c19078cd	fmlsl	za.s[w11, 2:3, vgx2], { z6.h, z7.h }, z0.h[5]	.inst 0xc19078cd
+8021b5ca			.inst 0x8021b5ca
+5ccf1b0d	ldr	d13, 0x39e360	ldr d13, 0x39e360
+71c8a6ae			.inst 0x71c8a6ae
+90ace0bd	adrp	x29, 0xffffffff5a014000	adrp x29, 0xffffffff5a014000
+60f6fbfa			.inst 0x60f6fbfa
+3fd93040			.inst 0x3fd93040
+e69d5724			.inst 0xe69d5724
+ea2db9fb	bics	x27, x15, x13, lsl #46	bics x27, x15, x13, lsl #46
+?a13f6a9a	stnt1d	{ z18.d, z26.d }, pn10, [x20, xzr, lsl #3]	.inst 0xa13f6a9a
+?48cc3faa	ldlarh	w10, [x29]	.inst 0x48cc3faa
+db0b6ec5			.inst 0xdb0b6ec5
+5646719e			.inst 0x5646719e
+6ac05557	ands	w23, w10, w0, ror #21	ands w23, w10, w0, ror #21
+c205299d			.inst 0xc205299d
+439d028a			.inst 0x439d028a
+11e14a0b			.inst 0x11e14a0b
+dd2a819b			.inst 0xdd2a819b
+fe67a059			.inst 0xfe67a059
+f810013b	stur	x27, [x9, #-0x100]	stur x27, [x9, #-256]
+9ceb4006	ldr	q6, 0x3d6800	ldr q6, 0x3d6800
+f41a46ed			.inst 0xf41a46ed
+98b6fe63	ldrsw	x3, 0x36dfcc	ldrsw x3, 0x36dfcc
+4b742b16			.inst 0x4b742b16
+dd99e2d9			.inst 0xdd99e2d9
+fa605bb2			.inst 0xfa605bb2
+623c73ea			.inst 0x623c73ea
+8c3f730e			.inst 0x8c3f730e
+4130656e			.inst 0x4130656e
+cdf18547			.inst 0xcdf18547
+?dd5928bf	ldapur	d31, [x5, #-0x6e]	.inst 0xdd5928bf
+a90e60b5	stp	x21, x24, [x5, #0xe0]	stp x21, x24, [x5, #224]
+6b8d81e3			.inst 0x6b8d81e3
+1b0c389b	madd	w27, w4, w12, w14	madd w27, w4, w12, w14
+04e18cde			.inst 0x04e18cde
+906ec5a3	adrp	x3, 0xddcb4000	adrp x3, 0xddcb4000
+6c2d450f	stnp	d15, d17, [x8, #-0x130]	stnp d15, d17, [x8, #-304]
+77b56d0c			.inst 0x77b56d0c
+?24dda6f5	cmpne	p5.d, p1/z, z23.d, z29.d	.inst 0x24dda6f5
+50f113d2	adr	x18, 0x3e227a	adr x18, 0x3e227a
+db320ebd			.inst 0xdb320ebd
+f17ded75	subs	x21, x11, #0xf7b, lsl #12	subs x21, x11, #0xf7b, lsl #12
+34d4fc31	cbz	w17, 0x3a9f84	cbz w17, 0x3a9f84
+db8e108e			.inst 0xdb8e108e
+ba469382	ccmn	x28, x6, #2, ls	ccmn x28, x6, #0x2, ls
+b0576a15	adrp	x21, 0xaf141000	adrp x21, 0xaf141000
+e15e64ef			.inst 0xe15e64ef
+ae95d7d0			.inst 0xae95d7d0
+?45f0d5e2	histcnt	z2.d, p5/z, z15.d, z16.d	.inst 0x45f0d5e2
+3aec8cac			.inst 0x3aec8cac
+31b1e85f			.inst 0x31b1e85f
+d65162e1			.inst 0xd65162e1
+680e1f98			.inst 0x680e1f98
+60bba2bd			.inst 0x60bba2bd
+5a5bae1a			.inst 0x5a5bae1a
+6e2ce241			.inst 0x6e2ce241
+780c9936	sttrh	w22, [x9, #0xc9]	sttrh w22, [x9, #201]
+592b8490			.inst 0x592b8490
+0ae0a654			.inst 0x0ae0a654
+?91b70a33	addg	x19, x17, #0x370, #2	.inst 0x91b70a33
+?a593a1d3	ldnf1sb	{ z19.d }, p0/z, [x14, #3, mul vl]	.inst 0xa593a1d3
+793f61e2	strh	w2, [x15, #0x1fb0]	strh w2, [x15, #8112]
+270688fd			.inst 0x270688fd
+d10e2f07	sub	x7, x24, #0x38b	sub x7, x24, #0x38b
+d01f96f4	adrp	x20, 0x3f6de000	adrp x20, 0x3f6de000
+660417f1			.inst 0x660417f1
+2d74aa95	ldp	s21, s10, [x20, #-0x5c]	ldp s21, s10, [x20, #-92]
+1a9a2f3a			.inst 0x1a9a2f3a
+c6e1ed19			.inst 0xc6e1ed19
+27519b28			.inst 0x27519b28
+7612c51c			.inst 0x7612c51c
+cf70ac38			.inst 0xcf70ac38
+160bf1c3	b	0xfffffffff86fc70c	b 0xfffffffff86fc70c
+df2dbb36			.inst 0xdf2dbb36
+e35697bc			.inst 0xe35697bc
+f7630e9e			.inst 0xf7630e9e
+c6b7a50e			.inst 0xc6b7a50e
+9c456276	ldr	q22, 0x48ac4c	ldr q22, 0x48ac4c
+9de59861			.inst 0x9de59861
+2d6ec89f	ldp	s31, s18, [x4, #-0x8c]	ldp s31, s18, [x4, #-140]
+37fd4e3f	tbnz	wzr, #0x1f, 0x3fa9c4	tbnz wzr, #31, 0x3fa9c4
+0aecd304			.inst 0x0aecd304
+97af9f6f	bl	0xfffffffffefe7dbc	bl 0xfffffffffefe7dbc
+35d50784	cbnz	w4, 0x3aa0f0	cbnz w4, 0x3aa0f0
+78e9e6a2			.inst 0x78e9e6a2
+3c14c847			.inst 0x3c14c847
+9f796b5f			.inst 0x9f796b5f
+4d0d1095			.inst 0x4d0d1095
+?e0ffc9e7	st1d	{za3v.d[w14, 1]}, p2, [x15]	.inst 0xe0ffc9e7
+0d9776c2			.inst 0x0d9776c2
+f2552057	ands	x23, x2, #0xff80000000000	ands x23, x2, #0xff80000000000
+4b13f20d			.inst 0x4b13f20d
+abb537e6			.inst 0xabb537e6
+73593515			.inst 0x73593515
+97159f00	bl	0xfffffffffc967c00	bl 0xfffffffffc967c00
+b32bc516			.inst 0xb32bc516
+e75affbf			.inst 0xe75affbf
+40ef6636			.inst 0x40ef6636
+400b55b7			.inst 0x400b55b7
+97788fbb	bl	0xfffffffffe223eec	bl 0xfffffffffe223eec
+9a2b01e3			.inst 0x9a2b01e3
+d64cc87d			.inst 0xd64cc87d
+?f8e6e571	ldrab	x17, [x11, #-0xc90]	.inst 0xf8e6e571
+96648a17	bl	0xfffffffff9d2285c	bl 0xfffffffff9d2285c
+ccb359b0			.inst 0xccb359b0
+?e4687203	st4b	{ z3.b - z6.b }, p4, [x16, x8]	.inst 0xe4687203
+7cc77817			.inst 0x7cc77817
+d2069351	eor	x17, x26, #0x7c007c007c007c00	eor x17, x26, #0x7c007c007c007c00
+1f9cc902			.inst 0x1f9cc902
+bf2b2521			.inst 0xbf2b2521
+f15a59d5	subs	x21, x14, #0x696, lsl #12	subs x21, x14, #0x696, lsl #12
+b94f2ecd	ldr	w13, [x22, #0xf2c]	ldr w13, [x22, #3884]
+bd7df70e	ldr	s14, [x24, #0x3df4]	ldr s14, [x24, #15860]
+?0449622c	mls	z12.h, p0/m, z17.h, z9.h	.inst 0x0449622c
+?1ff009f3	fnmadd	h19, h15, h16, h2	.inst 0x1ff009f3
+1c5777a4	ldr	s4, 0x4aeef4	ldr s4, 0x4aeef4
+91442bba	add	x26, x29, #0x10a, lsl #12	add x26, x29, #0x10a, lsl #12
+25224c62			.inst 0x25224c62
+20ca76b9			.inst 0x20ca76b9
+d482384c			.inst 0xd482384c
+?e08011a9	ld1w	{za2h.s[w12, 1]}, p4/z, [x13, x0, lsl #2]	.inst 0xe08011a9
+f7cc38ea			.inst 0xf7cc38ea
+f76b68c6			.inst 0xf76b68c6
+091073cb			.inst 0x091073cb
+5f3ae243			.inst 0x5f3ae243
+e74195e2			.inst 0xe74195e2
+81a0d81a			.inst 0x81a0d81a
+8b50d408	add	x8, x0, x16, lsr #53	add x8, x0, x16, lsr #53
+a8793aaf	ldnp	x15, x14, [x21, #-0x70]	ldnp x15, x14, [x21, #-112]
+?54410459	bc.ls	0x482088	.inst 0x54410459
+82ce9023			.inst 0x82ce9023
+67784e41			.inst 0x67784e41
+dad3e7ae			.inst 0xdad3e7ae
+2b190ff7	adds	w23, wzr, w25, lsl #3	adds w23, wzr, w25, lsl #3
+3860450b			.inst 0x3860450b
+ce6305e8			.inst 0xce6305e8
+0c3c85e7			.inst 0x0c3c85e7
+fd92c96f			.inst 0xfd92c96f
+635053ac			.inst 0x635053ac
+a27e626e			.inst 0xa27e626e
+?ce5a92f0	sm3tt1a	v16.4s, v23.4s, v26.s[1]	.inst 0xce5a92f0
+e85202e2			.inst 0xe85202e2
+b9ba0f10	ldrsw	x16, [x24, #0x3a0c]	ldrsw x16, [x24, #14860]
+3ca7f74a			.inst 0x3ca7f74a
+6e4cf82a			.inst 0x6e4cf82a
+db203c48			.inst 0xdb203c48
+6263e16c			.inst 0x6263e16c
+6e6c549d	urshl	v29.8h, v4.8h, v12.8h	urshl v29.8h, v4.8h, v12.8h
+bcebfeb0			.inst 0xbcebfeb0
+b254651e	orr	x30, x8, #0xfffff0000000003f	orr x30, x8, #0xfffff0000000003f
+c7ee9425			.inst 0xc7ee9425
+b045faeb	adrp	x11, 0x8c35d000	adrp x11, 0x8c35d000
+a63a1eb5			.inst 0xa63a1eb5
+6a1dccc0			.inst 0x6a1dccc0
+b6c6a512	tbz	x18, #0x38, 0x3fd4a0	tbz x18, #56, 0x3fd4a0
+56f4efc4			.inst 0x56f4efc4
+12fcb605			.inst 0x12fcb605
+97781fe3	bl	0xfffffffffe207f8c	bl 0xfffffffffe207f8c
+61f0b847			.inst 0x61f0b847
+6efb8c9c	cmeq	v28.2d, v4.2d, v27.2d	cmeq v28.2d, v4.2d, v27.2d
+5b3f3672			.inst 0x5b3f3672
+8c73b91e			.inst 0x8c73b91e
+f1f72b45			.inst 0xf1f72b45
+b73b982c	tbnz	x12, #0x27, 0x407304	tbnz x12, #39, 0x407304
+45ba511e			.inst 0x45ba511e
+8e26d4f6			.inst 0x8e26d4f6
+0dde4bf2	ld1	{ v18.h }[1], [sp], x30	ld1 {v18.h}[1], [sp], x30
+3f88d673			.inst 0x3f88d673
+5eff8a48			.inst 0x5eff8a48
+978f00a7	bl	0xfffffffffe7c029c	bl 0xfffffffffe7c029c
+f6af350e			.inst 0xf6af350e
+a20b14ca			.inst 0xa20b14ca
+d80d494d	prfm	plil3strm, 0x41a928	prfm plil3strm, 0x41a928
+29c1f078	ldp	w24, w28, [x3, #0xc]!	ldp w24, w28, [x3, #12]!
+2d75242b	ldp	s11, s9, [x1, #-0x58]	ldp s11, s9, [x1, #-88]
+a9ea2c9c	ldp	x28, x11, [x4, #-0x160]!	ldp x28, x11, [x4, #-352]!
+?91b631b2	addg	x18, x13, #0x360, #0xc	.inst 0x91b631b2
+f446b7f8			.inst 0xf446b7f8
+5ea9992c			.inst 0x5ea9992c
+76eee624			.inst 0x76eee624
+410d004a			.inst 0x410d004a
+7ef566ca			.inst 0x7ef566ca
+b663765e	tbz	x30, #0x2c, 0x406ec8	tbz x30, #44, 0x406ec8
+b446ae98	cbz	x24, 0x48d5d0	cbz x24, 0x48d5d0
+f70596d0			.inst 0xf70596d0
+69dfc4ea	ldpsw	x10, x17, [x7, #0xfc]!	ldpsw x10, x17, [x7, #252]!
+1a34da81			.inst 0x1a34da81
+50a86edc	adr	x28, 0x350dda	adr x28, 0x350dda
+8aedda99	bic	x25, x20, x13, ror #54	bic x25, x20, x13, ror #54
+9fd240fc			.inst 0x9fd240fc
+1cd35ec2	ldr	s2, 0x3a6bd8	ldr s2, 0x3a6bd8
+427e0794			.inst 0x427e0794
+0e026c23			.inst 0x0e026c23
+3a552c7a			.inst 0x3a552c7a
+b8cf30f1			.inst 0xb8cf30f1
+?e086ae8c	ld1w	{za3v.s[w13, 0]}, p3/z, [x20, x6, lsl #2]	.inst 0xe086ae8c
+10d59d5c	adr	x28, 0x3ab3a8	adr x28, 0x3ab3a8
+e981d4c5			.inst 0xe981d4c5
+badedbfc			.inst 0xbadedbfc
+f0f8d51c	adrp	x28, 0xfffffffff1ea3000	adrp x28, 0xfffffffff1ea3000
+adc150a1	ldp	q1, q20, [x5, #0x20]!	ldp q1, q20, [x5, #32]!
+f9ea6ed0			.inst 0xf9ea6ed0
+8df31235			.inst 0x8df31235
+3c9fcc15	str	q21, [x0, #-4]!	str q21, [x0, #-4]!
+668149b4			.inst 0x668149b4
+0627d712			.inst 0x0627d712
+5209fcba			.inst 0x5209fcba
+cc286af1			.inst 0xcc286af1
+eb8f8419	subs	x25, x0, x15, asr #33	subs x25, x0, x15, asr #33
+608d5ba4			.inst 0x608d5ba4
+4e006610			.inst 0x4e006610
+3cd8136e	ldur	q14, [x27, #-0x7f]	ldur q14, [x27, #-127]
+ff214c30			.inst 0xff214c30
+?04d076bb	mls	z27.d, p5/m, z21.d, z16.d	.inst 0x04d076bb
+95b21428	bl	0x70850a0	bl 0x70850a0
+0cc2b687			.inst 0x0cc2b687
+b744a423	tbnz	x3, #0x28, 0x3f9484	tbnz x3, #40, 0x3f9484
+61310617			.inst 0x61310617
+cf4950c3			.inst 0xcf4950c3
+6a88c74d			.inst 0x6a88c74d
+33e2caec			.inst 0x33e2caec
+db85b45e			.inst 0xdb85b45e
+a850805d	ldnp	x29, x0, [x2, #0x108]	ldnp x29, x0, [x2, #264]
+?ce3d3929	bcax	v9.16b, v9.16b, v29.16b, v14.16b	.inst 0xce3d3929
+801ad02f			.inst 0x801ad02f
+9c7bae0c	ldr	q12, 0x4f75c0	ldr q12, 0x4f75c0
+903cd44b	adrp	x11, 0x79e88000	adrp x11, 0x79e88000
+90576452	adrp	x18, 0xaf088000	adrp x18, 0xaf088000
+?85659fef	ld1rsh	{ z15.d }, p7/z, [sp, #0x4a]	.inst 0x85659fef
+?e4a07c5a	st2h	{ z26.h, z27.h }, p7, [x2, x0, lsl #1]	.inst 0xe4a07c5a
+?65260e7a	bfmla	z26.h, p3/m, z19.h, z6.h	.inst 0x65260e7a
+aae34215	orn	x21, x16, x3, ror #16	orn x21, x16, x3, ror #16
+1f685d4d	fnmadd	d13, d10, d8, d23	fnmadd d13, d10, d8, d23
+?80c8d5d3	fmops	za3.d, p5/m, p6/m, z14.d, z8.d	.inst 0x80c8d5d3
+98a0f035	ldrsw	x21, 0x341e04	ldrsw x21, 0x341e04
+?c4c4d508	ld1h	{ z8.d }, p5/z, [x8, z4.d]	.inst 0xc4c4d508
+?c1175de3	bfmla	za.h[w10, 3, vgx2], { z14.h, z15.h }, z7.h[6]	.inst 0xc1175de3
+a91f2edd	stp	x29, x11, [x22, #0x1f0]	stp x29, x11, [x22, #496]
+35106776	cbnz	w22, 0x420cec	cbnz w22, 0x420cec
+f5cd8c58			.inst 0xf5cd8c58
+1c1ad4dc	ldr	s28, 0x435a98	ldr s28, 0x435a98
+8b7751b8			.inst 0x8b7751b8
+8a564f66	and	x6, x27, x22, lsr #19	and x6, x27, x22, lsr #19
+5cd947e3	ldr	d3, 0x3b28fc	ldr d3, 0x3b28fc
+0a7a43ad	bic	w13, w29, w26, lsr #16	bic w13, w29, w26, lsr #16
+9ba7ac61	umsubl	x1, w3, w7, x11	umsubl x1, w3, w7, x11
+43e8b8ab			.inst 0x43e8b8ab
+9ad8b71a			.inst 0x9ad8b71a
+?69a16f52	stgp	x18, x27, [x26, #-0x3e0]!	.inst 0x69a16f52
+1c9ae5ad	ldr	s13, 0x335cb4	ldr s13, 0x335cb4
+beba3248			.inst 0xbeba3248
+66974684			.inst 0x66974684
+4bb7f371			.inst 0x4bb7f371
+b4cff08a	cbz	x10, 0x39fe10	cbz x10, 0x39fe10
+?b83d0229	ldadd	w29, w9, [x17]	.inst 0xb83d0229
+3101e2a7	adds	w7, w21, #0x78	adds w7, w21, #0x78
+?e09de504	ld1w	{za1v.s[w15, 0]}, p1/z, [x8, x29, lsl #2]	.inst 0xe09de504
+5f1efb93			.inst 0x5f1efb93
+?255218f4	cmpgt	p4.h, p6/z, z7.h, #-0xe	.inst 0x255218f4
+663ebc26			.inst 0x663ebc26
+f1c8a9ec			.inst 0xf1c8a9ec
+65909a1a			.inst 0x65909a1a
+359ec1dc	cbnz	w28, 0x33d838	cbnz w28, 0x33d838
+804ab620			.inst 0x804ab620

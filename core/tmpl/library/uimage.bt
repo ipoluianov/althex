@@ -1,0 +1,119 @@
+//! name: U-Boot legacy image
+//! extensions: uimage, ub, img
+//! magic: 0 "27 05 19 56"
+
+// U-Boot legacy image (uImage, include/image.h): a header of 64 bytes,
+// big-endian, with the CRC-32 of the header (counted with ih_hcrc zero)
+// and of the data. A multi-file image starts its data with a table of
+// sizes ended by 0; the files follow, each padded to 4 bytes.
+
+BigEndian();
+
+enum <uchar> IH_OS {
+    OS_INVALID, OS_OPENBSD, OS_NETBSD, OS_FREEBSD, OS_4_4BSD, OS_LINUX, OS_SVR4,
+    OS_ESIX, OS_SOLARIS, OS_IRIX, OS_SCO, OS_DELL, OS_NCR, OS_LYNXOS, OS_VXWORKS,
+    OS_PSOS, OS_QNX, OS_U_BOOT, OS_RTEMS, OS_ARTOS, OS_UNITY, OS_INTEGRITY, OS_OSE,
+    OS_PLAN9, OS_OPENRTOS, OS_ARM_TRUSTED_FIRMWARE, OS_TEE, OS_OPENSBI, OS_EFI, OS_ELF
+};
+
+enum <uchar> IH_ARCH {
+    ARCH_INVALID, ARCH_ALPHA, ARCH_ARM, ARCH_I386, ARCH_IA64, ARCH_MIPS, ARCH_MIPS64,
+    ARCH_PPC, ARCH_S390, ARCH_SH, ARCH_SPARC, ARCH_SPARC64, ARCH_M68K, ARCH_NIOS,
+    ARCH_MICROBLAZE, ARCH_NIOS2, ARCH_BLACKFIN, ARCH_AVR32, ARCH_ST200, ARCH_SANDBOX,
+    ARCH_NDS32, ARCH_OPENRISC, ARCH_ARM64, ARCH_ARC, ARCH_X86_64, ARCH_XTENSA, ARCH_RISCV
+};
+
+enum <uchar> IH_TYPE {
+    TYPE_INVALID, TYPE_STANDALONE, TYPE_KERNEL, TYPE_RAMDISK, TYPE_MULTI, TYPE_FIRMWARE,
+    TYPE_SCRIPT, TYPE_FILESYSTEM, TYPE_FLATDT, TYPE_KWBIMAGE, TYPE_IMXIMAGE,
+    TYPE_KERNEL_NOLOAD
+};
+
+enum <uchar> IH_COMP {
+    COMP_NONE, COMP_GZIP, COMP_BZIP2, COMP_LZMA, COMP_LZO, COMP_LZ4, COMP_ZSTD
+};
+
+string TimeRead(uint32 &t) {
+    return Str("%u (seconds since 1970)", t);
+}
+
+// The header CRC is counted with ih_hcrc zero, so Checksum over the
+// document cannot be used: CRC-32 bit by bit
+uint32 HeaderCrc() {
+    local uint32 crc = 0xFFFFFFFF;
+    local int i, k;
+    local uint32 b;
+    for (i = 0; i < 64; i++) {
+        b = (i >= 4 && i < 8) ? 0 : ReadUByte(i);
+        crc ^= b;
+        for (k = 0; k < 8; k++)
+            crc = (crc & 1) ? (crc >> 1) ^ 0xEDB88320 : crc >> 1;
+    }
+    return crc ^ 0xFFFFFFFF;
+}
+
+string HcrcComment(uint32 &c) {
+    local uint32 crc = HeaderCrc();
+    if (crc == c)
+        return "OK";
+    return Str("bad: the header has 0x%08X", crc);
+}
+
+struct IMAGE_HEADER {
+    uint32  ih_magic <format=hex>;
+    uint32  ih_hcrc <format=hex, comment=HcrcComment>;
+    uint32  ih_time <read=TimeRead>;
+    uint32  ih_size <comment="the size of the data">;
+    uint32  ih_load <format=hex, comment="load address">;
+    uint32  ih_ep <format=hex, comment="entry point">;
+    uint32  ih_dcrc <format=hex, comment=DcrcComment>;
+    IH_OS   ih_os;
+    IH_ARCH ih_arch;
+    IH_TYPE ih_type;
+    IH_COMP ih_comp;
+    char    ih_name[32];
+};
+
+string DcrcComment(uint32 &c) {
+    local int64 size = ReadUInt(12);
+    if (64 + size > FileSize())
+        return "the data is cut";
+    if (Checksum("crc32", 64, size) == c)
+        return "OK";
+    return Str("bad: the data has 0x%08X", Checksum("crc32", 64, size));
+}
+
+if (FileSize() < 64) {
+    Warning("the header is cut");
+    Exit(0);
+}
+
+IMAGE_HEADER header <open=true>;
+
+local int64 size = header.ih_size;
+if (64 + size > FileSize()) {
+    Warning("the data is cut");
+    size = FileSize() - 64;
+}
+
+if (header.ih_type == TYPE_MULTI) {
+    local int64 n = 0;
+    while (n < 1024 && FTell() + 4 <= FileSize() && ReadUInt(FTell()) != 0) {
+        uint32 sizes <comment="the size of a file">;
+        n++;
+    }
+    if (FTell() + 4 <= FileSize())
+        uint32 sizes_end <comment="0 ends the table">;
+    local int64 i;
+    local int64 s;
+    for (i = 0; i < n; i++) {
+        s = sizes[i];
+        if (FTell() + s > FileSize())
+            break;
+        uchar file[s];
+        if (s % 4 != 0 && FTell() + 4 - s % 4 <= FileSize())
+            uchar padding[4 - s % 4];
+    }
+} else if (size > 0) {
+    uchar data[size];
+}

@@ -29,6 +29,10 @@ var known = map[string][3]string{
 	"crc64-xz":          {"0000000000000000", "", "995dc9bbdf1939fa"},
 	"crc64-iso":         {"0000000000000000", "", "b90956c775a41001"},
 	"adler32":           {"00000001", "024d0127", "091e01de"},
+	"xor8":              {"00", "60", "31"},
+	"sum8":              {"00", "26", "dd"},
+	"sum16":             {"0000", "0126", "01dd"},
+	"sum32":             {"00000000", "00000126", "000001dd"},
 	"md5":               {"d41d8cd98f00b204e9800998ecf8427e", "900150983cd24fb0d6963f7d28e17f72", "25f9e794323b453885f5181f1b624d0b"},
 	"sha1":              {"da39a3ee5e6b4b0d3255bfef95601890afd80709", "a9993e364706816aba3e25717850c26c9cd0d89d", "f7c3bc1d808e04732adf679965ccc34ca7ae3441"},
 	"sha224": {"d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f",
@@ -490,6 +494,18 @@ func BenchmarkAnalyze(b *testing.B) {
 	for b.Loop() {
 		if _, err := Analyze(context.Background(), r, 0, int64(len(data)), nil); err != nil {
 			b.Fatal(err)
+		}
+	}
+}
+
+func TestSimpleSums(t *testing.T) {
+	data := []byte{0x01, 0x02, 0xFF, 0x10}
+	for id, want := range map[string]string{"xor8": "ec", "sum8": "12", "sum16": "0112", "sum32": "00000112"} {
+		a, _ := ByID(id)
+		h := a.New()
+		h.Write(data)
+		if got := hex.EncodeToString(h.Sum(nil)); got != want {
+			t.Errorf("%s: %s, want %s", id, got, want)
 		}
 	}
 }

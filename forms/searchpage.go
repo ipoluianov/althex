@@ -51,6 +51,8 @@ type SearchPage struct {
 	chkBE      *ui.Checkbox
 	chkAll     *ui.Checkbox
 	txtMinLen  *ui.TextBox
+	cmbEnc     *ui.ComboBox // the encoding of a text: the view's by default
+	encTouched bool         // the user chose the encoding: it stays
 	progress   *ui.ProgressBar
 	lblInfo    *ui.Label
 	table      *ui.Table
@@ -58,6 +60,10 @@ type SearchPage struct {
 
 	results []result
 	cancel  context.CancelFunc
+	// countCancel stops counting the matches of the last search
+	countCancel context.CancelFunc
+	// matchTab is the tab the "Match 2 of 5" shown is of
+	matchTab *Tab
 }
 
 func newSearchPage(c *MainForm) *SearchPage {
@@ -76,9 +82,11 @@ func newSearchPage(c *MainForm) *SearchPage {
 		p.cmbKind.AddItem(k, findNumber+i)
 	}
 	p.cmbKind.SetSelectedIndex(0)
+	p.cmbKind.SetOnSelectedIndexChanged(p.kindChanged)
 	grid.AddWidget(0, 0, p.cmbKind)
 	p.txtFind = ui.NewTextBox()
 	p.txtFind.SetXExpandable(true)
+	p.txtFind.SetHintFunc(p.hint)
 	grid.AddWidget(0, 1, p.txtFind)
 	grid.AddWidget(1, 0, ui.NewLabel(t.ReplaceWith))
 	p.txtReplace = ui.NewTextBox()
@@ -91,10 +99,17 @@ func newSearchPage(c *MainForm) *SearchPage {
 	p.chkCase = ui.NewCheckbox(t.IgnoreCase)
 	p.chkBE = ui.NewCheckbox(t.BigEndian)
 	p.chkAll = ui.NewCheckbox(t.AllDocuments)
+	p.cmbEnc = ui.NewComboBox()
+	for _, e := range codec.Encodings() {
+		p.cmbEnc.AddItem(e.Name(), e.ID())
+	}
+	p.cmbEnc.SetOnSelectedIndexChanged(func() { p.encTouched = true })
+	// Two rows: the options of a kind do not widen the panel
 	opts.AddWidget(0, 0, p.chkCase)
-	opts.AddWidget(0, 1, p.chkBE)
-	opts.AddWidget(0, 2, p.chkAll)
+	opts.AddWidget(0, 1, p.cmbEnc)
+	opts.AddWidget(0, 2, p.chkBE)
 	opts.AddWidget(0, 3, ui.NewHSpacer())
+	opts.AddWidget(1, 0, p.chkAll)
 	p.AddWidget(1, 0, opts)
 
 	buttons := ui.NewPanel()
@@ -113,6 +128,10 @@ func newSearchPage(c *MainForm) *SearchPage {
 	addButton(1, t.Replace, p.replaceOne)
 	addButton(1, t.ReplaceAll, p.replaceAll)
 	addButton(1, t.Strings, p.strings)
+	// The shortest string Strings lists
+	minLen := ui.NewLabel(t.MinLengthLabel)
+	buttons.AddWidget(1, col, minLen)
+	col++
 	p.txtMinLen = ui.NewTextBox()
 	p.txtMinLen.SetText("6")
 	p.txtMinLen.SetMinWidth(40)
@@ -152,10 +171,64 @@ func newSearchPage(c *MainForm) *SearchPage {
 	p.table.SetYExpandable(true)
 	p.table.SetOnCellMouseDblClick(p.jumpToSelected)
 	p.AddWidget(5, 0, p.table)
+	// Enter in the fields finds the next match, Shift+Enter the previous one
+	p.SetOnKeyDown(func(key ui.Key, mods ui.KeyModifiers) bool {
+		if key != ui.KeyEnter || mods.Ctrl || mods.Alt {
+			return false
+		}
+		p.findNext(mods.Shift)
+		return true
+	})
+	p.kindChanged()
 	return &p
 }
 
-func (p *SearchPage) refresh() {}
+// hint is what the field of what to find takes, by the kind
+func (p *SearchPage) hint() string {
+	switch p.kind() {
+	case findHex:
+		return T().FindHintHex
+	case findText:
+		return T().FindHintText
+	}
+	return T().FindHintNumber
+}
+
+func (p *SearchPage) kind() int {
+	k, _ := p.cmbKind.SelectedItemData().(int)
+	return k
+}
+
+// kindChanged shows the options that mean something for the kind: the case
+// and the encoding for text, the byte order for numbers
+func (p *SearchPage) kindChanged() {
+	k := p.kind()
+	p.txtFind.SetHintFunc(p.hint) // set again: it is read when set
+	p.chkCase.SetVisible(k == findText)
+	p.cmbEnc.SetVisible(k == findText)
+	p.chkBE.SetVisible(k >= findNumber)
+	if f := p.Form(); f != nil {
+		f.UpdateLayout()
+	}
+}
+
+// encoding is the encoding of the text searched for
+func (p *SearchPage) encoding() codec.Encoding {
+	if id, _ := p.cmbEnc.SelectedItemData().(string); id != "" {
+		if e := codec.ByID(id); e != nil {
+			return e
+		}
+	}
+	return currentEncoding()
+}
+
+func (p *SearchPage) refresh() {
+	// "Match 2 of 5" of another document is not shown
+	if p.matchTab != nil && p.matchTab != p.c.tab() {
+		p.matchTab = nil
+		p.lblInfo.SetText("")
+	}
+}
 
 // focus puts the cursor into the field of what to find, with the selection in it
 func (p *SearchPage) focus() {
@@ -172,6 +245,16 @@ func (p *SearchPage) focus() {
 			}
 		}
 	}
+	if !p.encTouched {
+		cur := currentEncoding().ID()
+		for i, e := range codec.Encodings() { // the order of the items
+			if e.ID() == cur {
+				p.cmbEnc.SetSelectedIndex(i)
+			}
+		}
+		p.encTouched = false
+	}
+	p.kindChanged()
 	p.txtFind.Focus()
 	p.txtFind.SelectAllText()
 }
@@ -187,7 +270,7 @@ func (p *SearchPage) pattern() (search.Pattern, error) {
 	case kind == findHex:
 		return search.ParseHex(s)
 	case kind == findText:
-		return search.Text(s, currentEncoding().Encode, p.chkCase.Checked())
+		return search.Text(s, p.encoding().Encode, p.chkCase.Checked())
 	}
 	k, _ := search.ParseNumKind(numKinds[kind-findNumber])
 	return search.Number(k, strings.TrimSpace(s), p.chkBE.Checked())
@@ -202,7 +285,7 @@ func (p *SearchPage) replacement() ([]byte, error) {
 	case kind == findHex:
 		return codec.ParseHex(s)
 	case kind == findText:
-		return currentEncoding().Encode(s)
+		return p.encoding().Encode(s)
 	}
 	return interp.Encode(numKinds[kind-findNumber], strings.TrimSpace(s), p.chkBE.Checked())
 }
@@ -239,7 +322,7 @@ func (p *SearchPage) background(total int64, work func(ctx context.Context, prog
 				p.cancel()
 				p.cancel = nil
 			}
-			p.progress.SetValue(100)
+			p.progress.SetValue(0) // a full bar at rest looks like a button
 			if ctx.Err() != nil && err != nil {
 				err = nil // canceled: what was found stays
 			}
@@ -293,9 +376,46 @@ func (p *SearchPage) findNext(back bool) {
 				ui.ShowToast(p.c, T().Wrapped, ui.ToastInfo)
 			}
 			t.jump(hit.Off)
-			t.view().Select(hit.Off, int64(hit.Len))
+			t.view().SelectFound(hit.Off, int64(hit.Len))
+			p.countMatches(snap, pat, hit.Off)
 		}
 	})
+}
+
+// maxCounted is how many matches countMatches counts before it stops
+const maxCounted = 100000
+
+// countMatches shows which of the matches of the document the one at off
+// is, counted in the background: "Match 2 of 5"
+func (p *SearchPage) countMatches(snap *doc.Snapshot, pat search.Pattern, off int64) {
+	if p.countCancel != nil {
+		p.countCancel()
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	p.countCancel = cancel
+	p.lblInfo.SetText("")
+	p.matchTab = nil
+	tab := p.c.tab()
+	form := p.c.Form()
+	go func() {
+		index, total := 0, 0
+		err := search.FindAll(ctx, snap, snap.Size(), pat, search.Options{MaxHits: maxCounted}, func(h search.Hit) bool {
+			total++
+			if h.Off <= off {
+				index++
+			}
+			return true
+		}, nil)
+		if err != nil || ctx.Err() != nil || form == nil {
+			return
+		}
+		form.Invoke(func() {
+			if ctx.Err() == nil && tab == p.c.tab() {
+				p.lblInfo.SetText(T().MatchOf(index, total, total >= maxCounted))
+				p.matchTab = tab
+			}
+		})
+	}()
 }
 
 // tabsToSearch are the documents to search: the current one or all (FIND-5)
@@ -412,7 +532,7 @@ func (p *SearchPage) jumpToSelected() {
 	}
 	p.c.selectTab(i)
 	r.tab.jump(r.off)
-	r.tab.view().Select(r.off, int64(r.n))
+	r.tab.view().SelectFound(r.off, int64(r.n))
 }
 
 // replaceOne replaces the selection if it is a match, then finds the next one

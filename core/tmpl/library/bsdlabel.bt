@@ -1,0 +1,96 @@
+//! name: BSD disklabel
+//! extensions: disklabel
+//! magic: 0x200 "57 45 56 82"
+//! magic: 0x40 "57 45 56 82"
+//! priority: 1
+
+// The disklabel of the BSDs (struct disklabel): in sector 1 on i386 and
+// amd64 (at 512 in a disk or in a slice), at 64 in sector 0 on some other
+// ports. The magic 0x82564557 starts it and ends its header. Little-endian
+// here, as on x86. Up to 22 partitions a, b, c...; 'c' is the whole disk
+// (or the slice). Offsets are in sectors from the start of the disk.
+
+LittleEndian();
+
+enum <uchar> FSTYPE {
+    FS_UNUSED = 0, FS_SWAP = 1, FS_V6 = 2, FS_V7 = 3, FS_SYSV = 4, FS_V71K = 5,
+    FS_V8 = 6, FS_BSDFFS = 7, FS_MSDOS = 8, FS_BSDLFS = 9, FS_OTHER = 10,
+    FS_HPFS = 11, FS_ISO9660 = 12, FS_BOOT = 13, FS_ADOS = 14, FS_HFS = 15,
+    FS_FILECORE = 16, FS_EX2FS = 17, FS_NTFS = 18, FS_RAID = 19, FS_CCD = 20,
+    FS_JFS2 = 21, FS_APPLEUFS = 22, FS_VINUM = 23, FS_UDF = 24, FS_SYSVBFS = 25,
+    FS_EFS = 26, FS_ZFS = 27
+};
+
+struct BSD_PARTITION {
+    uint32 size <comment="sectors">;
+    uint32 offset <comment="the first sector">;
+    uint32 fsize <comment="the fragment size of FFS">;
+    FSTYPE fstype;
+    uchar  frag;
+    uint16 cpg <comment="cylinders per group">;
+} <read=PartRead>;
+
+string PartRead(BSD_PARTITION &p) {
+    if (p.size == 0)
+        return "unused";
+    return Str("%s, sector %u, %u sectors", EnumToString(p.fstype), p.offset, p.size);
+}
+
+// The checksum: the XOR of the 16-bit words of the label is 0
+string ChecksumComment(uint16 &c) {
+    local int64 base = startof(c) - 136;
+    local int64 n = ReadUShort(base + 138);
+    if (n > 22)
+        return "too many partitions";
+    local uint16 x = 0;
+    local int64 i;
+    for (i = 0; i < 148 + 16 * n; i += 2)
+        x ^= ReadUShort(base + i);
+    if (x == 0)
+        return "OK";
+    return Str("wrong, should be 0x%04X", c ^ x);
+}
+
+struct DISKLABEL {
+    uint32 magic <format=hex, comment="0x82564557">;
+    uint16 type <comment="1 SMD, 2 MSCP, 3 old DEC, 4 SCSI, 5 ESDI, 6 ST506, 7 HP-IB, 8 HP-FL, 10 floppy, 11 CCD, 12 vnd, 13 ATAPI, 14 RAID">;
+    uint16 subtype;
+    char   typename[16];
+    char   packname[16];
+    uint32 secsize <comment="bytes per sector">;
+    uint32 nsectors <comment="sectors per track">;
+    uint32 ntracks <comment="tracks per cylinder">;
+    uint32 ncylinders;
+    uint32 secpercyl;
+    uint32 secperunit <comment="sectors of the disk">;
+    uint16 sparespertrack;
+    uint16 sparespercyl;
+    uint32 acylinders;
+    uint16 rpm;
+    uint16 interleave;
+    uint16 trackskew;
+    uint16 cylskew;
+    uint32 headswitch;
+    uint32 trkseek;
+    uint32 flags <format=hex>;
+    uint32 drivedata[5];
+    uint32 spare[5];
+    uint32 magic2 <format=hex, comment="0x82564557">;
+    uint16 checksum <format=hex, comment=ChecksumComment>;
+    uint16 npartitions;
+    uint32 bbsize <comment="the size of the boot area">;
+    uint32 sbsize <comment="the largest superblock">;
+    if (npartitions > 0)
+        BSD_PARTITION partition[npartitions <= 22 ? npartitions : 22];
+};
+
+local int64 off = 512;
+if (ReadUInt(512) != 0x82564557)
+    off = 64;
+if (off + 148 > FileSize()) {
+    Warning("the label is cut");
+    Exit(0);
+}
+if (ReadUShort(off + 138) > 22)
+    Warning("%d partitions, only 22 shown", ReadUShort(off + 138));
+DISKLABEL label @ off <open=true>;

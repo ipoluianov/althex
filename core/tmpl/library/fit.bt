@@ -1,0 +1,192 @@
+//! name: Device tree / FIT
+//! extensions: dtb, dtbo, itb, fit
+//! magic: 0 "D0 0D FE ED"
+
+// Flattened device tree (Devicetree Specification, chapter 5): the header,
+// the memory reservation map, the structure block and the strings. The
+// same format is the U-Boot FIT image: its /images nodes hold the kernel,
+// the ramdisk and the device trees in their "data" properties, or point
+// to the data after the tree (data-offset from the end of the tree aligned
+// to 4, data-position from the start of the file) with data-size.
+//
+// The structure block is walked token by token: FDT_BEGIN_NODE opens a
+// node (shown nested), FDT_PROP is a property whose name is read from the
+// strings block, FDT_END_NODE closes the node. At most 20000 tokens.
+
+BigEndian();
+
+local uint32 FDT_BEGIN_NODE = 1;
+local uint32 FDT_END_NODE = 2;
+local uint32 FDT_PROP = 3;
+local uint32 FDT_NOP = 4;
+local uint32 FDT_END = 9;
+local int64 MAX_TOKENS = 20000;
+
+struct FDT_HEADER {
+    uint32 magic <format=hex>;
+    uint32 totalsize;
+    uint32 off_dt_struct <format=hex>;
+    uint32 off_dt_strings <format=hex>;
+    uint32 off_mem_rsvmap <format=hex>;
+    uint32 version;
+    uint32 last_comp_version;
+    uint32 boot_cpuid_phys;
+    if (version >= 2)
+        uint32 size_dt_strings;
+    if (version >= 17)
+        uint32 size_dt_struct;
+};
+
+struct FDT_RESERVE_ENTRY {
+    uint64 address <format=hex>;
+    uint64 size <format=hex>;
+};
+
+local int64 fsize = FileSize();
+local int64 tokens = 0;
+local int64 strOff = 0, strEnd = 0, structEnd = 0;
+
+// The name of a property: nameoff in the strings block
+string PropName(uint32 nameoff) {
+    if (strOff + nameoff >= strEnd)
+        return Str("(name at 0x%X is out of the strings)", nameoff);
+    return ReadString(strOff + nameoff, 256);
+}
+
+// Pads to 4 bytes from the start of the file (the block is aligned)
+void Pad4() {
+    if (FTell() % 4 != 0 && FTell() + 4 - FTell() % 4 <= fsize)
+        uchar padding[4 - FTell() % 4];
+}
+
+// Text values (strings, string lists) are shown as text
+int IsText(int64 off, int64 len) {
+    local int64 i;
+    local int c;
+    if (len == 0 || len > 4096 || ReadUByte(off + len - 1) != 0 || ReadUByte(off) == 0)
+        return 0;
+    for (i = 0; i < len; i++) {
+        c = ReadUByte(off + i);
+        if (c == 0) {
+            if (i > 0 && ReadUByte(off + i - 1) == 0)
+                return 0;
+        } else if (c < 0x20 || c > 0x7E) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+struct FDT_PROP_T {
+    uint32 token <comment="FDT_PROP (3)">;
+    uint32 len;
+    uint32 nameoff <format=hex, comment=NameoffComment>;
+    if (len > 0 && FTell() + len <= structEnd) {
+        if (IsText(FTell(), len))
+            char value[len];
+        else
+            uchar value[len];
+    }
+    Pad4();
+} <read=PropRead>;
+
+string NameoffComment(uint32 &n) {
+    return PropName(n);
+}
+
+string PropRead(FDT_PROP_T &p) {
+    local string n = PropName(p.nameoff);
+    if (exists(p.value) && p.len <= 64 && IsText(startof(p.value), p.len))
+        return Str("%s = %s", n, p.value);
+    if (p.len == 4)
+        return Str("%s = <0x%X>", n, ReadUInt(startof(p) + 12));
+    return Str("%s, %d bytes", n, p.len);
+}
+
+// A node: FDT_BEGIN_NODE with the name, the properties, the child nodes,
+// FDT_END_NODE
+struct FDT_NODE(int depth) {
+    uint32 token <comment="FDT_BEGIN_NODE (1)">;
+    string name;
+    Pad4();
+    local uint32 t;
+    while (FTell() + 4 <= structEnd && tokens < MAX_TOKENS) {
+        t = ReadUInt(FTell());
+        tokens++;
+        if (t == FDT_PROP) {
+            if (FTell() + 12 > structEnd)
+                break;
+            FDT_PROP_T prop;
+        } else if (t == FDT_NOP) {
+            uint32 nop;
+        } else if (t == FDT_BEGIN_NODE) {
+            if (depth >= 64) {
+                Warning("the nodes are nested too deep");
+                break;
+            }
+            FDT_NODE node(depth + 1);
+        } else {
+            break;
+        }
+    }
+    if (FTell() + 4 <= structEnd && ReadUInt(FTell()) == FDT_END_NODE)
+        uint32 end_node <comment="FDT_END_NODE (2)">;
+} <read=NodeRead>;
+
+string NodeRead(FDT_NODE &n) {
+    if (n.name == "")
+        return "/";
+    return n.name;
+}
+
+if (fsize < 40) {
+    Warning("the header is cut");
+    Exit(0);
+}
+
+FDT_HEADER header <open=true>;
+
+if (header.off_mem_rsvmap >= 40 && header.off_mem_rsvmap < fsize) {
+    FSeek(header.off_mem_rsvmap);
+    while (FTell() + 16 <= fsize && tokens < 1024) {
+        tokens++;
+        if (ReadUInt64(FTell()) == 0 && ReadUInt64(FTell() + 8) == 0) {
+            FDT_RESERVE_ENTRY reserve_end;
+            break;
+        }
+        FDT_RESERVE_ENTRY reserve;
+    }
+    tokens = 0;
+}
+
+strOff = header.off_dt_strings;
+strEnd = fsize;
+if (exists(header.size_dt_strings) && strOff + header.size_dt_strings < fsize)
+    strEnd = strOff + header.size_dt_strings;
+structEnd = fsize;
+if (exists(header.size_dt_struct) && header.off_dt_struct + header.size_dt_struct < fsize)
+    structEnd = header.off_dt_struct + header.size_dt_struct;
+
+if (header.off_dt_struct < fsize) {
+    FSeek(header.off_dt_struct);
+    while (FTell() + 4 <= structEnd && ReadUInt(FTell()) == FDT_NOP)
+        uint32 nop;
+    if (FTell() + 4 <= structEnd && ReadUInt(FTell()) == FDT_BEGIN_NODE)
+        FDT_NODE root(0) <open=true>;
+    if (FTell() + 4 <= structEnd && ReadUInt(FTell()) == FDT_END)
+        uint32 end <comment="FDT_END (9)">;
+    if (tokens >= MAX_TOKENS)
+        Warning("more than %d tokens: the rest is not shown", MAX_TOKENS);
+}
+
+if (strOff < fsize && strEnd > strOff) {
+    FSeek(strOff);
+    char strings[strEnd - strOff];
+}
+
+// FIT: the external data after the tree
+local int64 ext = (header.totalsize + 3) / 4 * 4;
+if (ext > 40 && ext < fsize) {
+    FSeek(ext);
+    uchar external_data[fsize - ext];
+}

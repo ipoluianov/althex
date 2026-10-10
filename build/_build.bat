@@ -72,9 +72,10 @@ for %%f in (deb rpm) do (
 
 rem Archive for scripts\linux-install.sh: the binary and the menu icon
 copy /y icon.svg bin\.pkg\althex.svg >nul
+copy /y app\notices.txt bin\.pkg\NOTICES.txt >nul
 set "TAR=tar"
 if exist "%SystemRoot%\System32\tar.exe" set "TAR=%SystemRoot%\System32\tar.exe"
-"%TAR%" -czf "%DIR%\%APP%-%VERSION%-linux-%T_ARCH%.tar.gz" -C bin\.pkg althex althex.svg || set "RC=1"
+"%TAR%" -czf "%DIR%\%APP%-%VERSION%-linux-%T_ARCH%.tar.gz" -C bin\.pkg althex althex.svg NOTICES.txt || set "RC=1"
 rmdir /s /q bin\.pkg
 
 rem The installer downloads the archive for its machine from the release of

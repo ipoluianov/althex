@@ -260,7 +260,7 @@ func bChecksum(in *interp, pos Pos, a []Value) Value {
 		in.fail(pos, "%v", err)
 	}
 	sum := sums[0]
-	if len(sum) <= 8 && (strings.HasPrefix(alg.ID, "crc") || alg.ID == "adler32" || strings.HasPrefix(alg.Name, "CRC")) {
+	if len(sum) <= 8 && (strings.HasPrefix(alg.ID, "crc") || alg.ID == "adler32" || strings.HasPrefix(alg.ID, "sum") || alg.ID == "xor8" || strings.HasPrefix(alg.Name, "CRC")) {
 		var v uint64
 		for _, b := range sum {
 			v = v<<8 | uint64(b)
@@ -343,7 +343,11 @@ func bPrintf(in *interp, pos Pos, a []Value) Value {
 func bStr(in *interp, pos Pos, a []Value) Value { return String(in.format(pos, a)) }
 
 func bWarning(in *interp, pos Pos, a []Value) Value {
-	in.print("Warning: " + in.format(pos, a))
+	msg := in.format(pos, a)
+	if len(in.res.Warnings) < maxOutput {
+		in.res.Warnings = append(in.res.Warnings, msg)
+	}
+	in.print("Warning: " + msg)
 	return Value{}
 }
 

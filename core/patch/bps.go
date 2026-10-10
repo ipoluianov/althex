@@ -277,18 +277,31 @@ func applyBPS(ctx context.Context, patch io.Reader, w io.Writer, src io.ReaderAt
 			if tgtRel < 0 || tgtRel >= t.n {
 				return ErrCorrupt
 			}
-			// a piece at a time, as it may copy what it writes
+			// A piece at a time, as it may copy what it writes: a copy from
+			// d bytes back repeats those d bytes (a run of one byte when
+			// d = 1), so the piece is filled with them, not written d bytes
+			// at a time, which for a long run would take forever
 			for left := n; left > 0; {
 				if err := ctx.Err(); err != nil {
 					return err
 				}
-				p := buf[:min(int64(len(buf)), left, t.n-tgtRel)]
-				if err := t.read(p, tgtRel); err != nil {
+				d := t.n - tgtRel
+				k := min(int64(len(buf)), left, d)
+				if err := t.read(buf[:k], tgtRel); err != nil {
 					return err
 				}
-				t.Write(p)
-				tgtRel += int64(len(p))
-				left -= int64(len(p))
+				m := k
+				if k == d {
+					m = min(int64(len(buf)), left)
+					for i := k; i < m; i *= 2 {
+						copy(buf[i:m], buf[:i])
+					}
+				}
+				if _, err := t.Write(buf[:m]); err != nil {
+					return err
+				}
+				tgtRel += m
+				left -= m
 			}
 		}
 		if err != nil {

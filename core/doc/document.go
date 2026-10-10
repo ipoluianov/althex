@@ -44,7 +44,11 @@ type Document struct {
 	mu sync.Mutex // edits, history and saving
 
 	path     string // "" - a new document not saved yet
+	name     string // the name of a document over a source without a file
 	readOnly bool
+	// writeDenied is why the file could not be opened for writing, so the
+	// document was opened read-only (SRC-2); nil - it could
+	writeDenied error
 
 	add  *addBuffer
 	bufs []buffer
@@ -55,6 +59,8 @@ type Document struct {
 	file   *source.File
 	// Sources replaced by saving, kept open while older states use them
 	oldFiles []*source.File
+	// owned is the source of OpenSource, closed with the document
+	owned source.Source
 
 	snap atomic.Pointer[Snapshot]
 	hist *history
@@ -91,6 +97,13 @@ func Open(path string, opts Options) (*Document, error) {
 		return nil, err
 	}
 	d := &Document{path: path, readOnly: opts.ReadOnly}
+	// A file that cannot be written (no permission, locked by another
+	// program) is opened read-only rather than failing when saved (SRC-2)
+	if !opts.ReadOnly && !f.Device() {
+		if err := source.CanWrite(path); err != nil {
+			d.readOnly, d.writeDenied = true, err
+		}
+	}
 	if err := d.init(opts, path); err != nil {
 		f.Close()
 		return nil, err
@@ -104,6 +117,40 @@ func Open(path string, opts Options) (*Document, error) {
 		return nil, err
 	}
 	return d, nil
+}
+
+// OpenSource opens a document over a source that is not a file of its own:
+// a disk inside an image file, a partition, a file of a file system. It
+// starts read-only and has no journal; it is saved as a copy under a name.
+func OpenSource(src source.Source, name string) (*Document, error) {
+	d := &Document{name: name, readOnly: true}
+	if err := d.init(Options{}, ""); err != nil {
+		return nil, err
+	}
+	d.src = newSourceBuffer(src, d.add)
+	d.srcIdx = len(d.bufs)
+	d.bufs = append(d.bufs, d.src)
+	d.owned = src
+	d.hist = newHistory(buildTree([]piece{{d.srcIdx, 0, src.Size()}}), 0)
+	d.publish()
+	return d, nil
+}
+
+// Name is the name of the document: of its file, or the one it was opened under
+func (d *Document) Name() string {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	if d.path != "" {
+		return filepath.Base(d.path)
+	}
+	return d.name
+}
+
+// IsDevice tells whether the document is a disk or a partition of the computer
+func (d *Document) IsDevice() bool {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	return d.file != nil && d.file.Device()
 }
 
 // New makes a document of size zero bytes that is not saved yet (SRC-5)
@@ -183,6 +230,10 @@ func (d *Document) Close() error {
 		f.Close()
 	}
 	d.oldFiles = nil
+	if d.owned != nil {
+		d.owned.Close()
+		d.owned = nil
+	}
 	if d.journal != nil {
 		d.journal.remove()
 		d.journal = nil
@@ -212,6 +263,14 @@ func (d *Document) ReadOnly() bool {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	return d.readOnly
+}
+
+// WriteDenied is why the file could not be opened for writing when the
+// document was opened, which made it read-only (SRC-2); nil - it could
+func (d *Document) WriteDenied() error {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	return d.writeDenied
 }
 
 // SetReadOnly forbids or allows editing (EDIT-8)
@@ -292,8 +351,10 @@ func (d *Document) notify() {
 
 // publish makes the current state of the history the one readers see
 func (d *Document) publish() {
+	// The bytes of a file or of a source (a disk, a snapshot compared) as
+	// they are there are not edits
 	src := 0
-	if d.file != nil {
+	if d.file != nil || d.owned != nil {
 		src = d.srcIdx
 	}
 	d.snap.Store(&Snapshot{root: d.hist.cur.root, bufs: d.bufs, src: src})
@@ -379,6 +440,38 @@ func (s *Snapshot) Edited(off int64, mark []bool) {
 		}
 		return true
 	})
+}
+
+// Unreadable marks the bytes of [off, off+len(mark)) that could not be read
+// from the disk (bad sectors: shown as zeros); false - none of them
+func (s *Snapshot) Unreadable(off int64, mark []bool) bool {
+	end := min(off+int64(len(mark)), s.Size())
+	any := false
+	walk(s.root, 0, off, end, func(start int64, pc piece) bool {
+		sb, ok := s.bufs[pc.buf].(*srcBuffer)
+		if !ok {
+			return true
+		}
+		from, to := max(start, off), min(start+pc.len, end)
+		cache := sb.cache.Load()
+		if !cache.HasBadPages() {
+			return true
+		}
+		// Page by page: a page is read or failed as a whole
+		for p := from; p < to; {
+			srcOff := pc.off + p - start
+			next := min(to, p+source.PageSize-srcOff%source.PageSize)
+			if !cache.Readable(srcOff) {
+				for i := p; i < next; i++ {
+					mark[i-off] = true
+				}
+				any = true
+			}
+			p = next
+		}
+		return true
+	})
+	return any
 }
 
 // zeroBuffer is any number of zero bytes: a new document, a filled range

@@ -1,0 +1,360 @@
+//! name: NTFS volume
+//! extensions: ntfs
+//! magic: 3 "4E 54 46 53 20 20 20 20"
+//! priority: 1
+
+// NTFS: the boot sector with its BIOS parameter block, and the first record
+// of the MFT ($MFT itself) with the headers of its attributes. The records
+// are shown as stored: the last two bytes of every 512 hold the update
+// sequence number, the real ones are in the update sequence array.
+
+LittleEndian();
+
+// "2024-05-01 12:00:00" of seconds since 1970 (UTC)
+string UnixDate(int64 t) {
+    local int64 days = t / 86400, secs = t % 86400;
+    if (secs < 0) {
+        secs += 86400;
+        days--;
+    }
+    // The civil date of a day number (H. Hinnant)
+    local int64 z = days + 719468;
+    local int64 era = (z >= 0 ? z : z - 146096) / 146097;
+    local int64 doe = z - era * 146097;
+    local int64 yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
+    local int64 y = yoe + era * 400;
+    local int64 doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    local int64 mp = (5 * doy + 2) / 153;
+    local int64 d = doy - (153 * mp + 2) / 5 + 1;
+    local int64 m = mp < 10 ? mp + 3 : mp - 9;
+    if (m <= 2)
+        y++;
+    return Str("%04d-%02d-%02d %02d:%02d:%02d", y, m, d, secs / 3600, secs / 60 % 60, secs % 60);
+}
+
+// FILETIME: 100 ns since 1601-01-01
+string FileTimeRead(uint64 &t) {
+    if (t == 0)
+        return "0";
+    return UnixDate((int64)(t / 10000000) - 11644473600) + " UTC";
+}
+
+// ---- The boot sector ----
+
+string ClusterComment(uchar &v) {
+    if (v > 0x80)
+        return Str("%u sectors (2^(256-value))", 1 << (256 - v));
+    return "sectors per cluster";
+}
+
+// Clusters, or when negative 2^-value bytes
+string RecordSizeComment(int8 &v) {
+    if (v < 0)
+        return Str("%d bytes (2^-value)", 1 << -v);
+    return Str("%d clusters", v);
+}
+
+struct NTFS_BOOT_SECTOR {
+    uchar  jump[3] <format=hex>;
+    char   oemId[8];
+    // BIOS parameter block
+    uint16 bytesPerSector;
+    uchar  sectorsPerCluster <comment=ClusterComment>;
+    uint16 reservedSectors <comment="0">;
+    uchar  zero1[3];
+    uint16 zero2;
+    uchar  mediaDescriptor <format=hex, comment="0xF8 - a fixed disk">;
+    uint16 zero3;
+    uint16 sectorsPerTrack;
+    uint16 numberOfHeads;
+    uint32 hiddenSectors <comment="where the partition starts">;
+    uint32 zero4;
+    // The extended BPB of NTFS
+    uint32 unused <format=hex, comment="0x00800080">;
+    uint64 totalSectors;
+    uint64 mftLcn <comment="the cluster of $MFT">;
+    uint64 mftMirrLcn <comment="the cluster of $MFTMirr">;
+    int8   clustersPerMftRecord <comment=RecordSizeComment>;
+    uchar  zero5[3];
+    int8   clustersPerIndexBlock <comment=RecordSizeComment>;
+    uchar  zero6[3];
+    uint64 volumeSerialNumber <format=hex>;
+    uint32 checksum;
+    uchar  bootstrap[426];
+    uint16 endMarker <format=hex, comment="0xAA55">;
+};
+
+// ---- MFT records ----
+
+enum <uint32> NTFS_ATTR_TYPE {
+    STANDARD_INFORMATION = 0x10, ATTRIBUTE_LIST = 0x20, FILE_NAME = 0x30,
+    OBJECT_ID = 0x40, SECURITY_DESCRIPTOR = 0x50, VOLUME_NAME = 0x60,
+    VOLUME_INFORMATION = 0x70, DATA = 0x80, INDEX_ROOT = 0x90,
+    INDEX_ALLOCATION = 0xA0, BITMAP = 0xB0, REPARSE_POINT = 0xC0,
+    EA_INFORMATION = 0xD0, EA = 0xE0, PROPERTY_SET = 0xF0,
+    LOGGED_UTILITY_STREAM = 0x100, END = 0xFFFFFFFF
+};
+
+string RecordFlagsComment(uint16 &f) {
+    local string s = "";
+    if (f & 1) s += "in use ";
+    if (f & 2) s += "directory ";
+    if (f & 4) s += "extension ";
+    if (f & 8) s += "view index ";
+    return s + "(1 in use, 2 directory, 4 $Extend, 8 view index)";
+}
+
+string AttrFlagsComment(uint16 &f) {
+    local string s = "";
+    if (f & 0x0001) s += "compressed ";
+    if (f & 0x4000) s += "encrypted ";
+    if (f & 0x8000) s += "sparse ";
+    return s + "(0x1 compressed, 0x4000 encrypted, 0x8000 sparse)";
+}
+
+string FileAttrComment(uint32 &f) {
+    local string s = "";
+    if (f & 0x1) s += "read-only ";
+    if (f & 0x2) s += "hidden ";
+    if (f & 0x4) s += "system ";
+    if (f & 0x20) s += "archive ";
+    if (f & 0x200) s += "sparse ";
+    if (f & 0x400) s += "reparse ";
+    if (f & 0x800) s += "compressed ";
+    if (f & 0x4000) s += "encrypted ";
+    if (f & 0x10000000) s += "directory ";
+    return s;
+}
+
+struct MFT_RECORD_HEADER {
+    char   magic[4] <comment="FILE; BAAD - a damaged record">;
+    uint16 usaOffset <format=hex, comment="the update sequence array">;
+    uint16 usaCount <comment="1 + the number of sectors">;
+    uint64 lsn <comment="$LogFile sequence number">;
+    uint16 sequenceNumber;
+    uint16 linkCount <comment="hard links">;
+    uint16 attrsOffset <format=hex>;
+    uint16 flags <format=hex, comment=RecordFlagsComment>;
+    uint32 bytesInUse;
+    uint32 bytesAllocated;
+    uint64 baseRecord <format=hex, comment="0 - a base record; else the file it extends">;
+    uint16 nextAttrId;
+    uint16 align;
+    uint32 recordNumber;
+};
+
+struct STANDARD_INFORMATION_VALUE(uint32 len) {
+    uint64 creationTime <read=FileTimeRead>;
+    uint64 modificationTime <read=FileTimeRead>;
+    uint64 mftChangeTime <read=FileTimeRead>;
+    uint64 accessTime <read=FileTimeRead>;
+    uint32 fileAttributes <format=hex, comment=FileAttrComment>;
+    if (len >= 72) {
+        uint32 maxVersions;
+        uint32 versionNumber;
+        uint32 classId;
+        uint32 ownerId;
+        uint32 securityId;
+        uint64 quotaCharged;
+        uint64 usn;
+    }
+};
+
+enum <uchar> FILE_NAME_SPACE { POSIX, WIN32, DOS, WIN32_AND_DOS };
+
+struct FILE_NAME_VALUE {
+    uint64 parentDirectory <format=hex, comment="the record (low 48 bits) and its sequence number">;
+    uint64 creationTime <read=FileTimeRead>;
+    uint64 modificationTime <read=FileTimeRead>;
+    uint64 mftChangeTime <read=FileTimeRead>;
+    uint64 accessTime <read=FileTimeRead>;
+    uint64 allocatedSize;
+    uint64 realSize;
+    uint32 fileAttributes <format=hex, comment=FileAttrComment>;
+    uint32 reparse;
+    uchar  nameLength <comment="characters">;
+    FILE_NAME_SPACE nameSpace;
+    if (nameLength > 0)
+        uint16 name[nameLength] <comment="UTF-16">;
+} <read=FileNameRead>;
+
+string FileNameRead(FILE_NAME_VALUE &f) {
+    return ReadWString(startof(f) + 0x42, f.nameLength);
+}
+
+// A data run: a header with the sizes of the length and of the offset,
+// then them; no offset is a sparse run
+struct DATA_RUN {
+    uchar header <format=hex, comment="low 4 bits - the size of the length, high 4 - of the offset">;
+    local int ls = header & 0xF, os = header >> 4;
+    if (ls > 0)
+        uchar length[ls];
+    if (os > 0)
+        uchar offset[os];
+} <read=RunRead>;
+
+// A little-endian number of n bytes at pos; signed: the sign is extended
+int64 RunNumber(int64 pos, int n, int signed) {
+    local int64 v = 0;
+    local int i;
+    for (i = n - 1; i >= 0; i--)
+        v = (v << 8) | ReadUByte(pos + i);
+    if (signed && n > 0 && n < 8 && (ReadUByte(pos + n - 1) & 0x80))
+        v -= (int64)1 << (8 * n);
+    return v;
+}
+
+string RunRead(DATA_RUN &r) {
+    local int ls = r.header & 0xF, os = r.header >> 4;
+    local int64 len = 0, off = 0;
+    if (ls > 0)
+        len = RunNumber(startof(r) + 1, ls, 0);
+    if (os == 0)
+        return Str("%d clusters, sparse", len);
+    off = RunNumber(startof(r) + 1 + ls, os, 1);
+    return Str("%d clusters, cluster offset %s%d", len, off >= 0 ? "+" : "", off);
+}
+
+struct DATA_RUNS(int64 end) {
+    local int count = 0;
+    while (FTell() < end && ReadUByte(FTell()) != 0 && count < 512) {
+        DATA_RUN run;
+        count++;
+    }
+    if (FTell() < end)
+        uchar terminator;
+};
+
+struct ATTRIBUTE {
+    local int64 start = FTell();
+    NTFS_ATTR_TYPE type;
+    uint32 length;
+    uchar  nonResident;
+    uchar  nameLength <comment="characters">;
+    uint16 nameOffset <format=hex>;
+    uint16 flags <format=hex, comment=AttrFlagsComment>;
+    uint16 attributeId;
+    if (nonResident == 0) {
+        uint32 valueLength;
+        uint16 valueOffset <format=hex>;
+        uchar  indexedFlag;
+        uchar  padding;
+    } else {
+        uint64 lowestVcn;
+        uint64 highestVcn;
+        uint16 runsOffset <format=hex>;
+        uint16 compressionUnit <comment="log2 of the clusters of a unit; 0 - not compressed">;
+        uint32 padding;
+        uint64 allocatedSize;
+        uint64 dataSize;
+        uint64 initializedSize;
+        if ((flags & 0x8001) && lowestVcn == 0 && 0x48 <= length)
+            uint64 compressedSize;
+    }
+    if (nameLength > 0 && nameOffset + nameLength * 2 <= length) {
+        FSeek(start + nameOffset);
+        uint16 name[nameLength] <comment="UTF-16">;
+    }
+    if (nonResident == 0) {
+        if (valueOffset + valueLength <= length && valueLength > 0) {
+            FSeek(start + valueOffset);
+            switch (type) {
+            case STANDARD_INFORMATION:
+                if (valueLength >= 48)
+                    STANDARD_INFORMATION_VALUE value(valueLength);
+                else
+                    uchar value[valueLength];
+                break;
+            case FILE_NAME:
+                if (valueLength >= 0x42 + 2 * ReadUByte(start + valueOffset + 0x40))
+                    FILE_NAME_VALUE value;
+                else
+                    uchar value[valueLength];
+                break;
+            case VOLUME_NAME:
+                uint16 value[valueLength / 2] <comment="UTF-16">;
+                break;
+            default:
+                uchar value[valueLength];
+            }
+        }
+    } else if (runsOffset < length) {
+        FSeek(start + runsOffset);
+        DATA_RUNS runs(start + length);
+    }
+    FSeek(start + length);
+} <read=AttrRead>;
+
+string AttrRead(ATTRIBUTE &a) {
+    local string s = EnumToString(a.type);
+    if (s == "")
+        s = Str("0x%X", a.type);
+    if (a.nameLength > 0 && a.nameOffset + a.nameLength * 2 <= a.length)
+        s += " \"" + ReadWString(startof(a) + a.nameOffset, a.nameLength) + "\"";
+    if (a.nonResident)
+        return s + Str(", non-resident, %u bytes", a.dataSize);
+    return s + Str(", resident, %u bytes", a.valueLength);
+}
+
+struct MFT_RECORD(int64 size) {
+    local int64 base = FTell();
+    MFT_RECORD_HEADER header <open=true>;
+    if (header.usaOffset >= 0x28 && header.usaOffset + 2 * header.usaCount <= size) {
+        FSeek(base + header.usaOffset);
+        uint16 updateSequence[header.usaCount] <format=hex, comment="[0] the number, then the real last two bytes of each sector">;
+    }
+    local int64 end = base + Min(header.bytesInUse, size);
+    local int64 pos = base + header.attrsOffset;
+    local int count = 0;
+    while (pos + 8 <= end && ReadUInt(pos) != 0xFFFFFFFF && count < 64) {
+        local uint32 len = ReadUInt(pos + 4);
+        if (len < 0x18 || pos + len > end)
+            break;
+        FSeek(pos);
+        ATTRIBUTE attribute;
+        pos += len;
+        count++;
+    }
+    if (pos + 4 <= end && ReadUInt(pos) == 0xFFFFFFFF) {
+        FSeek(pos);
+        uint32 endMarker <format=hex>;
+    }
+    FSeek(base + size);
+};
+
+// ---- The volume ----
+
+if (FileSize() < 512) {
+    Warning("the boot sector is cut");
+    Exit(0);
+}
+NTFS_BOOT_SECTOR boot <open=true>;
+
+local int64 bps = boot.bytesPerSector;
+local int64 spc = boot.sectorsPerCluster;
+if (spc > 0x80)
+    spc = (int64)1 << (256 - spc);
+local int64 clusterSize = bps * spc;
+local int64 recordSize = 0;
+if (boot.clustersPerMftRecord < 0) {
+    if (boot.clustersPerMftRecord >= -20)
+        recordSize = (int64)1 << -boot.clustersPerMftRecord;
+} else {
+    recordSize = boot.clustersPerMftRecord * clusterSize;
+}
+
+if (clusterSize <= 0 || clusterSize > 0x200000 || recordSize < 256 || recordSize > 0x10000) {
+    Warning("unusual cluster or record size");
+    Exit(0);
+}
+local int64 mftOffset = boot.mftLcn * clusterSize;
+if (boot.mftLcn > FileSize() || mftOffset < 0 || mftOffset + recordSize > FileSize()) {
+    Warning("the MFT is outside the file");
+    Exit(0);
+}
+if (ReadUInt(mftOffset) != 0x454C4946) { // "FILE"
+    Warning("no FILE record at the MFT");
+    Exit(0);
+}
+FSeek(mftOffset);
+MFT_RECORD mftRecord(recordSize) <open=true, comment="$MFT">;

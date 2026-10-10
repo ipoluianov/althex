@@ -5,6 +5,7 @@ package source
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"sync/atomic"
@@ -47,17 +48,26 @@ func statOf(f *os.File) (Stat, error) {
 // File is a source over a file opened for reading only. Other programs may
 // keep writing, renaming and deleting it (see openShared).
 type File struct {
-	f    *os.File
-	path string
-	size atomic.Int64
-	stat Stat
+	// f stays set after Close: reads in the background may still come (a
+	// cancelled search, the minimap), and os.File answers them with an
+	// error safely, while clearing the field would race with them
+	f      *os.File
+	closed atomic.Bool
+	path   string
+	size   atomic.Int64
+	stat   Stat
+	device bool
 }
 
-// OpenFile opens the file for reading
+// OpenFile opens the file for reading; a disk or a partition (a device:
+// /dev/sda, \\.\PhysicalDrive0) too, its size asked of the system
 func OpenFile(path string) (*File, error) {
 	f, err := openShared(path)
 	if err != nil {
 		return nil, err
+	}
+	if isDevicePath(path) {
+		return openDevice(f, path)
 	}
 	st, err := f.Stat()
 	if err != nil {
@@ -68,6 +78,9 @@ func OpenFile(path string) (*File, error) {
 		f.Close()
 		return nil, errors.New(path + " is a directory")
 	}
+	if st.Mode()&os.ModeDevice != 0 {
+		return openDevice(f, path)
+	}
 	stat, err := statOf(f)
 	if err != nil {
 		f.Close()
@@ -77,6 +90,20 @@ func OpenFile(path string) (*File, error) {
 	c.size.Store(st.Size())
 	return c, nil
 }
+
+func openDevice(f *os.File, path string) (*File, error) {
+	size, err := deviceSize(f)
+	if err != nil {
+		f.Close()
+		return nil, fmt.Errorf("the size of %s: %w", path, err)
+	}
+	c := &File{f: f, path: path, stat: Stat{Size: size}, device: true}
+	c.size.Store(size)
+	return c, nil
+}
+
+// Device tells whether the source is a disk or a partition
+func (c *File) Device() bool { return c.device }
 
 // Path is the file name the source was opened by
 func (c *File) Path() string { return c.path }
@@ -90,8 +117,11 @@ func (c *File) Stat() Stat { return c.stat }
 // Refresh takes the size and time of the file again, after the document has
 // written it in place
 func (c *File) Refresh() error {
-	if c.f == nil {
+	if c.f == nil || c.closed.Load() {
 		return ErrClosed
+	}
+	if c.device {
+		return nil // a disk does not change its size
 	}
 	st, err := statOf(c.f)
 	if err != nil {
@@ -105,15 +135,18 @@ func (c *File) Refresh() error {
 // StatNow returns the size and time of the opened file now (the name may
 // lead to another file since)
 func (c *File) StatNow() (Stat, error) {
-	if c.f == nil {
+	if c.f == nil || c.closed.Load() {
 		return Stat{}, ErrClosed
+	}
+	if c.device {
+		return c.stat, nil
 	}
 	return statOf(c.f)
 }
 
 // ReadAt reads within the size the file had when it was opened
 func (c *File) ReadAt(p []byte, off int64) (int, error) {
-	if c.f == nil {
+	if c.f == nil || c.closed.Load() {
 		return 0, ErrClosed
 	}
 	size := c.size.Load()
@@ -131,12 +164,10 @@ func (c *File) ReadAt(p []byte, off int64) (int, error) {
 }
 
 func (c *File) Close() error {
-	if c.f == nil {
+	if c.f == nil || c.closed.Swap(true) {
 		return nil
 	}
-	err := c.f.Close()
-	c.f = nil
-	return err
+	return c.f.Close()
 }
 
 // StatFile returns the size, time and identity of the file now
@@ -172,3 +203,13 @@ func (c *Memory) ReadAt(p []byte, off int64) (int, error) {
 }
 
 func (c *Memory) Close() error { return nil }
+
+// CanWrite tells whether the file can be opened for writing now: nil, or why
+// not (no permission, kept locked by another program) (SRC-2)
+func CanWrite(path string) error {
+	f, err := os.OpenFile(path, os.O_WRONLY, 0)
+	if err != nil {
+		return err
+	}
+	return f.Close()
+}

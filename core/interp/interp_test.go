@@ -6,6 +6,8 @@ import (
 	"math/rand/v2"
 	"strings"
 	"testing"
+
+	"github.com/ipoluianov/althex/internal/fuzzguard"
 )
 
 // valueOf returns the value of the type among all values
@@ -351,6 +353,7 @@ func FuzzInterpret(f *testing.F) {
 	f.Add(rep(0xff, 16), false)
 	f.Add(rep(0x80, 20), true)
 	f.Fuzz(func(t *testing.T, data []byte, be bool) {
+		defer fuzzguard.Start(t.Name())()
 		checkRoundTrip(t, data, be)
 	})
 }
@@ -361,6 +364,7 @@ func FuzzEncode(f *testing.F) {
 	f.Add(24, "{6B29FC40-CA47-1067-B31D-00DD010662DA}", false)
 	f.Add(15, "П (U+041F)", true)
 	f.Fuzz(func(t *testing.T, i int, text string, be bool) {
+		defer fuzzguard.Start(t.Name())()
 		ts := Types()
 		id := ts[uint(i)%uint(len(ts))].ID
 		Encode(id, text, be)

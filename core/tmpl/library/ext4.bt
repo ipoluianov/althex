@@ -1,0 +1,320 @@
+//! name: ext2/ext3/ext4 file system
+//! extensions: ext2, ext3, ext4
+//! magic: 0x438 "53 EF"
+//! priority: 1
+
+// The Linux extended file systems: the superblock at 1024 and the group
+// descriptors that follow it (the first 256; with meta_bg only those
+// before s_first_meta_bg are there). The checksums are not verified.
+
+LittleEndian();
+
+// "2024-05-01 12:00:00" of seconds since 1970 (UTC)
+string UnixDate(int64 t) {
+    local int64 days = t / 86400, secs = t % 86400;
+    if (secs < 0) {
+        secs += 86400;
+        days--;
+    }
+    // The civil date of a day number (H. Hinnant)
+    local int64 z = days + 719468;
+    local int64 era = (z >= 0 ? z : z - 146096) / 146097;
+    local int64 doe = z - era * 146097;
+    local int64 yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
+    local int64 y = yoe + era * 400;
+    local int64 doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    local int64 mp = (5 * doy + 2) / 153;
+    local int64 d = doy - (153 * mp + 2) / 5 + 1;
+    local int64 m = mp < 10 ? mp + 3 : mp - 9;
+    if (m <= 2)
+        y++;
+    return Str("%04d-%02d-%02d %02d:%02d:%02d", y, m, d, secs / 3600, secs / 60 % 60, secs % 60);
+}
+
+string TimeRead(uint32 &t) {
+    if (t == 0)
+        return "0";
+    return UnixDate(t) + " UTC";
+}
+
+enum <uint16> EXT_STATE { EXT_VALID_FS = 1, EXT_ERROR_FS = 2, EXT_ORPHAN_FS = 4 };
+enum <uint16> EXT_ERRORS { EXT_ERRORS_CONTINUE = 1, EXT_ERRORS_RO = 2, EXT_ERRORS_PANIC = 3 };
+enum <uint32> EXT_OS { EXT_OS_LINUX, EXT_OS_HURD, EXT_OS_MASIX, EXT_OS_FREEBSD, EXT_OS_LITES };
+enum <uint32> EXT_REV { EXT_GOOD_OLD_REV, EXT_DYNAMIC_REV };
+
+string CompatComment(uint32 &f) {
+    local string s = "";
+    if (f & 0x1) s += "dir_prealloc ";
+    if (f & 0x2) s += "imagic_inodes ";
+    if (f & 0x4) s += "has_journal ";
+    if (f & 0x8) s += "ext_attr ";
+    if (f & 0x10) s += "resize_inode ";
+    if (f & 0x20) s += "dir_index ";
+    if (f & 0x200) s += "sparse_super2 ";
+    if (f & 0x400) s += "fast_commit ";
+    if (f & 0x1000) s += "orphan_file ";
+    return s;
+}
+
+string IncompatComment(uint32 &f) {
+    local string s = "";
+    if (f & 0x1) s += "compression ";
+    if (f & 0x2) s += "filetype ";
+    if (f & 0x4) s += "recover ";
+    if (f & 0x8) s += "journal_dev ";
+    if (f & 0x10) s += "meta_bg ";
+    if (f & 0x40) s += "extents ";
+    if (f & 0x80) s += "64bit ";
+    if (f & 0x100) s += "mmp ";
+    if (f & 0x200) s += "flex_bg ";
+    if (f & 0x400) s += "ea_inode ";
+    if (f & 0x1000) s += "dirdata ";
+    if (f & 0x2000) s += "csum_seed ";
+    if (f & 0x4000) s += "large_dir ";
+    if (f & 0x8000) s += "inline_data ";
+    if (f & 0x10000) s += "encrypt ";
+    if (f & 0x20000) s += "casefold ";
+    return s;
+}
+
+string ROCompatComment(uint32 &f) {
+    local string s = "";
+    if (f & 0x1) s += "sparse_super ";
+    if (f & 0x2) s += "large_file ";
+    if (f & 0x8) s += "huge_file ";
+    if (f & 0x10) s += "gdt_csum ";
+    if (f & 0x20) s += "dir_nlink ";
+    if (f & 0x40) s += "extra_isize ";
+    if (f & 0x100) s += "quota ";
+    if (f & 0x200) s += "bigalloc ";
+    if (f & 0x400) s += "metadata_csum ";
+    if (f & 0x1000) s += "readonly ";
+    if (f & 0x2000) s += "project ";
+    if (f & 0x8000) s += "verity ";
+    if (f & 0x10000) s += "orphan_present ";
+    return s;
+}
+
+string LogSizeComment(uint32 &v) {
+    if (v > 20)
+        return "unusual";
+    return Str("%u bytes (1024 << value)", 1024 << v);
+}
+
+struct EXT_UUID {
+    uchar b[16];
+} <read=UUIDRead>;
+
+string UUIDRead(EXT_UUID &u) {
+    local int64 p = startof(u);
+    local string s = "";
+    local int i;
+    for (i = 0; i < 16; i++) {
+        if (i == 4 || i == 6 || i == 8 || i == 10)
+            s += "-";
+        s += Str("%02x", ReadUByte(p + i));
+    }
+    return s;
+}
+
+struct EXT_SUPERBLOCK {
+    uint32 s_inodes_count;
+    uint32 s_blocks_count_lo;
+    uint32 s_r_blocks_count_lo <comment="reserved for the superuser">;
+    uint32 s_free_blocks_count_lo;
+    uint32 s_free_inodes_count;
+    uint32 s_first_data_block <comment="1 for 1K blocks, else 0">;
+    uint32 s_log_block_size <comment=LogSizeComment>;
+    uint32 s_log_cluster_size <comment=LogSizeComment>;
+    uint32 s_blocks_per_group;
+    uint32 s_clusters_per_group;
+    uint32 s_inodes_per_group;
+    uint32 s_mtime <read=TimeRead>;
+    uint32 s_wtime <read=TimeRead>;
+    uint16 s_mnt_count;
+    int16  s_max_mnt_count;
+    uint16 s_magic <format=hex, comment="0xEF53">;
+    EXT_STATE s_state;
+    EXT_ERRORS s_errors;
+    uint16 s_minor_rev_level;
+    uint32 s_lastcheck <read=TimeRead>;
+    uint32 s_checkinterval <comment="seconds">;
+    EXT_OS s_creator_os;
+    EXT_REV s_rev_level;
+    uint16 s_def_resuid;
+    uint16 s_def_resgid;
+    // EXT_DYNAMIC_REV
+    uint32 s_first_ino <comment="the first inode that is not reserved">;
+    uint16 s_inode_size;
+    uint16 s_block_group_nr <comment="the group of this copy">;
+    uint32 s_feature_compat <format=hex, comment=CompatComment>;
+    uint32 s_feature_incompat <format=hex, comment=IncompatComment>;
+    uint32 s_feature_ro_compat <format=hex, comment=ROCompatComment>;
+    EXT_UUID s_uuid;
+    char   s_volume_name[16];
+    char   s_last_mounted[64];
+    uint32 s_algorithm_usage_bitmap;
+    uchar  s_prealloc_blocks;
+    uchar  s_prealloc_dir_blocks;
+    uint16 s_reserved_gdt_blocks;
+    EXT_UUID s_journal_uuid;
+    uint32 s_journal_inum;
+    uint32 s_journal_dev;
+    uint32 s_last_orphan;
+    uint32 s_hash_seed[4] <format=hex>;
+    uchar  s_def_hash_version <comment="0 legacy, 1 half MD4, 2 tea (+3 unsigned)">;
+    uchar  s_jnl_backup_type;
+    uint16 s_desc_size <comment="of a group descriptor with 64bit">;
+    uint32 s_default_mount_opts <format=hex>;
+    uint32 s_first_meta_bg;
+    uint32 s_mkfs_time <read=TimeRead>;
+    uint32 s_jnl_blocks[17] <format=hex, comment="a copy of the i_block and the size of the journal inode">;
+    // 64bit
+    uint32 s_blocks_count_hi;
+    uint32 s_r_blocks_count_hi;
+    uint32 s_free_blocks_count_hi;
+    uint16 s_min_extra_isize;
+    uint16 s_want_extra_isize;
+    uint32 s_flags <format=hex, comment="1 signed hash, 2 unsigned hash, 4 test">;
+    uint16 s_raid_stride;
+    uint16 s_mmp_interval;
+    uint64 s_mmp_block;
+    uint32 s_raid_stripe_width;
+    uchar  s_log_groups_per_flex;
+    uchar  s_checksum_type <comment="1 - crc32c">;
+    uchar  s_encryption_level;
+    uchar  s_reserved_pad;
+    uint64 s_kbytes_written;
+    uint32 s_snapshot_inum;
+    uint32 s_snapshot_id;
+    uint64 s_snapshot_r_blocks_count;
+    uint32 s_snapshot_list;
+    uint32 s_error_count;
+    uint32 s_first_error_time <read=TimeRead>;
+    uint32 s_first_error_ino;
+    uint64 s_first_error_block;
+    char   s_first_error_func[32];
+    uint32 s_first_error_line;
+    uint32 s_last_error_time <read=TimeRead>;
+    uint32 s_last_error_ino;
+    uint32 s_last_error_line;
+    uint64 s_last_error_block;
+    char   s_last_error_func[32];
+    char   s_mount_opts[64];
+    uint32 s_usr_quota_inum;
+    uint32 s_grp_quota_inum;
+    uint32 s_overhead_clusters;
+    uint32 s_backup_bgs[2];
+    uchar  s_encrypt_algos[4];
+    uchar  s_encrypt_pw_salt[16];
+    uint32 s_lpf_ino <comment="lost+found">;
+    uint32 s_prj_quota_inum;
+    uint32 s_checksum_seed <format=hex>;
+    uchar  s_wtime_hi;
+    uchar  s_mtime_hi;
+    uchar  s_mkfs_time_hi;
+    uchar  s_lastcheck_hi;
+    uchar  s_first_error_time_hi;
+    uchar  s_last_error_time_hi;
+    uchar  s_first_error_errcode;
+    uchar  s_last_error_errcode;
+    uint16 s_encoding <comment="1 - utf8-12.1 (casefold)">;
+    uint16 s_encoding_flags;
+    uint32 s_orphan_file_inum;
+    uint32 s_reserved[94];
+    uint32 s_checksum <format=hex, comment="crc32c of the superblock (metadata_csum)">;
+};
+
+string BgFlagsComment(uint16 &f) {
+    local string s = "";
+    if (f & 1) s += "inode_uninit ";
+    if (f & 2) s += "block_uninit ";
+    if (f & 4) s += "inode_zeroed ";
+    return s;
+}
+
+// A group descriptor of 32 bytes, or of size with 64bit
+struct EXT_GROUP_DESC(int size) {
+    local int64 start = FTell();
+    uint32 bg_block_bitmap_lo;
+    uint32 bg_inode_bitmap_lo;
+    uint32 bg_inode_table_lo;
+    uint16 bg_free_blocks_count_lo;
+    uint16 bg_free_inodes_count_lo;
+    uint16 bg_used_dirs_count_lo;
+    uint16 bg_flags <format=hex, comment=BgFlagsComment>;
+    uint32 bg_exclude_bitmap_lo;
+    uint16 bg_block_bitmap_csum_lo;
+    uint16 bg_inode_bitmap_csum_lo;
+    uint16 bg_itable_unused_lo;
+    uint16 bg_checksum <format=hex>;
+    if (size >= 64) {
+        uint32 bg_block_bitmap_hi;
+        uint32 bg_inode_bitmap_hi;
+        uint32 bg_inode_table_hi;
+        uint16 bg_free_blocks_count_hi;
+        uint16 bg_free_inodes_count_hi;
+        uint16 bg_used_dirs_count_hi;
+        uint16 bg_itable_unused_hi;
+        uint32 bg_exclude_bitmap_hi;
+        uint16 bg_block_bitmap_csum_hi;
+        uint16 bg_inode_bitmap_csum_hi;
+        uint32 bg_reserved;
+    }
+    FSeek(start + size);
+} <read=GroupRead>;
+
+struct EXT_GROUP_DESCS(int64 n, int size) {
+    local int64 i;
+    for (i = 0; i < n; i++)
+        EXT_GROUP_DESC desc(size);
+};
+
+string GroupRead(EXT_GROUP_DESC &g) {
+    return Str("inode table at block %u, %u free blocks, %u free inodes",
+        g.bg_inode_table_lo, g.bg_free_blocks_count_lo, g.bg_free_inodes_count_lo);
+}
+
+// ---- The volume ----
+
+if (FileSize() < 2048) {
+    Warning("the superblock is cut");
+    Exit(0);
+}
+FSeek(1024);
+EXT_SUPERBLOCK superblock <open=true>;
+
+local int64 blockSize = 0;
+if (superblock.s_log_block_size <= 6)
+    blockSize = 1024 << superblock.s_log_block_size;
+local int descSize = 32;
+if ((superblock.s_feature_incompat & 0x80) && superblock.s_desc_size >= 64)
+    descSize = superblock.s_desc_size;
+local uint64 blocks = superblock.s_blocks_count_lo;
+if (superblock.s_feature_incompat & 0x80)
+    blocks |= (uint64)superblock.s_blocks_count_hi << 32;
+
+if (blockSize == 0 || superblock.s_blocks_per_group == 0 || descSize > blockSize ||
+    blocks <= superblock.s_first_data_block) {
+    Warning("unusual block size or groups");
+    Exit(0);
+}
+local uint64 groups = (blocks - superblock.s_first_data_block + superblock.s_blocks_per_group - 1) / superblock.s_blocks_per_group;
+local uint64 shown = groups;
+if (superblock.s_feature_incompat & 0x10) { // meta_bg: the rest are elsewhere
+    if ((uint64)superblock.s_first_meta_bg * (blockSize / descSize) < shown)
+        shown = (uint64)superblock.s_first_meta_bg * (blockSize / descSize);
+}
+if (shown > 256)
+    shown = 256;
+local int64 gdt = (superblock.s_first_data_block + 1) * blockSize;
+if (gdt + descSize > FileSize())
+    shown = 0;
+else if (gdt + shown * descSize > FileSize())
+    shown = (FileSize() - gdt) / descSize;
+if (shown > 0) {
+    FSeek(gdt);
+    EXT_GROUP_DESCS groupDescriptors(shown, descSize);
+}
+if (shown < groups)
+    Printf("%u group descriptors of %u shown\n", shown, groups);

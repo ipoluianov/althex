@@ -35,7 +35,7 @@ type command struct {
 }
 
 var commands = []command{
-	{"hash", "hash [-a crc32,sha256] [-offset N] [-length N] FILE...", runHash},
+	{"hash", "hash [-a crc32,sha256] [-crc \"width=16 poly=0x1021 ...\"] [-offset N] [-length N] FILE...", runHash},
 	{"find", "find (-hex \"4D 5A ??\" | -text STR [-enc ID] [-i] | -num int32:VALUE [-be]) [-max N] FILE...", runFind},
 	{"replace", "replace (-hex OLD | -text OLD [-enc ID] [-i]) (-with-hex NEW | -with-text NEW) [-max N] [-o OUT] FILE", runReplace},
 	{"strings", "strings [-min 4] [-utf16] [-utf8] FILE", runStrings},
@@ -44,6 +44,8 @@ var commands = []command{
 	{"patch-apply", "patch-apply PATCH FILE OUT", runPatchApply},
 	{"parse", "parse [-t TEMPLATE.bt] [-depth N] FILE", runParse},
 	{"convert", "convert -from bin|ihex|srec|base64|array -to bin|ihex|srec|base64|c|go|python|rust [-addr N] IN OUT", runConvert},
+	{"mcp", "mcp [-http 127.0.0.1:PORT -token T] [-headless] [-allow-open] [-allow-write] [FILE...]   MCP server for AI agents", runMCP},
+	{"rpc", "rpc [-headless] [-allow-open] [-allow-write] [FILE...]   JSON-RPC API over stdin/stdout", runRPC},
 }
 
 // IsCommand tells whether the arguments ask for a command (not for files to open)
@@ -52,7 +54,7 @@ func IsCommand(args []string) bool {
 		return false
 	}
 	switch args[0] {
-	case "help", "-h", "--help", "-help", "version", "--version":
+	case "help", "-h", "--help", "-help", "version", "--version", "licenses", "licences":
 		return true
 	}
 	for _, c := range commands {
@@ -65,7 +67,10 @@ func IsCommand(args []string) bool {
 
 // Run runs the command of the arguments; returns the exit code
 func Run(args []string) int {
-	attachConsole()
+	// The protocols of mcp and rpc go over stdout: it stays as the client made it
+	if args[0] != "mcp" && args[0] != "rpc" {
+		attachConsole()
+	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 	switch args[0] {
@@ -74,6 +79,9 @@ func Run(args []string) int {
 		return 0
 	case "version", "--version":
 		fmt.Println(app.DisplayName, app.Version)
+		return 0
+	case "licenses", "licences":
+		fmt.Print(app.Notices)
 		return 0
 	}
 	for _, c := range commands {
@@ -98,6 +106,7 @@ func usage(w io.Writer) {
 	for _, c := range commands {
 		fmt.Fprintln(w, "  althex "+c.usage)
 	}
+	fmt.Fprintln(w, "  althex licenses   the licences of AltHex and of what is built into it")
 	fmt.Fprintln(w, "\nNumbers may be decimal or 0x hex. Exit code: 0 - done, 1 - nothing found, 2 - error.")
 }
 
@@ -136,6 +145,7 @@ func runHash(ctx context.Context, args []string) error {
 	algs := fs.String("a", "crc32,md5,sha1,sha256", "algorithms (ids); \"list\" lists them")
 	offS := fs.String("offset", "0", "the first byte")
 	lenS := fs.String("length", "", "how many bytes; the rest of the file by default")
+	crc := fs.String("crc", "", "a CRC of your own: \"width=16 poly=0x1021 init=0xFFFF refin=false refout=false xorout=0\"")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -158,6 +168,13 @@ func runHash(ctx context.Context, args []string) error {
 		} else {
 			return fmt.Errorf("unknown algorithm %q (see -a list)", id)
 		}
+	}
+	if *crc != "" {
+		p, err := checksum.ParseCRC(*crc)
+		if err != nil {
+			return fmt.Errorf("-crc: %v", err)
+		}
+		list = append(list, checksum.CRCAlgorithm(p))
 	}
 	off, err := parseNum(*offS)
 	if err != nil {
@@ -310,6 +327,9 @@ func runReplace(ctx context.Context, args []string) error {
 		return err
 	}
 	defer d.Close()
+	if err := d.WriteDenied(); err != nil {
+		return err
+	}
 	snap := d.Snapshot()
 	var hits []search.Hit
 	next := int64(0)

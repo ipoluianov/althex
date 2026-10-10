@@ -1,0 +1,316 @@
+//! name: FAT file system
+//! extensions: img, ima, vfd, flp, fat
+//! priority: 1
+//! magic: 0x36 "46 41 54"
+//! magic: 0x52 "46 41 54 33 32"
+
+// The boot sector of FAT12, FAT16 and FAT32 (Microsoft FAT32 File System
+// Specification 1.03): the BIOS parameter block (BPB) with the extended BPB
+// of FAT12/16 or of FAT32, the FSInfo sector and the backup boot sector of
+// FAT32, the first FAT and the entries of the root directory (with the
+// parts of VFAT long names). The type comes from the count of clusters, as
+// the specification says, not from the text in the boot sector.
+// The priority beats the partition table (mbr.bt): a volume has 55 AA too.
+
+LittleEndian();
+
+// Entries of the root directory shown at most, and clusters of the root of
+// FAT32 followed
+local int64 MAX_ENTRIES = 4096;
+local int64 MAX_CLUSTERS = 256;
+
+// ---- The geometry, from the BPB ----
+
+local int64 g_bps = 0, g_spc = 0, g_rsvd = 0, g_nFATs = 0, g_rootEnt = 0;
+local int64 g_tot = 0, g_fatSz = 0, g_clusters = 0;
+local int g_type = 0;
+local int g_layout32 = 0; // the extended BPB is that of FAT32
+
+if (FileSize() >= 62) {
+    g_bps = ReadUShort(11);
+    g_spc = ReadUByte(13);
+    g_rsvd = ReadUShort(14);
+    g_nFATs = ReadUByte(16);
+    g_rootEnt = ReadUShort(17);
+    g_tot = ReadUShort(19);
+    g_fatSz = ReadUShort(22);
+    if (FileSize() >= 40) {
+        if (g_tot == 0)
+            g_tot = ReadUInt(32);
+        // FAT32 has no fixed root and its FAT size is in BPB_FATSz32
+        g_layout32 = g_fatSz == 0 && g_rootEnt == 0;
+        if (g_fatSz == 0)
+            g_fatSz = ReadUInt(36);
+    }
+    if (g_bps > 0 && g_spc > 0) {
+        local int64 rootSecs = (g_rootEnt * 32 + g_bps - 1) / g_bps;
+        local int64 dataSecs = g_tot - g_rsvd - g_nFATs * g_fatSz - rootSecs;
+        if (dataSecs > 0)
+            g_clusters = dataSecs / g_spc;
+        g_type = g_clusters < 4085 ? 12 : (g_clusters < 65525 ? 16 : 32);
+    }
+}
+
+// ---- Comments ----
+
+string DateText(uint16 d) {
+    if (d == 0)
+        return "";
+    return Str("%04d-%02d-%02d", 1980 + (d >> 9), (d >> 5) & 15, d & 31);
+}
+
+string TimeText(uint16 t) {
+    return Str("%02d:%02d:%02d", t >> 11, (t >> 5) & 63, (t & 31) * 2);
+}
+
+string DateComment(uint16 &d) { return DateText(d); }
+string TimeComment(uint16 &t) { return TimeText(t); }
+
+string AttrComment(uchar &a) {
+    local string s = "";
+    if (a == 0x0F) return "a long name entry";
+    if (a & 0x01) s += "READ_ONLY ";
+    if (a & 0x02) s += "HIDDEN ";
+    if (a & 0x04) s += "SYSTEM ";
+    if (a & 0x08) s += "VOLUME_ID ";
+    if (a & 0x10) s += "DIRECTORY ";
+    if (a & 0x20) s += "ARCHIVE ";
+    return s;
+}
+
+string MediaComment(uchar &m) {
+    if (m == 0xF0) return "removable";
+    if (m == 0xF8) return "fixed";
+    if (m < 0xF8) return "not valid";
+    return "";
+}
+
+string ExtFlagsComment(uint16 &f) {
+    if (f & 0x80)
+        return Str("only FAT %d is used", f & 0x0F);
+    return "all FATs are mirrored";
+}
+
+// ---- The boot sector ----
+
+struct BPB {
+    uchar  jmpBoot[3] <format=hex, comment="EB ?? 90 or E9 ?? ??">;
+    char   oemName[8];
+    uint16 bytesPerSec <comment="512, 1024, 2048 or 4096">;
+    uchar  secPerClus;
+    uint16 rsvdSecCnt <comment="the sectors before the first FAT">;
+    uchar  numFATs;
+    uint16 rootEntCnt <comment="the entries of the fixed root; 0 on FAT32">;
+    uint16 totSec16 <comment="0 - totSec32 has the count">;
+    uchar  media <format=hex, comment=MediaComment>;
+    uint16 fatSz16 <comment="sectors of one FAT; 0 on FAT32">;
+    uint16 secPerTrk;
+    uint16 numHeads;
+    uint32 hiddSec <comment="the sectors before the partition">;
+    uint32 totSec32;
+};
+
+struct EBPB16 {
+    uchar  drvNum <format=hex>;
+    uchar  reserved1;
+    uchar  bootSig <format=hex, comment="0x29 - volID, volLab and filSysType are there">;
+    uint32 volID <format=hex>;
+    char   volLab[11];
+    char   filSysType[8] <comment="only a text: the type comes from the count of clusters">;
+};
+
+struct EBPB32 {
+    uint32 fatSz32 <comment="sectors of one FAT">;
+    uint16 extFlags <format=hex, comment=ExtFlagsComment>;
+    uint16 fsVer <format=hex>;
+    uint32 rootClus <comment="the first cluster of the root directory">;
+    uint16 fsInfo <comment="the sector of FSInfo">;
+    uint16 bkBootSec <comment="the sector of the backup boot sector">;
+    uchar  reserved[12];
+    uchar  drvNum <format=hex>;
+    uchar  reserved1;
+    uchar  bootSig <format=hex, comment="0x29 - volID, volLab and filSysType are there">;
+    uint32 volID <format=hex>;
+    char   volLab[11];
+    char   filSysType[8];
+};
+
+struct BOOTSECTOR {
+    local int64 start = FTell();
+    BPB bpb <open=true>;
+    if (g_layout32)
+        EBPB32 ebpb <open=true>;
+    else
+        EBPB16 ebpb <open=true>;
+    uchar  bootCode[start + 510 - FTell()];
+    uint16 signature <format=hex, comment="0xAA55">;
+};
+
+struct FSINFO {
+    uint32 leadSig <format=hex, comment="0x41615252">;
+    uchar  reserved1[480];
+    uint32 strucSig <format=hex, comment="0x61417272">;
+    uint32 freeCount <comment="free clusters; 0xFFFFFFFF - not known">;
+    uint32 nxtFree <comment="where to look for a free cluster; 0xFFFFFFFF - not known">;
+    uchar  reserved2[12];
+    uint32 trailSig <format=hex, comment="0xAA550000">;
+};
+
+// ---- Directory entries ----
+
+struct DIRENT {
+    if (ReadUByte(FTell() + 11) == 0x0F) {
+        uchar  ord <format=hex, comment="the number of the part; 0x40 - the last one">;
+        uint16 name1[5] <format=hex>;
+        uchar  attr <format=hex, comment=AttrComment>;
+        uchar  type;
+        uchar  chksum <format=hex, comment="the checksum of the 8.3 name">;
+        uint16 name2[6] <format=hex>;
+        uint16 fstClusLO;
+        uint16 name3[2] <format=hex>;
+    } else {
+        char   name[11];
+        uchar  attr <format=hex, comment=AttrComment>;
+        uchar  ntRes <format=hex, comment="0x08 - the name, 0x10 - the extension in lower case">;
+        uchar  crtTimeTenth;
+        uint16 crtTime <comment=TimeComment>;
+        uint16 crtDate <comment=DateComment>;
+        uint16 lstAccDate <comment=DateComment>;
+        uint16 fstClusHI;
+        uint16 wrtTime <comment=TimeComment>;
+        uint16 wrtDate <comment=DateComment>;
+        uint16 fstClusLO;
+        uint32 fileSize;
+    }
+} <read=DirentRead>;
+
+// "README.TXT 120 bytes", "long name 1: Hello wor", "deleted: ?EADME.TXT"
+string DirentRead(DIRENT &d) {
+    local int64 p = startof(d);
+    local uchar first = ReadUByte(p);
+    local string s;
+    if (ReadUByte(p + 11) == 0x0F) {
+        s = Str("long name %d: ", first & 0x1F) + ReadWString(p + 1, 5);
+        if (ReadUShort(p + 1 + 8) != 0 && ReadUShort(p + 14) != 0) {
+            s += ReadWString(p + 14, 6);
+            if (ReadUShort(p + 24) != 0)
+                s += ReadWString(p + 28, 2);
+        }
+        if (first == 0xE5)
+            s = "deleted " + s;
+        return s;
+    }
+    if (first == 0)
+        return "free (the end)";
+    s = SubStr(ReadString(p, 8), 0, 8);
+    while (Strlen(s) > 0 && SubStr(s, Strlen(s) - 1, 1) == " ")
+        s = SubStr(s, 0, Strlen(s) - 1);
+    local string ext = SubStr(ReadString(p + 8, 3), 0, 3);
+    while (Strlen(ext) > 0 && SubStr(ext, Strlen(ext) - 1, 1) == " ")
+        ext = SubStr(ext, 0, Strlen(ext) - 1);
+    if (ext != "")
+        s += "." + ext;
+    local uchar a = ReadUByte(p + 11);
+    if (a & 0x08)
+        s = "label " + s;
+    else if (a & 0x10)
+        s += "/";
+    else
+        s += Str(" %u bytes", ReadUInt(p + 28));
+    if (first == 0xE5)
+        s = "deleted: " + s;
+    return s;
+}
+
+// The fixed root of FAT12/16: entries up to the zero one
+struct ROOTDIR (int64 n, int64 end) {
+    local int64 i;
+    local int64 at;
+    end = Min(end, FileSize());
+    for (i = 0; i < n && FTell() + 32 <= end; i++) {
+        // the position, not startof(entry): that is where entry[0] is
+        at = FTell();
+        DIRENT entry;
+        if (ReadUByte(at) == 0)
+            break;
+    }
+};
+
+// The root of FAT32: a chain of clusters, followed in the FAT
+struct ROOTCHAIN (int64 first, int64 dataOff, int64 clusSz, int64 fatOff) {
+    local int64 c = first;
+    local int64 k = 0;
+    local int64 shown = 0;
+    local int64 off;
+    local int64 end;
+    local int done = 0;
+    local int64 at;
+    while (!done && k < MAX_CLUSTERS && c >= 2 && c < 0x0FFFFFF7 && c - 2 < g_clusters) {
+        off = dataOff + (c - 2) * clusSz;
+        if (off + 32 > FileSize())
+            break;
+        FSeek(off);
+        end = Min(off + clusSz, FileSize());
+        while (FTell() + 32 <= end && shown < MAX_ENTRIES) {
+            at = FTell();
+            DIRENT entry;
+            shown++;
+            if (ReadUByte(at) == 0) {
+                done = 1; // the zero entry: the end of the directory
+                break;
+            }
+        }
+        if (shown >= MAX_ENTRIES || fatOff + c * 4 + 4 > FileSize())
+            break;
+        c = ReadUInt(fatOff + c * 4) & 0x0FFFFFFF;
+        k++;
+    }
+};
+
+// ---- The volume ----
+
+if (FileSize() < 512) {
+    Warning("a boot sector has 512 bytes; the data has %d", FileSize());
+    if (FileSize() > 0)
+        uchar truncated[FileSize()];
+    return;
+}
+
+BOOTSECTOR bootSector <open=true>;
+Printf("FAT%d: %d clusters\n", g_type, g_clusters);
+
+if (g_bps < 512 || g_spc == 0)
+    return;
+
+local int64 fatOff = g_rsvd * g_bps;
+local int64 rootOff = fatOff + g_nFATs * g_fatSz * g_bps;
+local int64 dataOff = rootOff + (g_rootEnt * 32 + g_bps - 1) / g_bps * g_bps;
+
+if (g_layout32) {
+    local int64 fsi = bootSector.ebpb.fsInfo;
+    if (fsi > 0 && fsi < g_rsvd && (fsi + 1) * g_bps <= FileSize())
+        FSINFO fsInfo @ fsi * g_bps;
+    local int64 bk = bootSector.ebpb.bkBootSec;
+    if (bk > 0 && bk < g_rsvd && bk * g_bps + 512 <= FileSize())
+        BOOTSECTOR backupBootSector @ bk * g_bps;
+}
+
+// The first FAT, up to the end of the data
+if (fatOff < FileSize() && g_fatSz > 0) {
+    local int64 fatBytes = Min(g_fatSz * g_bps, FileSize() - fatOff);
+    if (g_type == 32)
+        uint32 fat[fatBytes / 4] @ fatOff <format=hex, comment="the next cluster; 0x0FFFFFF8.. - the end, 0x0FFFFFF7 - bad">;
+    else if (g_type == 16)
+        uint16 fat[fatBytes / 2] @ fatOff <format=hex, comment="the next cluster; 0xFFF8.. - the end, 0xFFF7 - bad">;
+    else
+        uchar fat[fatBytes] @ fatOff <format=hex, comment="12-bit entries: two in three bytes">;
+}
+
+if (g_layout32) {
+    local int64 clusSz = g_bps * g_spc;
+    if (dataOff < FileSize())
+        ROOTCHAIN rootDirectory(bootSector.ebpb.rootClus, dataOff, clusSz, fatOff);
+} else if (rootOff + 32 <= FileSize()) {
+    FSeek(rootOff);
+    ROOTDIR rootDirectory(Min(g_rootEnt, MAX_ENTRIES), rootOff + g_rootEnt * 32);
+}

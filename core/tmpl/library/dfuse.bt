@@ -1,0 +1,91 @@
+//! name: DfuSe firmware (STM32 DFU)
+//! extensions: dfu
+//! magic: 0 "44 66 75 53 65"
+
+// DfuSe, ST's DFU file (UM0391): the prefix, the targets (one for each
+// alternate setting of the DFU interface: internal flash, option bytes...)
+// with their elements (data at an address), and the DFU suffix whose CRC is
+// the CRC-32 of the file without its last 4 bytes, not inverted at the end.
+
+LittleEndian();
+
+local int MAX_TARGETS = 255;
+local int MAX_ELEMENTS = 4096;
+
+struct DFUSE_PREFIX {
+    char   szSignature[5] <comment="\"DfuSe\"">;
+    uchar  bVersion <comment="1">;
+    uint32 DFUImageSize <comment="the size of the file without the suffix">;
+    uchar  bTargets;
+};
+
+struct DFUSE_ELEMENT {
+    uint32 dwElementAddress <format=hex>;
+    uint32 dwElementSize;
+    if (dwElementSize > 0 && FTell() + dwElementSize <= FileSize())
+        uchar data[dwElementSize];
+} <read=ElementRead>;
+
+string ElementRead(DFUSE_ELEMENT &e) {
+    return Str("%u bytes at 0x%08X", e.dwElementSize, e.dwElementAddress);
+}
+
+struct DFUSE_TARGET {
+    char   szSignature[6] <comment="\"Target\"">;
+    uchar  bAlternateSetting;
+    uint32 bTargetNamed <comment="non-zero - the target has a name">;
+    char   szTargetName[255];
+    uint32 dwTargetSize <comment="the size of the elements">;
+    uint32 dwNbElements;
+    local int64 end = FTell() + dwTargetSize;
+    local int64 k;
+    local int64 ne = dwNbElements;
+    if (ne > MAX_ELEMENTS) {
+        Warning("%d elements, only %d shown", ne, MAX_ELEMENTS);
+        ne = MAX_ELEMENTS;
+    }
+    for (k = 0; k < ne && FTell() + 8 <= end; k++)
+        DFUSE_ELEMENT element;
+    if (FTell() != end) {
+        Warning("the elements of target %d do not fill dwTargetSize", bAlternateSetting);
+        FSeek(end);
+    }
+} <read=TargetRead>;
+
+string TargetRead(DFUSE_TARGET &t) {
+    return Str("alternate setting %u, \"%s\", %u elements", t.bAlternateSetting, t.szTargetName, t.dwNbElements);
+}
+
+string CrcComment(uint32 &c) {
+    local uint32 want = Checksum("crc32", 0, FileSize() - 4) ^ 0xFFFFFFFF;
+    if (c == want)
+        return "OK";
+    return Str("should be 0x%08X", want);
+}
+
+struct DFU_SUFFIX {
+    uint16 bcdDevice <format=hex>;
+    uint16 idProduct <format=hex>;
+    uint16 idVendor <format=hex>;
+    uint16 bcdDFU <format=hex, comment="0x011A for DfuSe">;
+    char   ucDfuSignature[3] <comment="\"UFD\"">;
+    uchar  bLength <comment="16">;
+    uint32 dwCRC <format=hex, comment=CrcComment>;
+};
+
+DFUSE_PREFIX prefix <open=true>;
+local int t;
+local int nt = prefix.bTargets;
+for (t = 0; t < nt && FTell() + 274 <= FileSize() - 16; t++) {
+    if (ReadString(FTell(), 6) != "Target") {
+        Warning("target %d has no \"Target\" signature", t);
+        break;
+    }
+    DFUSE_TARGET target;
+}
+if (FileSize() >= 16 + 11) {
+    if (FTell() < FileSize() - 16)
+        uchar unknown[FileSize() - 16 - FTell()];
+    FSeek(FileSize() - 16);
+    DFU_SUFFIX suffix <open=true>;
+}

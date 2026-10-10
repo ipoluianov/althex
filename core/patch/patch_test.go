@@ -296,3 +296,44 @@ func TestFormats(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+// A TargetCopy from a few bytes back repeats them: a long run is written
+// in pieces, not a byte at a time, and a failing writer stops it
+func TestBPSLongRun(t *testing.T) {
+	const size = 3<<20 + 7
+	for _, period := range []int{1, 2, 3, 5, 70000} {
+		head := make([]byte, period)
+		for i := range head {
+			head[i] = byte(i*7 + 1)
+		}
+		want := bytes.Repeat(head, size/period+1)[:size]
+		p := []byte("BPS1")
+		p = append(p, bpsNum(0)...)
+		p = append(p, bpsNum(size)...)
+		p = append(p, bpsNum(0)...)
+		p = append(p, bpsNum(uint64(period-1)<<2|bpsTargetRead)...)
+		p = append(p, head...)
+		p = append(p, bpsNum(uint64(size-period-1)<<2|bpsTargetCopy)...)
+		p = append(p, bpsNum(0)...) // from the start of the target
+		p = binary.LittleEndian.AppendUint32(p, crc32.ChecksumIEEE(nil))
+		p = binary.LittleEndian.AppendUint32(p, crc32.ChecksumIEEE(want))
+		p = binary.LittleEndian.AppendUint32(p, crc32.ChecksumIEEE(p))
+		out, err := apply(BPS, p, nil)
+		if err != nil || !bytes.Equal(out, want) {
+			t.Fatalf("period %d: %v, %d bytes, first difference at %d", period, err, len(out), firstDiff(out, want))
+		}
+		w := &limitedWriter{n: 1 << 20}
+		if err := Apply(context.Background(), BPS, bytes.NewReader(p), w, bytes.NewReader(nil), 0); !errors.Is(err, errFull) {
+			t.Fatalf("period %d: a full disk: %v", period, err)
+		}
+	}
+}
+
+func firstDiff(a, b []byte) int {
+	for i := range min(len(a), len(b)) {
+		if a[i] != b[i] {
+			return i
+		}
+	}
+	return min(len(a), len(b))
+}

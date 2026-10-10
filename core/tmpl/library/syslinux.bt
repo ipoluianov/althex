@@ -1,0 +1,259 @@
+//! name: SYSLINUX / ISOLINUX boot loader
+//! extensions: bss, sys
+//! magic: 0x1F8 "FE 02 B2 3E"
+//! magic: 0 "0D 0A 53 59 53 4C 49 4E 55 58 20"
+//! magic: 0 "0D 0A 45 58 54 4C 49 4E 55 58 20"
+//! magic: 0 "FA EA ?? ?? 00 00 90 90"
+
+// SYSLINUX, EXTLINUX and ISOLINUX (syslinux 4-6, libinstaller/syslxint.h,
+// core/diskstart.inc, core/isolinux.asm):
+//
+// - the boot sector (ldlinux.bss, or the first sector of a volume where
+//   SYSLINUX/EXTLINUX is installed): the BPB, the code, LDLINUX_MAGIC
+//   (0x3EB202FE) at 0x1F8, the pointer to the code that loads sector 1 and
+//   55 AA;
+// - ldlinux.sys (alone, or after the boot sector in ldlinux.bin, or
+//   anywhere in a volume): the banner, then the patch area that the
+//   installer fills in, found by LDLINUX_MAGIC at a 4-byte boundary: the
+//   sizes, the checksum, the extended patch area (EPA) with the offsets of
+//   the directory, the subvolume, the ADV pointers, the list of sector
+//   extents, and the offsets in the boot sector of the LBA of sector 1 and
+//   of the RAID patch;
+// - isolinux.bin: the far jump and the boot info table at offset 8 that
+//   mkisofs/xorriso -boot-info-table fill in (the LBA of the PVD and of the
+//   file, its length and the sum of its dwords from offset 64).
+//
+// On a FAT volume the FAT template wins by priority: choose this one by
+// hand to see the patch area.
+
+LittleEndian();
+
+local int64 fsize = FileSize();
+local uint32 LDLINUX_MAGIC = 0x3EB202FE;
+
+// The search for the patch area stops here in a large volume
+local int64 MAX_SEARCH = 64 * 1024 * 1024;
+
+string MagicComment(uint32 &m) {
+    if (m == LDLINUX_MAGIC)
+        return "LDLINUX_MAGIC";
+    return "not LDLINUX_MAGIC 0x3EB202FE";
+}
+
+// ---- The boot sector ----
+
+struct BPB {
+    uint16 bytes_per_sector;
+    uchar  sectors_per_cluster;
+    uint16 reserved_sectors;
+    uchar  fats;
+    uint16 root_entries;
+    uint16 total_sectors16;
+    uchar  media <format=hex>;
+    uint16 sectors_per_fat16;
+    uint16 sectors_per_track;
+    uint16 heads;
+    uint32 hidden_sectors <comment="the sectors before the volume">;
+    uint32 total_sectors32;
+};
+
+struct EBPB16 {
+    uchar  drive <format=hex>;
+    uchar  reserved;
+    uchar  signature <format=hex, comment="0x29: the next three fields are there">;
+    uint32 volume_serial <format=hex>;
+    char   volume_label[11];
+    char   fs_type[8];
+};
+
+struct EBPB32 {
+    uint32 sectors_per_fat;
+    uint16 flags <format=hex>;
+    uint16 version;
+    uint32 root_cluster;
+    uint16 fsinfo_sector;
+    uint16 backup_boot_sector;
+    uchar  reserved[12];
+    EBPB16 ebpb;
+};
+
+struct BOOT_SECTOR {
+    uchar  jump[3] <format=hex>;
+    char   oem_name[8] <comment="SYSLINUX, EXTLINUX or the one of the file system">;
+    BPB    bpb;
+    // FAT32 has no fixed root and no 16-bit FAT size; the boot sector of
+    // the installer has the room of the FAT32 BPB in any case
+    if (bpb.sectors_per_fat16 == 0 && bpb.root_entries == 0)
+        EBPB32 ebpb32;
+    else
+        EBPB16 ebpb;
+    uchar  code[0x1F8 - FTell()] <format=hex>;
+    uint32 bs_magic <format=hex, comment=MagicComment>;
+    uint16 bs_link <format=hex, comment="the address of the code that loads sector 1 (0x7C00 + offset)">;
+    uint16 signature <format=hex, comment="0xAA55">;
+};
+
+// ---- ldlinux.sys ----
+
+string ChecksumComment(uint32 &c) {
+    local int64 n = patch_area.dwords;
+    if (n == 0)
+        return "not set: the file is not installed";
+    if (sysBase + n * 4 > fsize)
+        return "ldlinux.sys is cut";
+    if (n > 1048576)
+        return "too many dwords";
+    local uint64 s = 0;
+    local int64 i;
+    for (i = 0; i < n; i++)
+        s = (s + ReadUInt(sysBase + i * 4)) & 0xFFFFFFFF;
+    if (s == LDLINUX_MAGIC)
+        return "OK";
+    return Str("bad: the dwords sum to 0x%08X, not LDLINUX_MAGIC", s);
+}
+
+string InstanceComment(uint32 &v) {
+    return Str("LDLINUX_MAGIC ^ 0x%08X (the build date)", v ^ LDLINUX_MAGIC);
+}
+
+struct PATCH_AREA {
+    uint32 magic <format=hex, comment=MagicComment>;
+    uint32 instance <format=hex, comment=InstanceComment>;
+    uint16 data_sectors <comment="the sectors of ldlinux.sys, without the ADV">;
+    uint16 adv_sectors <comment="the sectors of the ADV (auxiliary data vector), 2">;
+    uint32 dwords <comment="the dwords of ldlinux.sys the checksum covers">;
+    uint32 checksum <format=hex, comment=ChecksumComment>;
+    uint16 maxtransfer <comment="the most sectors read at once">;
+    uint16 epaoffset <format=hex, comment="the extended patch area, from the start of ldlinux.sys">;
+};
+
+struct EXT_PATCH_AREA {
+    uint16 advptroffset <format=hex, comment="the two LBAs of the ADV, from the start of ldlinux.sys">;
+    uint16 diroffset <format=hex, comment="the directory of ldlinux.sys">;
+    uint16 dirlen;
+    uint16 subvoloffset <format=hex, comment="the btrfs subvolume">;
+    uint16 subvollen;
+    uint16 secptroffset <format=hex, comment="the sector extents">;
+    uint16 secptrcnt <comment="the room for extents">;
+    uint16 sect1ptr0 <format=hex, comment="in the boot sector: the low dword of the LBA of sector 1">;
+    uint16 sect1ptr1 <format=hex, comment="in the boot sector: the high dword of the LBA of sector 1">;
+    uint16 raidpatch <format=hex, comment="in the boot sector: the place for INT 18h (CD 18) in RAID mode">;
+};
+
+struct EXTENT {
+    uint64 lba;
+    uint16 len <comment="sectors">;
+} <read=ExtentRead>;
+
+string ExtentRead(EXTENT &e) {
+    return Str("LBA %u, %u sectors", e.lba, e.len);
+}
+
+// ---- isolinux.bin ----
+
+string BiCsumComment(uint32 &c) {
+    local int64 n = boot_info_table.bi_length;
+    if (n == 0xDEADBEEF || c == 0xDEADBEEF)
+        return "not filled in: no -boot-info-table";
+    if (n > fsize)
+        return "the file is cut";
+    if (n > 4 * 1048576)
+        return "too long";
+    local uint64 s = 0;
+    local int64 i;
+    for (i = 64; i + 4 <= n; i += 4)
+        s = (s + ReadUInt(i)) & 0xFFFFFFFF;
+    if (s == c)
+        return "OK";
+    return Str("bad: the dwords from 64 sum to 0x%08X", s);
+}
+
+struct BOOT_INFO_TABLE {
+    uint32 bi_pvd <comment="the LBA of the primary volume descriptor (2048-byte sectors)">;
+    uint32 bi_file <comment="the LBA of isolinux.bin">;
+    uint32 bi_length <comment="the length of isolinux.bin">;
+    uint32 bi_csum <format=hex, comment=BiCsumComment>;
+    uint32 bi_reserved[10] <format=hex>;
+};
+
+// ---- The file ----
+
+local int64 sysBase = -1;
+
+if (fsize >= 64 && ReadUByte(0) == 0xFA && ReadUByte(1) == 0xEA && ReadUShort(4) == 0 &&
+    ReadUShort(6) == 0x9090) {
+    uchar jump[8] <format=hex, comment="CLI; JMP 0:start - the far jump makes CS 0">;
+    BOOT_INFO_TABLE boot_info_table <open=true>;
+    uchar code[fsize - FTell()];
+    Exit(0);
+}
+
+local int bootSector = fsize >= 512 && ReadUShort(510) == 0xAA55 && ReadUInt(0x1F8) == LDLINUX_MAGIC;
+if (bootSector)
+    BOOT_SECTOR boot_sector <open=true>;
+
+// The patch area: LDLINUX_MAGIC at a dword boundary, in the first sector
+// of ldlinux.sys after the banner
+local int64 at = bootSector ? 512 : 0;
+local int64 limit = Min(fsize, MAX_SEARCH);
+local int64 found = -1;
+while (at + 32 <= limit) {
+    at = FindHex("FE 02 B2 3E", at, limit);
+    if (at < 0)
+        break;
+    if (at % 4 == 0 && at + 32 <= fsize) {
+        found = at;
+        break;
+    }
+    at++;
+}
+
+if (found < 0) {
+    if (!bootSector)
+        Warning("no patch area (LDLINUX_MAGIC) found");
+    Exit(0);
+}
+
+sysBase = found - found % 512;
+FSeek(sysBase);
+if (found > sysBase)
+    char banner[found - sysBase] <comment="the banner: SYSLINUX and the version">;
+PATCH_AREA patch_area <open=true>;
+
+local int64 epa = sysBase + patch_area.epaoffset;
+if (patch_area.epaoffset == 0 || epa + 20 > fsize) {
+    Warning("the extended patch area is out of the file");
+    Exit(0);
+}
+EXT_PATCH_AREA ext_patch_area @ epa <open=true>;
+
+if (ext_patch_area.advptroffset > 0 && sysBase + ext_patch_area.advptroffset + 16 <= fsize)
+    uint64 adv_lba[2] @ (sysBase + ext_patch_area.advptroffset) <comment="the LBAs of the two copies of the ADV">;
+if (ext_patch_area.diroffset > 0 && ext_patch_area.dirlen > 0 &&
+    sysBase + ext_patch_area.diroffset + ext_patch_area.dirlen <= fsize)
+    char current_dir[ext_patch_area.dirlen] @ (sysBase + ext_patch_area.diroffset) <comment="the directory of ldlinux.sys">;
+if (ext_patch_area.subvoloffset > 0 && ext_patch_area.subvollen > 0 &&
+    sysBase + ext_patch_area.subvoloffset + ext_patch_area.subvollen <= fsize)
+    char subvolume[ext_patch_area.subvollen] @ (sysBase + ext_patch_area.subvoloffset) <comment="the btrfs subvolume">;
+
+// The extents the installer filled in: up to the first empty one
+local int64 sp = sysBase + ext_patch_area.secptroffset;
+local int64 k;
+if (ext_patch_area.secptroffset > 0) {
+    FSeek(sp);
+    for (k = 0; k < ext_patch_area.secptrcnt && k < 4096 && FTell() + 10 <= fsize; k++) {
+        if (ReadUShort(FTell() + 8) == 0)
+            break;
+        EXTENT sectors;
+    }
+}
+
+// The patches in the boot sector, when it is in the same file
+if (bootSector) {
+    if (ext_patch_area.sect1ptr0 >= 0x3E && ext_patch_area.sect1ptr0 + 4 <= 0x1F8)
+        uint32 sect1_lba_low @ ext_patch_area.sect1ptr0 <comment="the LBA of sector 1 of ldlinux.sys, the low dword">;
+    if (ext_patch_area.sect1ptr1 >= 0x3E && ext_patch_area.sect1ptr1 + 4 <= 0x1F8)
+        uint32 sect1_lba_high @ ext_patch_area.sect1ptr1 <comment="the high dword">;
+    if (ext_patch_area.raidpatch >= 0x3E && ext_patch_area.raidpatch + 2 <= 0x1F8)
+        uint16 raid_patch @ ext_patch_area.raidpatch <format=hex, comment="0x18CD (INT 18h): RAID mode, on an error the BIOS tries the next disk">;
+}

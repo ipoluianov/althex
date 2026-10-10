@@ -1,0 +1,138 @@
+//! name: ESP32 / ESP8266 firmware image
+//! extensions: bin
+//! magic: 0 "E9"
+//! priority: -2
+
+// The application and bootloader images of Espressif chips (esptool's
+// image format): the header, the extended header of the ESP32 family (the
+// chip ID), the segments with their load addresses, zeros to the last
+// byte of a 16-byte block, the checksum there (0xEF XOR all the bytes of
+// the segments) and, when hash_appended is 1, the SHA-256 of the image
+// before it. ESP8266 v1 images have no extended header: told by the chip
+// ID and the reserved bytes, which must be zero.
+
+LittleEndian();
+
+enum <uchar> SPI_MODE { QIO, QOUT, DIO, DOUT, FAST_READ, SLOW_READ };
+
+enum <uint16> CHIP_ID {
+    ESP32 = 0, ESP32_S2 = 2, ESP32_C3 = 5, ESP32_S3 = 9, ESP32_C2 = 12,
+    ESP32_C6 = 13, ESP32_H2 = 16, ESP32_P4 = 18, ESP32_C61 = 20, ESP32_C5 = 23
+};
+
+string FlashComment(uchar &v) {
+    local string sizes[8];
+    sizes[0] = "1MB"; sizes[1] = "2MB"; sizes[2] = "4MB"; sizes[3] = "8MB";
+    sizes[4] = "16MB"; sizes[5] = "32MB"; sizes[6] = "64MB"; sizes[7] = "128MB";
+    local string f = "";
+    switch (v & 15) {
+        case 0: f = "40 MHz"; break;
+        case 1: f = "26 MHz"; break;
+        case 2: f = "20 MHz"; break;
+        case 15: f = "80 MHz"; break;
+        default: f = Str("frequency code %d", v & 15);
+    }
+    return Str("size %s (ESP32 codes), %s", sizes[(v >> 4) & 7], f);
+}
+
+struct ESP_HEADER {
+    uchar    magic <format=hex, comment="0xE9">;
+    uchar    segment_count;
+    SPI_MODE spi_mode;
+    uchar    spi_speed_size <format=hex, comment=FlashComment>;
+    uint32   entry_addr <format=hex>;
+};
+
+struct ESP_EXT_HEADER {
+    uchar   wp_pin <format=hex, comment="0xEE - disabled">;
+    uchar   spi_pin_drv[3];
+    CHIP_ID chip_id;
+    uchar   min_chip_rev <comment="deprecated: min_chip_rev_full">;
+    uint16  min_chip_rev_full <comment="major * 100 + minor">;
+    uint16  max_chip_rev_full <comment="major * 100 + minor">;
+    uchar   reserved[4];
+    uchar   hash_appended <comment="1 - the SHA-256 follows the checksum">;
+};
+
+struct ESP_SEGMENT {
+    uint32 load_addr <format=hex>;
+    uint32 data_len;
+    if (data_len > 0 && FTell() + data_len <= FileSize())
+        uchar data[data_len];
+} <read=SegmentRead>;
+
+string SegmentRead(ESP_SEGMENT &s) {
+    return Str("%u bytes at 0x%08X", s.data_len, s.load_addr);
+}
+
+// The checksum of the segments
+local uchar sum = 0xEF;
+
+// XorBytes is the XOR of the bytes, read 8 at a time
+uchar XorBytes(int64 start, int64 size) {
+    local uint64 x = 0;
+    local int64 p = start;
+    local int64 end = start + size;
+    while (p + 8 <= end) {
+        x ^= ReadUInt64(p);
+        p += 8;
+    }
+    local uchar r = (x ^ (x >> 8) ^ (x >> 16) ^ (x >> 24) ^ (x >> 32) ^ (x >> 40) ^ (x >> 48) ^ (x >> 56)) & 0xFF;
+    while (p < end) {
+        r ^= ReadUByte(p);
+        p++;
+    }
+    return r;
+}
+
+string ChecksumComment(uchar &c) {
+    if (c == sum)
+        return "OK";
+    return Str("should be 0x%02X", sum);
+}
+
+local int64 imageStart = 0;
+string HashComment(uchar &h[]) {
+    local string want = Checksum("sha256", imageStart, startof(h) - imageStart);
+    local string got = "";
+    local int i;
+    for (i = 0; i < 32; i++)
+        got += Str("%02x", ReadUByte(startof(h) + i));
+    if (ToLower(want) == got)
+        return "OK";
+    return "should be " + ToLower(want);
+}
+
+ESP_HEADER header <open=true>;
+
+// The extended header: a known chip ID and zero reserved bytes
+local int ext = 0;
+if (FileSize() >= 24 && ReadUInt(19) == 0 && ReadUByte(23) <= 1) {
+    switch (ReadUShort(12)) {
+        case 0: case 2: case 5: case 9: case 12: case 13: case 16: case 18: case 20: case 23:
+            ext = 1;
+    }
+}
+if (ext)
+    ESP_EXT_HEADER extended_header <open=true>;
+else
+    Printf("no extended header: an ESP8266 image\n");
+
+local int s;
+for (s = 0; s < header.segment_count && FTell() + 8 <= FileSize(); s++) {
+    ESP_SEGMENT segment;
+    if (segment.data_len > 0 && exists(segment.data))
+        sum ^= XorBytes(FTell() - segment.data_len, segment.data_len);
+}
+
+// Zeros to the last byte of a 16-byte block, the checksum there
+local int64 pad = 15 - FTell() % 16;
+if (FTell() + pad < FileSize()) {
+    if (pad > 0)
+        uchar padding[pad];
+    uchar checksum <format=hex, comment=ChecksumComment>;
+    if (ext && extended_header.hash_appended == 1 && FTell() + 32 <= FileSize())
+        uchar sha256[32] <comment=HashComment>;
+    if (FTell() < FileSize())
+        uchar rest[FileSize() - FTell()] <comment="a signature block or other data after the image">;
+}

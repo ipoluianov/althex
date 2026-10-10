@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/ipoluianov/althex/internal/fuzzguard"
 )
 
 func FuzzParseIntelHex(f *testing.F) {
@@ -13,6 +15,7 @@ func FuzzParseIntelHex(f *testing.F) {
 	f.Add(":020000021200EA\n:01001000559A\n:00000001FF\n")
 	f.Add(":0400000508000130BE\n:0100020043BA\n:0100000041BE\n:00000001FF\n")
 	f.Fuzz(func(t *testing.T, s string) {
+		defer fuzzguard.Start(t.Name())()
 		segs, err := ParseIntelHex(strings.NewReader(s))
 		if err != nil {
 			return
@@ -37,6 +40,7 @@ func FuzzParseSRecord(f *testing.F) {
 	f.Add("S3070800000041426D\nS70500000000FA\n")
 	f.Add("S104000041BA\nS604000001FA\nS9030000FC\n")
 	f.Fuzz(func(t *testing.T, s string) {
+		defer fuzzguard.Start(t.Name())()
 		segs, err := ParseSRecord(strings.NewReader(s))
 		if err != nil {
 			return
@@ -61,6 +65,7 @@ func FuzzParseArray(f *testing.F) {
 	f.Add("const a: array[0..1] of Byte = ($4D, $5a); // x")
 	f.Add("let x: [u8; 2] = [0x4D_u8, 0b1u8, 0o17]; /* y */")
 	f.Fuzz(func(t *testing.T, s string) {
+		defer fuzzguard.Start(t.Name())()
 		data, err := ParseArray(s)
 		if err != nil {
 			return
@@ -79,6 +84,7 @@ func FuzzParseEscaped(f *testing.F) {
 	f.Add(`"Ж\U0001F600\101\0"`)
 	f.Add("\x00A\xff1\"")
 	f.Fuzz(func(t *testing.T, s string) {
+		defer fuzzguard.Start(t.Name())()
 		// Any bytes are an escaped string and back
 		b := []byte(s)
 		got, err := ParseEscaped(FormatEscaped(b))

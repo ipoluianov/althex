@@ -1,0 +1,100 @@
+//! name: Android vendor boot image
+//! extensions: img
+//! magic: 0 "56 4E 44 52 42 4F 4F 54"
+
+// Android vendor_boot.img (bootimg.h), header versions 3 and 4: the
+// header, the vendor ramdisks, the DTB, the vendor ramdisk table (v4) and
+// the bootconfig (v4), each from a page boundary
+
+LittleEndian();
+
+local int64 fsize = FileSize();
+
+struct VENDOR_BOOT_HEADER {
+    char   magic[8];
+    uint32 header_version;
+    uint32 page_size;
+    uint32 kernel_addr <format=hex>;
+    uint32 ramdisk_addr <format=hex>;
+    uint32 vendor_ramdisk_size;
+    char   cmdline[2048];
+    uint32 tags_addr <format=hex>;
+    char   name[16];
+    uint32 header_size;
+    uint32 dtb_size;
+    uint64 dtb_addr <format=hex>;
+    if (header_version >= 4) {
+        uint32 vendor_ramdisk_table_size;
+        uint32 vendor_ramdisk_table_entry_num;
+        uint32 vendor_ramdisk_table_entry_size;
+        uint32 bootconfig_size;
+    }
+};
+
+enum <uint32> VENDOR_RAMDISK_TYPE {
+    VENDOR_RAMDISK_TYPE_NONE, VENDOR_RAMDISK_TYPE_PLATFORM,
+    VENDOR_RAMDISK_TYPE_RECOVERY, VENDOR_RAMDISK_TYPE_DLKM
+};
+
+struct VENDOR_RAMDISK_ENTRY(int64 size) {
+    uint32 ramdisk_size;
+    uint32 ramdisk_offset <format=hex, comment="from the start of the vendor ramdisks">;
+    VENDOR_RAMDISK_TYPE ramdisk_type;
+    char   ramdisk_name[32];
+    uint32 board_id[16] <format=hex>;
+    if (size > 108)
+        uchar extra[size - 108];
+} <read=EntryRead>;
+
+string EntryRead(VENDOR_RAMDISK_ENTRY &e) {
+    return Str("%s %s, %d bytes", EnumToString(e.ramdisk_type), e.ramdisk_name, e.ramdisk_size);
+}
+
+if (fsize < 2128) {
+    Warning("the header is cut");
+    Exit(0);
+}
+
+VENDOR_BOOT_HEADER header <open=true>;
+
+local int64 page = header.page_size;
+if (page < 512 || page > 131072) {
+    Warning("page size %d is not valid", page);
+    Exit(0);
+}
+
+int64 Align(int64 n) {
+    return (n + page - 1) / page * page;
+}
+
+local int64 rdOff = Align(header.header_size);
+local int64 dtbOff = rdOff + Align(header.vendor_ramdisk_size);
+local int64 tableOff = dtbOff + Align(header.dtb_size);
+local int64 tableSize = 0, entries = 0, entrySize = 0, bcSize = 0;
+if (header.header_version >= 4) {
+    tableSize = header.vendor_ramdisk_table_size;
+    entries = header.vendor_ramdisk_table_entry_num;
+    entrySize = header.vendor_ramdisk_table_entry_size;
+    bcSize = header.bootconfig_size;
+}
+local int64 bcOff = tableOff + Align(tableSize);
+
+if (header.vendor_ramdisk_size > 0 && rdOff + header.vendor_ramdisk_size <= fsize) {
+    FSeek(rdOff);
+    uchar vendor_ramdisks[header.vendor_ramdisk_size];
+}
+if (header.dtb_size > 0 && dtbOff + header.dtb_size <= fsize) {
+    FSeek(dtbOff);
+    uchar dtb[header.dtb_size];
+}
+local int64 i;
+if (entries > 0 && entrySize >= 108 && entries <= 4096 && tableOff + entries * entrySize <= fsize) {
+    for (i = 0; i < entries; i++) {
+        FSeek(tableOff + i * entrySize);
+        VENDOR_RAMDISK_ENTRY vendor_ramdisk_table(entrySize);
+    }
+}
+if (bcSize > 0 && bcOff + bcSize <= fsize) {
+    FSeek(bcOff);
+    char bootconfig[bcSize];
+}

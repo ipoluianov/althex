@@ -67,6 +67,8 @@ func (c *MainForm) detectTemplate(t *Tab) {
 	}
 	tm := tmpl.Detect(templates(), t.doc, t.doc.Path())
 	if tm == nil {
+		// Not a format of a template: maybe a firmware to analyze
+		c.firmware.autoAnalyze(t, false)
 		return
 	}
 	c.applyTemplate(t, tm, false, func() {
@@ -78,6 +80,9 @@ func (c *MainForm) detectTemplate(t *Tab) {
 			}
 		}
 	})
+	// A format of firmware (ELF, UF2, DfuSe, ESP images) is analyzed too,
+	// when it is of a microcontroller
+	c.firmware.autoAnalyze(t, true)
 }
 
 // applyTemplate runs the template over the document of the tab in the
@@ -209,6 +214,13 @@ func newStructurePage(c *MainForm) *StructurePage {
 	p.tree.SetYExpandable(true)
 	p.tree.SetOnExpand(p.expand)
 	p.tree.SetOnSelectionChanged(p.selected)
+	// A value is typed in its cell: F2 or a double click
+	for _, col := range []int{0, 2, 3, 4} {
+		p.tree.SetColumnReadOnly(col, true)
+	}
+	p.tree.SetEditTriggerF2(true)
+	p.tree.SetEditTriggerDoubleClick(true)
+	p.tree.SetOnCellChanged(p.edited)
 	p.AddWidget(1, 0, p.tree)
 
 	p.lblInfo = ui.NewLabel("")
@@ -358,6 +370,7 @@ func (p *StructurePage) addNode(parent *ui.TreeNode, n *tmpl.Node) *ui.TreeNode 
 	tn.SetText(3, fmt.Sprintf("%X", n.Off))
 	tn.SetText(4, fmt.Sprint(n.Size))
 	tn.SetData(n)
+	tn.SetReadOnly(1, !n.Editable())
 	if n.Comment != "" {
 		tn.SetText(1, n.Value()+"  // "+n.Comment)
 	}
@@ -392,13 +405,62 @@ func (p *StructurePage) selected(tn *ui.TreeNode) {
 	t.view().Select(n.Off, n.Size)
 }
 
+// edited writes the value typed in the tree into the document as one edit,
+// then runs the template again to show it
+func (p *StructurePage) edited(tn *ui.TreeNode, col int, text string) bool {
+	n, _ := tn.Data().(*tmpl.Node)
+	t := p.c.tab()
+	if n == nil || t == nil || col != 1 {
+		return false
+	}
+	cur := make([]byte, n.Size)
+	if _, err := t.doc.ReadAt(cur, n.Off); err != nil {
+		ui.ShowToast(p.c, err.Error(), ui.ToastError)
+		return false
+	}
+	b, err := n.Encode(text, cur)
+	if err == nil {
+		err = t.doc.Overwrite(n.Off, b, doc.EditOptions{Kind: "value"})
+	}
+	if err != nil {
+		ui.ShowToast(p.c, err.Error(), ui.ToastError)
+		return false
+	}
+	t.view().Select(n.Off, n.Size)
+	if st := t.tmpl; st != nil {
+		p.c.applyTemplate(t, st.tmpl, false, nil)
+	}
+	return true
+}
+
+// syncOffset is the byte a panel following the hex view shows: the start
+// of the selection when there is one (the caret is past its end, in the
+// next field or instruction), else the caret
+func syncOffset(caret, selStart, selSize int64) int64 {
+	if selSize > 0 {
+		return selStart
+	}
+	return caret
+}
+
 // syncToCaret shows the field under the caret in the tree
 func (p *StructurePage) syncToCaret() {
 	t := p.c.tab()
 	if t == nil || p.shownFor == nil || !p.IsVisible() {
 		return
 	}
-	n := p.shownFor.Root.NodeAt(t.view().Caret())
+	// The bytes of the field chosen in the tree are selected: it stays
+	// chosen (inside a struct the deepest field at its start would win)
+	v := t.view()
+	selStart, selSize := v.Selection()
+	if p.lastNode != nil && selSize > 0 && selStart == p.lastNode.Off && selSize == p.lastNode.Size {
+		return
+	}
+	n := p.shownFor.Root.NodeAt(syncOffset(v.Caret(), selStart, selSize))
+	// An element of an array of a simple type: the array, not opened for one byte
+	if n != nil && n.Parent != nil && n.Parent.Kind == tmpl.NodeArray {
+		n = n.Parent
+	}
 	if n == nil || p.lastNode != nil && n.Off == p.lastNode.Off && n.Name == p.lastNode.Name {
 		return
 	}

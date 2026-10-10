@@ -143,7 +143,7 @@ func mdRealFile(t *testing.T, ext, file string) {
 	if res.Err != nil {
 		t.Errorf("%s: %v", path, res.Err)
 	}
-	if d := time.Since(start); d > 10*time.Second {
+	if d := time.Since(start); d > 10*time.Second && !raceEnabled {
 		t.Errorf("%s: %v", path, d)
 	}
 	t.Logf("%s: %d bytes, %d fields, %v", path, len(data), res.Nodes, res.Duration)
@@ -194,14 +194,14 @@ func TestZIPTemplate(t *testing.T) {
 	mdWant(t, res, "localFile[0].signature", "0x04034B50")
 	mdWant(t, res, "localFile[0].lastModFileTime", "13:45:30")
 	mdWant(t, res, "localFile[0].lastModFileDate", "2024-05-17")
-	mdWant(t, res, "localFile[0]", "stored.txt (20 → 20 bytes, stored)")
+	mdWant(t, res, "localFile[0]", "stored.txt (20 -> 20 bytes, stored)")
 	if n := res.Root.Find("localFile[0].fileData"); n == nil || n.Size != 20 {
 		t.Errorf("stored data %+v", n)
 	}
 	mdWant(t, res, "localFile[1].compressionMethod", "DEFLATE (8)")
 	mdWant(t, res, "localFile[1].flags.dataDescriptor", "1")
 	mdWant(t, res, "localFile[1].compressedSize", "0")
-	mdWantPrefix(t, res, "localFile[1]", "dir/deflated.txt (950 → ")
+	mdWantPrefix(t, res, "localFile[1]", "dir/deflated.txt (950 -> ")
 	mdWant(t, res, "localFile[1].dataDescriptor.signature", "0x08074B50")
 	mdWant(t, res, "localFile[1].dataDescriptor.uncompressedSize", "950")
 	cs := value(t, res, "localFile[1].dataDescriptor.compressedSize")
@@ -211,12 +211,12 @@ func TestZIPTemplate(t *testing.T) {
 	if n := res.Root.Find("localFile[2].fileData"); n == nil || n.Size != 10 {
 		t.Errorf("streamed stored data %+v", n)
 	}
-	mdWant(t, res, "localFile[2]", "streamed.bin (10 → 10 bytes, stored)")
+	mdWant(t, res, "localFile[2]", "streamed.bin (10 -> 10 bytes, stored)")
 	if n := res.Root.Find("centralDir"); n == nil || n.ChildCount() != 3 {
 		t.Fatalf("central directory %+v", n)
 	}
 	mdWant(t, res, "centralDir[1].fileName", `"dir/deflated.txt"`)
-	mdWantPrefix(t, res, "centralDir[1]", "dir/deflated.txt (950 → ")
+	mdWantPrefix(t, res, "centralDir[1]", "dir/deflated.txt (950 -> ")
 	mdWant(t, res, "endOfCentralDir.totalNumberOfCentralDirectoryRecords", "3")
 	mdWant(t, res, "endOfCentralDir.comment", `"an archive comment"`)
 	if res.Root.Find("unknownData") != nil {
@@ -248,7 +248,7 @@ func TestZIPSelfExtracting(t *testing.T) {
 		t.Fatalf("local header %+v", n)
 	}
 	mdWant(t, res, "localFile[0].fileName", `"stored.txt"`)
-	mdWantPrefix(t, res, "localFile[1]", "dir/deflated.txt (950 → ")
+	mdWantPrefix(t, res, "localFile[1]", "dir/deflated.txt (950 -> ")
 	if n := res.Root.Find("localFile[2].fileData"); n == nil || n.Size != 10 {
 		t.Errorf("streamed data %+v", n)
 	}
@@ -292,12 +292,12 @@ func TestZIP64(t *testing.T) {
 	for _, lead := range []int{0, 300} {
 		d := append(bytes.Repeat([]byte{'#'}, lead), data...)
 		res := libraryRun(t, d, "a.zip", "zip.bt")
-		mdWant(t, res, "localFile", "a.txt (5 → 5 bytes, stored)")
+		mdWant(t, res, "localFile", "a.txt (5 -> 5 bytes, stored)")
 		mdWant(t, res, "localFile.extraField.field.compressedSize", "5")
 		if n := res.Root.Find("localFile.fileData"); n == nil || n.Size != 5 || n.Off != int64(lead+30+5+20) {
 			t.Errorf("data %+v", n)
 		}
-		mdWant(t, res, "centralDir", "a.txt (5 → 5 bytes, stored)")
+		mdWant(t, res, "centralDir", "a.txt (5 -> 5 bytes, stored)")
 		mdWant(t, res, "centralDir.extraField.field.relativeHeaderOffset", "0x0000000000000000")
 		mdWant(t, res, "centralDir.versionMadeBy", "3.0 UNIX")
 		mdWant(t, res, "zip64EndOfCentralDir.totalNumberOfCentralDirectoryRecords", "1")
@@ -403,7 +403,7 @@ func TestPDFBig(t *testing.T) {
 	data := mdMakePDF(5 << 20)
 	start := time.Now()
 	res := libraryRun(t, data, "big.pdf", "pdf.bt")
-	if d := time.Since(start); d > 10*time.Second {
+	if d := time.Since(start); d > 10*time.Second && !raceEnabled {
 		t.Errorf("%v for %d bytes", d, len(data))
 	}
 	if n := res.Root.Find("obj[4].streamData"); n == nil || n.Size != 5<<20 {
@@ -425,7 +425,7 @@ func TestPDFBig(t *testing.T) {
 		t.Fatalf("objects %+v", n)
 	}
 	t.Logf("%d objects, %d bytes: %v", 20000, b.Len(), time.Since(start))
-	if d := time.Since(start); d > 20*time.Second {
+	if d := time.Since(start); d > 20*time.Second && !raceEnabled {
 		t.Errorf("%v", d)
 	}
 }

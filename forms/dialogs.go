@@ -68,9 +68,11 @@ type ValueDialog struct {
 	title     string
 	txt       *ui.TextBox
 	lblError  *ui.Label
+	lblHint   *ui.Label
 	btnOK     *ui.Button
 	btnCancel *ui.Button
 	onAccept  func(text string) error
+	checking  bool // the value is being checked by the window below
 }
 
 func NewValueDialog(title, label, value string, onAccept func(text string) error) *ValueDialog {
@@ -89,9 +91,13 @@ func NewValueDialog(title, label, value string, onAccept func(text string) error
 	c.txt.SetText(value)
 	c.txt.SetXExpandable(true)
 	content.AddWidget(0, 1, c.txt)
+	c.lblHint = ui.NewLabel("")
+	c.lblHint.SetForegroundColor(colorSecondaryText.get())
+	c.lblHint.SetVisible(false)
+	content.AddWidget(1, 1, c.lblHint)
 	c.lblError = ui.NewLabel("")
 	c.lblError.SetForegroundColor(colorModified.get())
-	content.AddWidget(1, 1, c.lblError)
+	content.AddWidget(2, 1, c.lblError)
 
 	c.btnOK = ui.NewButton(ui.UIText().OK)
 	c.btnOK.SetOnClick(c.accept)
@@ -103,7 +109,7 @@ func NewValueDialog(title, label, value string, onAccept func(text string) error
 
 	c.OnDialogShow = func() {
 		c.Form().SetTitle(c.title)
-		c.Form().SetSize(460, 160)
+		c.Form().SetSize(460, 150)
 		c.Form().MoveToCenterOfParent()
 		c.Form().SetAcceptButton(c.btnOK)
 		c.Form().SetCancelButton(c.btnCancel)
@@ -113,24 +119,40 @@ func NewValueDialog(title, label, value string, onAccept func(text string) error
 	return &c
 }
 
+// SetHint shows a line under the field: what can be typed there
+func (c *ValueDialog) SetHint(text string) {
+	c.lblHint.SetText(text)
+	c.lblHint.SetVisible(text != "")
+}
+
 func (c *ValueDialog) accept() {
-	text := c.txt.Text()
-	// The check runs on the window below, which owns the documents; the
-	// dialog waits for its answer
-	errc := make(chan error, 1)
-	c.RunInParent(func() { errc <- c.onAccept(text) })
-	if err := <-errc; err != nil {
-		c.lblError.SetText(err.Error())
+	if c.checking {
 		return
 	}
-	c.Form().Close()
+	c.checking = true
+	text := c.txt.Text()
+	dlg := c.Form()
+	// The check runs on the window below, which owns the documents; its
+	// answer comes back to the dialog the same way. Waiting for it here
+	// would hang: the windows may share one thread (they do on Linux)
+	c.RunInParent(func() {
+		err := c.onAccept(text)
+		dlg.Invoke(func() {
+			c.checking = false
+			if err != nil {
+				c.lblError.SetText(err.Error())
+				return
+			}
+			dlg.Close()
+		})
+	})
 }
 
 // NewGoToDialog asks for an offset to go to: a number or an expression,
 // "+n" and "-n" from the caret (NAV-1)
 func NewGoToDialog(v *hexview.View, jump func(off int64)) *ValueDialog {
 	caret := v.Caret()
-	return NewValueDialog(T().GoToTitle, T().GoToLabel, "0x"+strconv.FormatInt(caret, 16), func(s string) error {
+	d := NewValueDialog(T().GoToTitle, T().GoToLabel, "0x"+strconv.FormatInt(caret, 16), func(s string) error {
 		off, err := evalOffset(s, caret, v.Document().Size())
 		if err != nil {
 			return err
@@ -138,6 +160,8 @@ func NewGoToDialog(v *hexview.View, jump func(off int64)) *ValueDialog {
 		jump(off)
 		return nil
 	})
+	d.SetHint(T().GoToHint)
+	return d
 }
 
 // evalOffset reads an offset typed by the user: an expression like
@@ -146,6 +170,14 @@ func NewGoToDialog(v *hexview.View, jump func(off int64)) *ValueDialog {
 func evalOffset(s string, caret, size int64) (int64, error) {
 	vars := map[string]int64{"cursor": caret, "caret": caret, "size": size, "end": size}
 	off, err := expr.Offset(s, caret, vars)
+	if err != nil {
+		// Hex as the view shows it, without 0x: "8A3D" (a number of digits
+		// only stays decimal)
+		h := strings.TrimSpace(s)
+		if n, herr := strconv.ParseInt(h, 16, 64); herr == nil && strings.ContainsAny(strings.ToUpper(h), "ABCDEF") {
+			off, err = n, nil
+		}
+	}
 	if err != nil {
 		return 0, err
 	}

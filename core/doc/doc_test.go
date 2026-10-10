@@ -8,6 +8,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/ipoluianov/althex/core/source"
 )
 
 // readAll returns all the bytes of the document
@@ -481,8 +483,25 @@ func randomEdits(t *testing.T, seed uint64, steps int) {
 				continue
 			}
 			d.Sync()
+			saved := !d.Modified()
 			crash(d)
 			list, _ := FindJournals(journals)
+			if saved {
+				// The state is the file: nothing is offered, it is opened again
+				if len(list) != 0 {
+					t.Fatalf("journals of a saved state: %d", len(list))
+				}
+				rd, err := Open(path, Options{JournalDir: journals})
+				if err != nil {
+					t.Fatal(err)
+				}
+				d = rd
+				states = map[int][]byte{0: bytes.Clone(model)}
+				ids = []int{0}
+				edited = false
+				check("reopen saved")
+				continue
+			}
 			if len(list) != 1 {
 				t.Fatalf("journals: %d, want 1", len(list))
 			}
@@ -543,5 +562,56 @@ func TestEditedMarks(t *testing.T) {
 	// After the insert the bytes 8.. are at other offsets than in the file
 	if want := "..EE....EEE"; got != want {
 		t.Fatalf("marks %s, want %s", got, want)
+	}
+}
+
+func TestOpenSource(t *testing.T) {
+	src := source.NewMemory([]byte("0123456789"))
+	d, err := OpenSource(src, "disk image")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer d.Close()
+	if !d.ReadOnly() || d.Name() != "disk image" || d.Path() != "" {
+		t.Fatal("a document over a source")
+	}
+	// The bytes of the source are not edits; the ones written are
+	marks := make([]bool, 10)
+	d.Snapshot().Edited(0, marks)
+	for i, m := range marks {
+		if m {
+			t.Fatalf("byte %d of the source is marked edited", i)
+		}
+	}
+	d.SetReadOnly(false)
+	d.Overwrite(0, []byte("ab"), EditOptions{})
+	if got := string(readAll(t, d)); got != "ab23456789" {
+		t.Fatalf("got %q", got)
+	}
+	d.Snapshot().Edited(0, marks)
+	if !marks[0] || !marks[1] || marks[2] {
+		t.Fatalf("edited marks %v", marks)
+	}
+	if err := d.Save(SaveOptions{}); err != ErrNoPath {
+		t.Fatalf("saving without a name: %v", err)
+	}
+	path := filepath.Join(t.TempDir(), "copy.bin")
+	if err := d.Save(SaveOptions{Path: path}); err != nil {
+		t.Fatal(err)
+	}
+	if bs, _ := os.ReadFile(path); string(bs) != "ab23456789" {
+		t.Fatalf("saved %q", bs)
+	}
+}
+
+func TestAlignRanges(t *testing.T) {
+	// Touching ranges merge; the last one stops at the size
+	got := alignRanges([]rng{{10, 5}, {4000, 200}, {9000, 1}}, 4096, 10000)
+	if len(got) != 1 || got[0] != (rng{0, 10000}) {
+		t.Fatalf("%v", got)
+	}
+	got = alignRanges([]rng{{10, 5}, {20000, 1}}, 4096, 30000)
+	if len(got) != 2 || got[0] != (rng{0, 4096}) || got[1] != (rng{16384, 4096}) {
+		t.Fatalf("%v", got)
 	}
 }

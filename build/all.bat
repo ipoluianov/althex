@@ -7,3 +7,7 @@ for %%t in (windows:amd64 linux:amd64 linux:arm64 darwin:arm64) do (
     call "%~dp0_build.bat" %%a %%b || exit /b 1
   )
 )
+rem Checksums of the release files (6.3 of the spec), in the format of sha256sum
+for /d %%d in ("%~dp0..\bin\%BUILD_STAMP%-*") do (
+  powershell -NoProfile -Command "Get-ChildItem -File '%%d' | Where-Object Name -ne 'SHA256SUMS' | Sort-Object Name | ForEach-Object { (Get-FileHash -Algorithm SHA256 $_.FullName).Hash.ToLower() + '  ' + $_.Name } | Set-Content -Encoding ascii '%%d\SHA256SUMS'"
+)

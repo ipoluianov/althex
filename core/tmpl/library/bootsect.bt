@@ -1,0 +1,99 @@
+//! name: Windows boot sector (NTFS / FAT)
+//! extensions: bs, bin, bootsect
+//! magic: 3 "4E 54 46 53 20 20 20 20"
+
+// The boot sector of a volume formatted by Windows: the jump, the OEM
+// name, the BIOS parameter block (NTFS or FAT12/16/32), the boot code that
+// loads BOOTMGR (NTLDR before Vista) and 55 AA. For NTFS the boot code
+// goes on in the next 15 sectors. BOOTMGR itself is a PE file: the PE
+// template shows it.
+//
+// The magic is the NTFS OEM name; for a FAT boot sector choose the
+// template by hand.
+
+LittleEndian();
+
+local int64 fsize = FileSize();
+
+struct BPB {
+    uint16 bytes_per_sector;
+    uchar  sectors_per_cluster;
+    uint16 reserved_sectors;
+    uchar  fats;
+    uint16 root_entries;
+    uint16 total_sectors16;
+    uchar  media <format=hex>;
+    uint16 sectors_per_fat16;
+    uint16 sectors_per_track;
+    uint16 heads;
+    uint32 hidden_sectors;
+    uint32 total_sectors32;
+};
+
+struct NTFS_BPB {
+    uint16 bytes_per_sector;
+    uchar  sectors_per_cluster <comment="a negative power of two (0xF4 = 2^12) for large clusters">;
+    uint16 reserved_sectors;
+    uchar  unused1[5];
+    uchar  media <format=hex>;
+    uint16 unused2;
+    uint16 sectors_per_track;
+    uint16 heads;
+    uint32 hidden_sectors;
+    uint32 unused3;
+    uchar  drive <format=hex>;
+    uchar  unused4[3];
+    uint64 total_sectors;
+    uint64 mft_cluster;
+    uint64 mftmirr_cluster;
+    char   clusters_per_mft_record <comment="negative: 2^-n bytes">;
+    uchar  unused5[3];
+    char   clusters_per_index_block;
+    uchar  unused6[3];
+    uint64 volume_serial <format=hex>;
+    uint32 checksum;
+};
+
+struct EBPB16 {
+    uchar  drive <format=hex>;
+    uchar  reserved;
+    uchar  signature <format=hex, comment="0x29: the next three fields are there">;
+    uint32 volume_serial <format=hex>;
+    char   volume_label[11];
+    char   fs_type[8];
+};
+
+struct EBPB32 {
+    uint32 sectors_per_fat;
+    uint16 flags <format=hex>;
+    uint16 version;
+    uint32 root_cluster;
+    uint16 fsinfo_sector;
+    uint16 backup_boot_sector;
+    uchar  reserved[12];
+    EBPB16 ebpb;
+};
+
+if (fsize < 512) {
+    Warning("less than a sector");
+    Exit(0);
+}
+
+uchar jump[3] <format=hex>;
+char  oem_name[8];
+local int ntfs = ReadString(3, 8) == "NTFS    ";
+if (ntfs) {
+    NTFS_BPB bpb <open=true>;
+} else {
+    BPB bpb <open=true>;
+    if (bpb.sectors_per_fat16 == 0 && bpb.root_entries == 0)
+        EBPB32 fat32 <open=true>;
+    else
+        EBPB16 ebpb <open=true>;
+}
+uchar boot_code[510 - FTell()] <comment="loads BOOTMGR (NTLDR before Vista)">;
+uint16 signature <format=hex, comment="0xAA55">;
+
+// NTFS: the rest of the boot code, 15 sectors
+if (ntfs && fsize >= 16 * 512)
+    uchar boot_code_more[15 * 512];

@@ -51,9 +51,14 @@ func NewAboutDialog() *AboutDialog {
 	c.btnClose = ui.NewButton(T().Close)
 	c.btnClose.SetOnClick(c.Close)
 
+	// The notices of what is built in: their licences ask for them
+	btnLicenses := ui.NewButton(T().License)
+	btnLicenses.SetOnClick(func() { c.ShowDialog(NewNoticesDialog()) })
+
 	c.panelButtons.AddWidget(0, 0, ui.NewHSpacer())
-	c.panelButtons.AddWidget(0, 1, c.btnWebsite)
-	c.panelButtons.AddWidget(0, 2, c.btnClose)
+	c.panelButtons.AddWidget(0, 1, btnLicenses)
+	c.panelButtons.AddWidget(0, 2, c.btnWebsite)
+	c.panelButtons.AddWidget(0, 3, c.btnClose)
 
 	c.OnDialogShow = func() {
 		c.Form().SetTitle(T().AboutTitle(app.DisplayName))
@@ -64,6 +69,36 @@ func NewAboutDialog() *AboutDialog {
 	}
 
 	return &c
+}
+
+// NoticesDialog shows the licences of AltHex and of what is built into it
+type NoticesDialog struct {
+	ui.DialogContent
+}
+
+func NewNoticesDialog() *NoticesDialog {
+	c := &NoticesDialog{}
+	c.InitWidget()
+	text := ui.NewTextBox()
+	text.SetMultiline(true)
+	text.SetReadOnly(true)
+	text.SetText(app.Notices)
+	text.SetXExpandable(true)
+	text.SetYExpandable(true)
+	c.AddWidget(0, 0, text)
+	buttons := ui.NewPanel()
+	c.AddWidget(1, 0, buttons)
+	close := ui.NewButton(T().Close)
+	close.SetOnClick(func() { c.Form().Close() })
+	buttons.AddWidget(0, 0, ui.NewHSpacer())
+	buttons.AddWidget(0, 1, close)
+	c.OnDialogShow = func() {
+		c.Form().SetTitle(T().License)
+		c.Form().SetSize(760, 560)
+		c.Form().MoveToCenterOfParent()
+		c.Form().SetCancelButton(close)
+	}
+	return c
 }
 
 func (c *AboutDialog) VisitWebsite() {

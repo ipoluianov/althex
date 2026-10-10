@@ -1,0 +1,312 @@
+ 8000000:	f04f 0001 	mov.w	r0, #1
+ 8000004:	f44f 307f 	mov.w	r0, #261120	@ 0x3fc00
+ 8000008:	f05f 21ff 	movs.w	r1, #4278255360	@ 0xff00ff00
+ 800000c:	f04f 31ff 	mov.w	r1, #4294967295	@ 0xffffffff
+ 8000010:	f06f 0205 	mvn.w	r2, #5
+ 8000014:	f47f 3280 	mvns.w	r2, #65536	@ 0x10000
+ 8000018:	f001 00ff 	and.w	r0, r1, #255	@ 0xff
+ 800001c:	f411 7080 	ands.w	r0, r1, #256	@ 0x100
+ 8000020:	f021 0003 	bic.w	r0, r1, #3
+ 8000024:	f041 4000 	orr.w	r0, r1, #2147483648	@ 0x80000000
+ 8000028:	f061 0002 	orn	r0, r1, #2
+ 800002c:	f084 23ab 	eor.w	r3, r4, #2868947712	@ 0xab00ab00
+ 8000030:	f101 0004 	add.w	r0, r1, #4
+ 8000034:	f111 0004 	adds.w	r0, r1, #4
+ 8000038:	f50d 7d80 	add.w	sp, sp, #256	@ 0x100
+ 800003c:	f5ad 7d80 	sub.w	sp, sp, #256	@ 0x100
+ 8000040:	f50d 6080 	add.w	r0, sp, #1024	@ 0x400
+ 8000044:	f141 0001 	adc.w	r0, r1, #1
+ 8000048:	f161 0001 	sbc.w	r0, r1, #1
+ 800004c:	f5a1 6080 	sub.w	r0, r1, #1024	@ 0x400
+ 8000050:	f1b1 0008 	subs.w	r0, r1, #8
+ 8000054:	f1c1 0000 	rsb	r0, r1, #0
+ 8000058:	f1d1 000a 	rsbs	r0, r1, #10
+ 800005c:	f010 0f01 	tst.w	r0, #1
+ 8000060:	f490 7f80 	teq	r0, #256	@ 0x100
+ 8000064:	f110 0f04 	cmn.w	r0, #4
+ 8000068:	f5b0 5f80 	cmp.w	r0, #4096	@ 0x1000
+ 800006c:	f601 70ff 	addw	r0, r1, #4095	@ 0xfff
+ 8000070:	f2a1 0001 	subw	r0, r1, #1
+ 8000074:	f20d 0004 	addw	r0, sp, #4
+ 8000078:	f2ad 0d0c 	subw	sp, sp, #12
+ 800007c:	f20f 4018 	addw	r0, pc, #1048	@ 0x418
+ 8000080:	f2af 0084 	subw	r0, pc, #132	@ 0x84
+ 8000084:	f241 2034 	movw	r0, #4660	@ 0x1234
+ 8000088:	f240 0000 	movw	r0, #0
+ 800008c:	f2c4 0002 	movt	r0, #16386	@ 0x4002
+ 8000090:	f6cf 71ff 	movt	r1, #65535	@ 0xffff
+ 8000094:	f301 0007 	ssat	r0, #8, r1
+ 8000098:	f301 00c0 	ssat	r0, #1, r1, lsl #3
+ 800009c:	f321 70df 	ssat	r0, #32, r1, asr #31
+ 80000a0:	f381 0008 	usat	r0, #8, r1
+ 80000a4:	f3a1 1000 	usat	r0, #0, r1, asr #4
+ 80000a8:	f321 0007 	ssat16	r0, #8, r1
+ 80000ac:	f3a1 000f 	usat16	r0, #15, r1
+ 80000b0:	f341 00c3 	sbfx	r0, r1, #3, #4
+ 80000b4:	f3c1 001f 	ubfx	r0, r1, #0, #32
+ 80000b8:	f3c3 72c0 	ubfx	r2, r3, #31, #1
+ 80000bc:	f361 100b 	bfi	r0, r1, #4, #8
+ 80000c0:	f36f 000f 	bfc	r0, #0, #16
+ 80000c4:	ea01 0002 	and.w	r0, r1, r2
+ 80000c8:	ea11 00c2 	ands.w	r0, r1, r2, lsl #3
+ 80000cc:	ea21 0012 	bic.w	r0, r1, r2, lsr #32
+ 80000d0:	ea41 00a2 	orr.w	r0, r1, r2, asr #2
+ 80000d4:	ea51 00b2 	orrs.w	r0, r1, r2, ror #2
+ 80000d8:	ea41 0032 	orr.w	r0, r1, r2, rrx
+ 80000dc:	ea61 0002 	orn	r0, r1, r2
+ 80000e0:	ea81 0002 	eor.w	r0, r1, r2
+ 80000e4:	eb01 0082 	add.w	r0, r1, r2, lsl #2
+ 80000e8:	eb11 0002 	adds.w	r0, r1, r2
+ 80000ec:	eb0d 0002 	add.w	r0, sp, r2
+ 80000f0:	eb41 0002 	adc.w	r0, r1, r2
+ 80000f4:	eb61 0002 	sbc.w	r0, r1, r2
+ 80000f8:	eba1 0042 	sub.w	r0, r1, r2, lsl #1
+ 80000fc:	ebb1 0002 	subs.w	r0, r1, r2
+ 8000100:	ebc1 0002 	rsb	r0, r1, r2
+ 8000104:	ebd1 1002 	rsbs	r0, r1, r2, lsl #4
+ 8000108:	ea10 0f01 	tst.w	r0, r1
+ 800010c:	ea90 0f41 	teq	r0, r1, lsl #1
+ 8000110:	eb10 0f01 	cmn.w	r0, r1
+ 8000114:	ebb0 0f01 	cmp.w	r0, r1
+ 8000118:	ebb0 2f11 	cmp.w	r0, r1, lsr #8
+ 800011c:	ea4f 0001 	mov.w	r0, r1
+ 8000120:	ea5f 0001 	movs.w	r0, r1
+ 8000124:	ea4f 0809 	mov.w	r8, r9
+ 8000128:	ea4f 00c1 	mov.w	r0, r1, lsl #3
+ 800012c:	ea5f 00c1 	movs.w	r0, r1, lsl #3
+ 8000130:	ea4f 0011 	mov.w	r0, r1, lsr #32
+ 8000134:	ea4f 0061 	mov.w	r0, r1, asr #1
+ 8000138:	ea4f 2031 	mov.w	r0, r1, ror #8
+ 800013c:	ea4f 0031 	mov.w	r0, r1, rrx
+ 8000140:	ea5f 0031 	movs.w	r0, r1, rrx
+ 8000144:	ea6f 0001 	mvn.w	r0, r1
+ 8000148:	ea7f 0081 	mvns.w	r0, r1, lsl #2
+ 800014c:	eac1 0002 	pkhbt	r0, r1, r2
+ 8000150:	eac1 2002 	pkhbt	r0, r1, r2, lsl #8
+ 8000154:	eac1 4022 	pkhtb	r0, r1, r2, asr #16
+ 8000158:	fa01 f002 	lsl.w	r0, r1, r2
+ 800015c:	fa11 f002 	lsls.w	r0, r1, r2
+ 8000160:	fa21 f002 	lsr.w	r0, r1, r2
+ 8000164:	fa41 f002 	asr.w	r0, r1, r2
+ 8000168:	fa61 f002 	ror.w	r0, r1, r2
+ 800016c:	fa0f f081 	sxth.w	r0, r1
+ 8000170:	fa0f f091 	sxth.w	r0, r1, ror #8
+ 8000174:	fa01 f082 	sxtah	r0, r1, r2
+ 8000178:	fa1f f081 	uxth.w	r0, r1
+ 800017c:	fa11 f0a2 	uxtah	r0, r1, r2, ror #16
+ 8000180:	fa2f f081 	sxtb16	r0, r1
+ 8000184:	fa21 f082 	sxtab16	r0, r1, r2
+ 8000188:	fa3f f0b1 	uxtb16	r0, r1, ror #24
+ 800018c:	fa31 f082 	uxtab16	r0, r1, r2
+ 8000190:	fa4f f081 	sxtb.w	r0, r1
+ 8000194:	fa41 f082 	sxtab	r0, r1, r2
+ 8000198:	fa5f f081 	uxtb.w	r0, r1
+ 800019c:	fa51 f092 	uxtab	r0, r1, r2, ror #8
+ 80001a0:	fab1 f081 	clz	r0, r1
+ 80001a4:	fa91 f0a1 	rbit	r0, r1
+ 80001a8:	fa91 f081 	rev.w	r0, r1
+ 80001ac:	fa91 f091 	rev16.w	r0, r1
+ 80001b0:	fa91 f0b1 	revsh.w	r0, r1
+ 80001b4:	fb01 f002 	mul.w	r0, r1, r2
+ 80001b8:	fb01 f802 	mul.w	r8, r1, r2
+ 80001bc:	fb01 3002 	mla	r0, r1, r2, r3
+ 80001c0:	fb01 3012 	mls	r0, r1, r2, r3
+ 80001c4:	fb82 0103 	smull	r0, r1, r2, r3
+ 80001c8:	fba2 0103 	umull	r0, r1, r2, r3
+ 80001cc:	fbc2 0103 	smlal	r0, r1, r2, r3
+ 80001d0:	fbe2 0103 	umlal	r0, r1, r2, r3
+ 80001d4:	fb91 f0f2 	sdiv	r0, r1, r2
+ 80001d8:	fbb1 f0f2 	udiv	r0, r1, r2
+ 80001dc:	f8d1 0004 	ldr.w	r0, [r1, #4]
+ 80001e0:	f8d1 0fff 	ldr.w	r0, [r1, #4095]	@ 0xfff
+ 80001e4:	f851 0c04 	ldr.w	r0, [r1, #-4]
+ 80001e8:	f851 0cff 	ldr.w	r0, [r1, #-255]
+ 80001ec:	f851 0f04 	ldr.w	r0, [r1, #4]!
+ 80001f0:	f851 0d04 	ldr.w	r0, [r1, #-4]!
+ 80001f4:	f851 0b04 	ldr.w	r0, [r1], #4
+ 80001f8:	f851 0904 	ldr.w	r0, [r1], #-4
+ 80001fc:	f851 0002 	ldr.w	r0, [r1, r2]
+ 8000200:	f851 0022 	ldr.w	r0, [r1, r2, lsl #2]
+ 8000204:	f851 0e04 	ldrt	r0, [r1, #4]
+ 8000208:	f851 0e00 	ldrt	r0, [r1]
+ 800020c:	f8df 0288 	ldr.w	r0, [pc, #648]	@ 0x8000498
+ 8000210:	f85f 0214 	ldr.w	r0, [pc, #-532]	@ 0x8000000
+ 8000214:	f8df 97d0 	ldr.w	r9, [pc, #2000]	@ 0x80009e8
+ 8000218:	f85d fb04 	ldr.w	pc, [sp], #4
+ 800021c:	f85d 0d04 	ldr.w	r0, [sp, #-4]!
+ 8000220:	f891 0004 	ldrb.w	r0, [r1, #4]
+ 8000224:	f811 0c04 	ldrb.w	r0, [r1, #-4]
+ 8000228:	f811 0b01 	ldrb.w	r0, [r1], #1
+ 800022c:	f811 0012 	ldrb.w	r0, [r1, r2, lsl #1]
+ 8000230:	f811 0e03 	ldrbt	r0, [r1, #3]
+ 8000234:	f89f 0260 	ldrb.w	r0, [pc, #608]	@ 0x8000498
+ 8000238:	f991 0004 	ldrsb.w	r0, [r1, #4]
+ 800023c:	f911 0c04 	ldrsb.w	r0, [r1, #-4]
+ 8000240:	f911 0002 	ldrsb.w	r0, [r1, r2]
+ 8000244:	f91f 0248 	ldrsb.w	r0, [pc, #-584]	@ 0x8000000
+ 8000248:	f911 0e03 	ldrsbt	r0, [r1, #3]
+ 800024c:	f8b1 0004 	ldrh.w	r0, [r1, #4]
+ 8000250:	f831 0d04 	ldrh.w	r0, [r1, #-4]!
+ 8000254:	f831 0002 	ldrh.w	r0, [r1, r2]
+ 8000258:	f8bf 023c 	ldrh.w	r0, [pc, #572]	@ 0x8000498
+ 800025c:	f831 0e00 	ldrht	r0, [r1]
+ 8000260:	f9b1 0004 	ldrsh.w	r0, [r1, #4]
+ 8000264:	f931 0902 	ldrsh.w	r0, [r1], #-2
+ 8000268:	f931 0032 	ldrsh.w	r0, [r1, r2, lsl #3]
+ 800026c:	f9bf 0228 	ldrsh.w	r0, [pc, #552]	@ 0x8000498
+ 8000270:	f931 0e02 	ldrsht	r0, [r1, #2]
+ 8000274:	f890 f004 	pld	[r0, #4]
+ 8000278:	f810 fc04 	pld	[r0, #-4]
+ 800027c:	f810 f021 	pld	[r0, r1, lsl #2]
+ 8000280:	f89f f214 	pld	[pc, #532]	@ 0x8000498
+ 8000284:	f990 f004 	pli	[r0, #4]
+ 8000288:	f910 fc08 	pli	[r0, #-8]
+ 800028c:	f910 f001 	pli	[r0, r1]
+ 8000290:	f91f f294 	pli	[pc, #-660]	@ 0x8000000
+ 8000294:	f8c1 0004 	str.w	r0, [r1, #4]
+ 8000298:	f8c1 0fff 	str.w	r0, [r1, #4095]	@ 0xfff
+ 800029c:	f841 0c04 	str.w	r0, [r1, #-4]
+ 80002a0:	f841 0f04 	str.w	r0, [r1, #4]!
+ 80002a4:	f841 0904 	str.w	r0, [r1], #-4
+ 80002a8:	f84d 0d04 	str.w	r0, [sp, #-4]!
+ 80002ac:	f841 0022 	str.w	r0, [r1, r2, lsl #2]
+ 80002b0:	f841 0e08 	strt	r0, [r1, #8]
+ 80002b4:	f881 0004 	strb.w	r0, [r1, #4]
+ 80002b8:	f801 0c04 	strb.w	r0, [r1, #-4]
+ 80002bc:	f801 0b01 	strb.w	r0, [r1], #1
+ 80002c0:	f801 0002 	strb.w	r0, [r1, r2]
+ 80002c4:	f801 0e00 	strbt	r0, [r1]
+ 80002c8:	f8a1 0004 	strh.w	r0, [r1, #4]
+ 80002cc:	f821 0d02 	strh.w	r0, [r1, #-2]!
+ 80002d0:	f821 0012 	strh.w	r0, [r1, r2, lsl #1]
+ 80002d4:	f821 0e02 	strht	r0, [r1, #2]
+ 80002d8:	e9d2 0100 	ldrd	r0, r1, [r2]
+ 80002dc:	e9d2 0102 	ldrd	r0, r1, [r2, #8]
+ 80002e0:	e952 0102 	ldrd	r0, r1, [r2, #-8]
+ 80002e4:	e9f2 0102 	ldrd	r0, r1, [r2, #8]!
+ 80002e8:	e872 0102 	ldrd	r0, r1, [r2], #-8
+ 80002ec:	e9df 016a 	ldrd	r0, r1, [pc, #424]	@ 0x8000498	@ 0x1a8
+ 80002f0:	e95f 0104 	ldrd	r0, r1, [pc, #-16]	@ 0x80002e4
+ 80002f4:	e9c2 0100 	strd	r0, r1, [r2]
+ 80002f8:	e9c2 01ff 	strd	r0, r1, [r2, #1020]	@ 0x3fc
+ 80002fc:	e96d 0102 	strd	r0, r1, [sp, #-8]!
+ 8000300:	e8e2 0102 	strd	r0, r1, [r2], #8
+ 8000304:	e851 0f00 	ldrex	r0, [r1]
+ 8000308:	e851 0f02 	ldrex	r0, [r1, #8]
+ 800030c:	e842 1000 	strex	r0, r1, [r2]
+ 8000310:	e842 10ff 	strex	r0, r1, [r2, #1020]	@ 0x3fc
+ 8000314:	e8d1 0f4f 	ldrexb	r0, [r1]
+ 8000318:	e8d1 0f5f 	ldrexh	r0, [r1]
+ 800031c:	e8c2 1f40 	strexb	r0, r1, [r2]
+ 8000320:	e8c2 1f50 	strexh	r0, r1, [r2]
+ 8000324:	f3bf 8f2f 	clrex
+ 8000328:	e8d0 f001 	tbb	[r0, r1]
+ 800032c:	e8d0 f011 	tbh	[r0, r1, lsl #1]
+ 8000330:	e8df f001 	tbb	[pc, r1]
+ 8000334:	e890 0106 	ldmia.w	r0, {r1, r2, r8}
+ 8000338:	e8b0 0106 	ldmia.w	r0!, {r1, r2, r8}
+ 800033c:	e910 0006 	ldmdb	r0, {r1, r2}
+ 8000340:	e930 4002 	ldmdb	r0!, {r1, lr}
+ 8000344:	e880 0106 	stmia.w	r0, {r1, r2, r8}
+ 8000348:	e8a0 0106 	stmia.w	r0!, {r1, r2, r8}
+ 800034c:	e920 0006 	stmdb	r0!, {r1, r2}
+ 8000350:	e900 0006 	stmdb	r0, {r1, r2}
+ 8000354:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, r10, r11, lr}
+ 8000358:	f84d 8d04 	str.w	r8, [sp, #-4]!
+ 800035c:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, r10, r11, pc}
+ 8000360:	f85d 8b04 	ldr.w	r8, [sp], #4
+ 8000364:	e8bd 0003 	ldmia.w	sp!, {r0, r1}
+ 8000368:	e89d 0003 	ldmia.w	sp, {r0, r1}
+ 800036c:	f7ff be48 	b.w	0x8000000
+ 8000370:	f000 b892 	b.w	0x8000498
+ 8000374:	f43f ae44 	beq.w	0x8000000
+ 8000378:	f040 808e 	bne.w	0x8000498
+ 800037c:	f300 808c 	bgt.w	0x8000498
+ 8000380:	f7ff fe3e 	bl	0x8000000
+ 8000384:	f000 f888 	bl	0x8000498
+ 8000388:	f000 e886 	blx	0x8000498
+ 800038c:	f3ef 8000 	mrs	r0, CPSR
+ 8000390:	f3ef 8001 	mrs	r0, IAPSR
+ 8000394:	f3ef 8002 	mrs	r0, EAPSR
+ 8000398:	f3ef 8003 	mrs	r0, PSR
+ 800039c:	f3ef 8005 	mrs	r0, IPSR
+ 80003a0:	f3ef 8006 	mrs	r0, EPSR
+ 80003a4:	f3ef 8007 	mrs	r0, IEPSR
+ 80003a8:	f3ef 8008 	mrs	r0, MSP
+ 80003ac:	f3ef 8009 	mrs	r0, PSP
+ 80003b0:	f3ef 8010 	mrs	r0, PRIMASK
+ 80003b4:	f3ef 8011 	mrs	r0, BASEPRI
+ 80003b8:	f3ef 8012 	mrs	r0, BASEPRI_MAX
+ 80003bc:	f3ef 8013 	mrs	r0, FAULTMASK
+ 80003c0:	f3ef 8014 	mrs	r0, CONTROL
+ 80003c4:	f380 8800 	msr	CPSR_f, r0
+ 80003c8:	f380 8400 	msr	CPSR_s, r0
+ 80003cc:	f380 8c00 	msr	CPSR_fs, r0
+ 80003d0:	f380 8801 	msr	IAPSR, r0
+ 80003d4:	f380 8802 	msr	EAPSR, r0
+ 80003d8:	f380 8803 	msr	PSR, r0
+ 80003dc:	f380 8808 	msr	MSP, r0
+ 80003e0:	f381 8809 	msr	PSP, r1
+ 80003e4:	f380 8810 	msr	PRIMASK, r0
+ 80003e8:	f380 8811 	msr	BASEPRI, r0
+ 80003ec:	f380 8812 	msr	BASEPRI_MAX, r0
+ 80003f0:	f380 8813 	msr	FAULTMASK, r0
+ 80003f4:	f380 8814 	msr	CONTROL, r0
+ 80003f8:	f3bf 8f5f 	dmb	sy
+ 80003fc:	f3bf 8f5b 	dmb	ish
+ 8000400:	f3bf 8f5f 	dmb	sy
+ 8000404:	f3bf 8f4f 	dsb	sy
+ 8000408:	f3bf 8f4f 	dsb	sy
+ 800040c:	f3bf 8f6f 	isb	sy
+ 8000410:	f3bf 8f6f 	isb	sy
+ 8000414:	f3bf 8f50 	dmb	#0
+ 8000418:	f3af 8000 	nop.w
+ 800041c:	f3af 8001 	yield.w
+ 8000420:	f3af 8002 	wfe.w
+ 8000424:	f3af 8003 	wfi.w
+ 8000428:	f3af 8004 	sev.w
+ 800042c:	f3af 80f5 	dbg	#5
+ 8000430:	f7f0 a000 	udf.w	#0
+ 8000434:	f7ff afff 	udf.w	#65535	@ 0xffff
+ 8000438:	bf08      	it	eq
+ 800043a:	1840      	addeq	r0, r0, r1
+ 800043c:	bf1c      	itt	ne
+ 800043e:	2001      	movne	r0, #1
+ 8000440:	f04f 0102 	movne.w	r1, #2
+ 8000444:	bfcc      	ite	gt
+ 8000446:	eb01 0002 	addgt.w	r0, r1, r2
+ 800044a:	1a88      	suble	r0, r1, r2
+ 800044c:	bf35      	itete	cc
+ 800044e:	6808      	ldrcc	r0, [r1, #0]
+ 8000450:	f8d1 0004 	ldrcs.w	r0, [r1, #4]
+ 8000454:	5088      	strcc	r0, [r1, r2]
+ 8000456:	f841 0002 	strcs.w	r0, [r1, r2]
+ 800045a:	bf42      	ittt	mi
+ 800045c:	4608      	movmi	r0, r1
+ 800045e:	a801      	addmi	r0, sp, #4
+ 8000460:	e01a      	bmi.n	0x8000498
+ 8000462:	bf08      	it	eq
+ 8000464:	f7ff bdcc 	beq.w	0x8000000
+ 8000468:	bf18      	it	ne
+ 800046a:	4770      	bxne	lr
+ 800046c:	bf88      	it	hi
+ 800046e:	bd10      	pophi	{r4, pc}
+ 8000470:	bf61      	itttt	vs
+ 8000472:	2801      	cmpvs	r0, #1
+ 8000474:	0088      	lslvs	r0, r1, #2
+ 8000476:	1888      	addvs	r0, r1, r2
+ 8000478:	4248      	negvs	r0, r1
+ 800047a:	bfb8      	it	lt
+ 800047c:	4608      	movlt	r0, r1
+ 800047e:	bf54      	ite	pl
+ 8000480:	c802      	ldmiapl	r0!, {r1}
+ 8000482:	df04      	svcmi	4
+ 8000484:	bfa8      	it	ge
+ 8000486:	bf00      	nopge
+ 8000488:	bfd8      	it	le
+ 800048a:	f240 0005 	movwle	r0, #5
+ 800048e:	f301 0001 	ssat	r0, #2, r1
+ 8000492:	fa82 f081 	qadd	r0, r1, r2
+ 8000496:	bf00      	nop
+ 8000498:	bf00      	nop
+ 800049a:	bf00      	nop

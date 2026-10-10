@@ -158,6 +158,7 @@ type View struct {
 	// Buffers of a paint, kept to not allocate each time
 	rowBuf  []byte
 	rowMark []bool
+	rowBad  []bool
 	textBuf []byte
 	hlBuf   []Highlight
 
@@ -344,9 +345,27 @@ func (v *View) layout(w, h int) {
 	v.xOff = v.padX
 	v.xNum = v.xOff + (v.offChars+2)*cw
 	v.cellW = v.opts.Mode.digits() * cw
+	prev := v.bpr
+	// As many as fit; a width set but too wide for the view (a side panel
+	// is open) is narrowed too, rather than the text column cut off
+	// (fitBytes tries widths in v.bpr: it is set after)
+	fit := v.fitBytes(w)
 	v.bpr = v.opts.BytesPerRow
-	if v.bpr == 0 {
-		v.bpr = v.fitBytes(w)
+	switch {
+	case v.bpr == 0:
+		v.bpr = fit
+	case fit < v.bpr:
+		// Halved until it fits, so the rows still start at round offsets
+		// (16 -> 8), but never below a group
+		n := v.bpr
+		for n > fit && n/2 >= v.opts.Group && n%2 == 0 {
+			n /= 2
+		}
+		v.bpr = n
+	}
+	// The first byte on the screen stays there when the rows change width
+	if prev > 0 && prev != v.bpr {
+		v.topRow = v.topRow * int64(prev) / int64(v.bpr)
 	}
 	v.xText = v.xNum + v.numWidth() + 2*cw
 	v.headerH = f.LineHeight + int(math.Round(4*v.scale))
@@ -497,14 +516,38 @@ func (v *View) GoTo(off int64) {
 	v.changed()
 }
 
-// Select selects n bytes at off, the caret at their end
+// Select selects n bytes at off, the caret at their start: the status bar
+// and the data inspector show the bytes chosen, not the ones after them
 func (v *View) Select(off, n int64) {
 	size := v.doc.Size()
 	off = max(0, min(off, size))
-	v.anchor = off
-	v.caret = min(off+n, size)
+	v.caret = off
+	v.anchor = min(off+max(n, 0), size)
 	v.digit = 0
 	v.ensureCaretVisible()
+	v.changed()
+}
+
+// SelectFound selects n bytes found at off, the caret at their start (the
+// status bar shows where they begin), and scrolls them away from the edges:
+// a third of the way down when they are not well inside the screen
+func (v *View) SelectFound(off, n int64) {
+	size := v.doc.Size()
+	off = max(0, min(off, size))
+	v.caret = off
+	v.anchor = min(off+max(n, 0), size)
+	v.digit = 0
+	if v.bpr > 0 && v.rowsShown > 0 {
+		bpr, rows := int64(v.bpr), int64(v.rowsShown)
+		first, last := off/bpr, (max(v.anchor, off+1)-1)/bpr
+		margin := min(int64(2), rows/4)
+		if first < v.topRow+margin || last >= v.topRow+rows-margin {
+			v.setTop(first - rows/3)
+		}
+	} else {
+		v.ensureCaretVisible()
+	}
+	v.resetBlink()
 	v.changed()
 }
 

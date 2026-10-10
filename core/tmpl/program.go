@@ -74,6 +74,7 @@ type Func struct {
 type Result struct {
 	Root     *Node
 	Output   []string // what Printf printed
+	Warnings []string // what Warning said (in Output too)
 	Err      error    // what stopped the run; the fields read before it stay
 	Wrote    bool     // the template changed the document
 	Duration time.Duration

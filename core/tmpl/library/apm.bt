@@ -1,0 +1,81 @@
+//! name: Apple Partition Map
+//! extensions: dmg, cdr
+//! magic: 0x200 "50 4D 00 00"
+
+// The partition map of classic Macs and of some disk images: the Driver
+// Descriptor Map ("ER") in block 0, then one entry ("PM") per block from
+// block 1; each entry has the number of entries of the map. Big-endian.
+// Starts and sizes are in blocks of the size the DDM gives (512 when it
+// is missing).
+
+BigEndian();
+
+struct DRIVER {
+    uint32 block;
+    uint16 blocks;
+    uint16 type <format=hex>;
+};
+
+struct DDM {
+    char   signature[2] <comment="ER">;
+    uint16 blockSize;
+    uint32 blockCount;
+    uint16 deviceType;
+    uint16 deviceId;
+    uint32 data;
+    uint16 driverCount;
+    if (driverCount > 0 && driverCount <= 61)
+        DRIVER driver[driverCount];
+};
+
+struct PM_ENTRY {
+    char   signature[2] <comment="PM">;
+    uint16 sigPad;
+    uint32 mapBlockCount <comment="the number of entries in the map">;
+    uint32 startBlock;
+    uint32 blockCount;
+    char   name[32];
+    char   type[32] <comment="Apple_HFS, Apple_partition_map, Apple_Free...">;
+    uint32 dataStart <comment="the first block of the data, in the partition">;
+    uint32 dataCount;
+    uint32 status <format=hex, comment="1 valid, 2 allocated, 4 in use, 8 bootable, 0x10 readable, 0x20 writable">;
+    uint32 bootStart;
+    uint32 bootSize;
+    uint32 bootAddress <format=hex>;
+    uint32 bootAddress2 <format=hex>;
+    uint32 bootEntry <format=hex>;
+    uint32 bootEntry2 <format=hex>;
+    uint32 bootChecksum <format=hex>;
+    char   processor[16];
+} <read=PmRead>;
+
+string PmRead(PM_ENTRY &e) {
+    return Str("%s \"%s\", block %u, %u blocks", ReadString(startof(e) + 48, 32), ReadString(startof(e) + 16, 32),
+        e.startBlock, e.blockCount);
+}
+
+local int64 bs = 512;
+if (ReadUShort(0) == 0x4552) {
+    DDM ddm <open=true>;
+    if ((ddm.blockSize == 1024 || ddm.blockSize == 2048 || ddm.blockSize == 4096) &&
+        ddm.blockSize + 2 <= FileSize() && ReadUShort(ddm.blockSize) == 0x504D)
+        bs = ddm.blockSize;
+}
+
+local int64 count = ReadUInt(bs + 4);
+if (count > 1024) {
+    Warning("%d entries, only 1024 shown", count);
+    count = 1024;
+}
+local int64 i;
+for (i = 1; i <= count; i++) {
+    if ((i + 1) * bs > FileSize()) {
+        Warning("the map goes beyond the end of the file");
+        break;
+    }
+    if (ReadUShort(i * bs) != 0x504D) {
+        Warning("entry %d has no signature PM", i);
+        break;
+    }
+    PM_ENTRY entry @ (i * bs);
+}

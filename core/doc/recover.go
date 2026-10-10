@@ -68,7 +68,9 @@ func FindJournals(base string) ([]JournalInfo, error) {
 	return list, nil
 }
 
-// hasEdits tells whether the log has a record after the ones made on opening
+// hasEdits tells whether the log ends in a state that is not saved. A save
+// writes a checkpoint of the saved state and keeps the history before it, so
+// edits that were saved, or undone back to the save, leave nothing to recover.
 func hasEdits(path string) bool {
 	f, err := os.Open(path)
 	if err != nil {
@@ -76,15 +78,24 @@ func hasEdits(path string) bool {
 	}
 	defer f.Close()
 	rr := &recordReader{r: bufio.NewReader(f)}
+	cur, saved := -1, -1
 	for {
 		rec, ok := rr.next()
 		if !ok {
-			return false
+			return cur != saved
 		}
+		fl := &fields{b: rec[1:]}
 		switch rec[0] {
-		case recBuffer, recCheckpoint:
-		default:
-			return true
+		case recCheckpoint:
+			cur, saved = int(fl.int()), -1
+			if fl.bool() {
+				saved = cur
+			}
+		case recInsert, recDelete, recGoto:
+			cur = int(fl.int())
+		}
+		if fl.err != nil {
+			return true // damaged: offered rather than lost
 		}
 	}
 }

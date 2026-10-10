@@ -99,7 +99,10 @@ An array of structs reads each element in turn.
 Declaring a field with the name of a field of the same struct makes an
 array of them: `while (!FEof()) CHUNK chunk;` gives `chunk[0]`,
 `chunk[1]`... (a *repeated field*). A field declared only once can be
-reached as `chunk[0]` too.
+reached as `chunk[0]` too, and `chunk.len` after `chunk` repeats is the
+field of the last one read. `startof(chunk)` of a repeated field is the
+start of the first one (as in 010 Editor): to know where the one being read
+starts, keep `FTell()` before its declaration.
 
 ### Structs and unions
 

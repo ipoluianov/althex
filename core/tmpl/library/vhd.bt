@@ -1,0 +1,137 @@
+//! name: VHD disk image
+//! priority: 1
+//! extensions: vhd, vpc
+//! magic: 0 "63 6F 6E 65 63 74 69 78"
+//! magic: -512 "63 6F 6E 65 63 74 69 78"
+
+// Virtual Hard Disk (Microsoft VHD Image Format Specification): a 512-byte
+// footer at the end. A fixed disk is the data before the footer. A dynamic
+// or differencing disk starts with a copy of the footer, then the dynamic
+// disk header, the block allocation table (BAT) and the blocks: a bitmap of
+// the sectors stored, then the data. All numbers are big-endian.
+
+BigEndian();
+
+enum <uint32> VHD_DISK_TYPE {
+    VHD_NONE = 0,
+    VHD_FIXED = 2,
+    VHD_DYNAMIC = 3,
+    VHD_DIFFERENCING = 4
+};
+
+enum <uint32> VHD_PLATFORM {
+    PLATFORM_NONE = 0,
+    PLATFORM_Wi2r = 0x57693272,
+    PLATFORM_Wi2k = 0x5769326B,
+    PLATFORM_W2ru = 0x57327275,
+    PLATFORM_W2ku = 0x57326B75,
+    PLATFORM_Mac  = 0x4D616320,
+    PLATFORM_MacX = 0x4D616358
+};
+
+// Blocks shown one by one; the rest are in the BAT
+local int64 MAX_BLOCKS = 4096;
+
+struct VHD_FOOTER {
+    char   cookie[8] <comment="conectix">;
+    uint32 features <format=hex, comment="bit 1 - reserved, always set">;
+    uint32 formatVersion <format=hex>;
+    uint64 dataOffset <format=hex, comment="the dynamic disk header; all ones in a fixed disk">;
+    uint32 timeStamp <comment="seconds since 2000-01-01 00:00 UTC">;
+    char   creatorApplication[4];
+    uint32 creatorVersion <format=hex>;
+    char   creatorHostOS[4] <comment="Wi2k - Windows, Mac  - Macintosh">;
+    uint64 originalSize;
+    uint64 currentSize <comment="the size of the disk">;
+    uint16 cylinders;
+    uchar  heads;
+    uchar  sectorsPerTrack;
+    VHD_DISK_TYPE diskType;
+    uint32 checksum <format=hex, comment="ones' complement of the sum of the bytes of the footer without it">;
+    uchar  uniqueId[16] <format=hex>;
+    uchar  savedState;
+    uchar  reserved[427];
+};
+
+struct VHD_PARENT_LOCATOR {
+    VHD_PLATFORM platformCode;
+    uint32 platformDataSpace <comment="sectors">;
+    uint32 platformDataLength <comment="bytes">;
+    uint32 reserved;
+    uint64 platformDataOffset <format=hex>;
+};
+
+struct VHD_DYNAMIC_HEADER {
+    char   cookie[8] <comment="cxsparse">;
+    uint64 dataOffset <format=hex, comment="unused, all ones">;
+    uint64 tableOffset <format=hex, comment="the BAT">;
+    uint32 headerVersion <format=hex>;
+    uint32 maxTableEntries <comment="the entries of the BAT">;
+    uint32 blockSize;
+    uint32 checksum <format=hex>;
+    uchar  parentUniqueId[16] <format=hex>;
+    uint32 parentTimeStamp;
+    uint32 reserved1;
+    local int64 nameStart = FTell();
+    if (ReadUShort(nameStart) != 0)
+        wstring parentUnicodeName <comment="UTF-16BE, the file of the parent of a differencing disk">;
+    FSeek(nameStart + 512);
+    VHD_PARENT_LOCATOR parentLocator[8];
+    uchar  reserved2[256];
+};
+
+// A block of a dynamic disk: the bitmap of its sectors, then the data
+struct VHD_BLOCK(int64 bitmapSize, int64 dataSize) {
+    uchar bitmap[bitmapSize] <format=hex, comment="a set bit (from the highest) - the sector is stored">;
+    uchar data[dataSize];
+};
+
+string FooterRead(VHD_FOOTER &f) {
+    return Str("%s, %d bytes", EnumToString(f.diskType), f.currentSize);
+}
+
+local int64 size = FileSize();
+local int dynamic = 0;
+if (size >= 512 && ReadUInt(0) == 0x636F6E65 && ReadUInt(4) == 0x63746978 && ReadUInt64(16) != 0xFFFFFFFFFFFFFFFF) {
+    VHD_FOOTER footerCopy <read=FooterRead, comment="the copy of the footer of a dynamic disk">;
+    dynamic = 1;
+}
+
+if (dynamic) {
+    local int64 hdrOff = footerCopy.dataOffset;
+    if (hdrOff >= 512 && hdrOff <= size - 1024) {
+        VHD_DYNAMIC_HEADER dynamicHeader @ hdrOff <open=true>;
+        local int64 batOff = dynamicHeader.tableOffset;
+        local int64 entries = dynamicHeader.maxTableEntries;
+        local int64 blockSize = dynamicHeader.blockSize;
+        if (batOff > 0 && batOff < size) {
+            entries = Min(entries, (size - batOff) / 4);
+            if (entries > 0)
+                uint32 bat[entries] @ batOff <format=hex, comment="the sector of each block; FFFFFFFF - not stored">;
+            // The blocks, while they fit the file
+            if (blockSize >= 512 && blockSize <= 0x10000000 && (blockSize & (blockSize - 1)) == 0) {
+                local int64 bitmapSize = ((blockSize / 4096) + 511) / 512 * 512;
+                local int64 i;
+                local int64 shown = 0;
+                local int64 at;
+                for (i = 0; i < entries && shown < MAX_BLOCKS; i++) {
+                    at = ReadUInt(batOff + i * 4);
+                    if (at == 0xFFFFFFFF)
+                        continue;
+                    at *= 512;
+                    if (at + bitmapSize + blockSize > size - 512)
+                        continue;
+                    VHD_BLOCK block(bitmapSize, blockSize) @ at;
+                    shown++;
+                }
+            }
+        }
+    }
+} else if (size > 512) {
+    uchar diskData[size - 512] <comment="the disk of a fixed VHD">;
+}
+
+if (size >= 512 && ReadUInt(size - 512) == 0x636F6E65 && ReadUInt(size - 508) == 0x63746978) {
+    FSeek(size - 512);
+    VHD_FOOTER footer <read=FooterRead, open=true>;
+}
